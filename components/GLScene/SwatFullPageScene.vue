@@ -73,7 +73,7 @@ export default {
     // this.camera.position.x = -200
     // this.camera.position.y = 100
     this.camera.position.z = 500
-    this.camera.lookAt(this.scene.position)
+    // this.camera.lookAt(this.scene.position)
     // this.rayplay = new RayPlay({ mounter: this.lookup('element'), base: this.lookup('base'), camera: this.camera })
 
     // let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
