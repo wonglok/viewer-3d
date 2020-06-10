@@ -2,6 +2,10 @@
   <O3D v-if="layouts && shaderCube">
 
     <LightArea></LightArea>
+    <O3D>
+      <ChromaticsBG></ChromaticsBG>
+    </O3D>
+
     <O3D :animated="true" layout="run" ref="swatrun">
       <O3D :animated="true" layout="center">
         <SwatRun :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatRun>
@@ -63,16 +67,50 @@ export default {
   },
   async mounted () {
     await this.lookupWait('ready')
-
-    this.scene.background = new Color('#ffffff')
-    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
-    // this.scene.background = this.shaderCube.out.envMap
-
     // prepare camera
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     // this.camera.position.x = -200
     // this.camera.position.y = 100
     this.camera.position.z = 500
+
+    /* BLOOM START */
+    let { Vector2 } = require('three/src/math/Vector2')
+    let { EffectComposer } = require('three/examples/jsm/postprocessing/EffectComposer')
+    let { RenderPass } = require('three/examples/jsm/postprocessing/RenderPass')
+    let { UnrealBloomPass } = require('three/examples/jsm/postprocessing/UnrealBloomPass')
+    var Params = {
+      exposure: 1,
+      bloomStrength: 1.5,
+      bloomThreshold: 0.95,
+      bloomRadius: 1.2
+    }
+    let renderer = this.lookup('renderer')
+    let element = this.lookup('element')
+    let rect = element.getBoundingClientRect()
+    var renderScene = new RenderPass(this.scene, this.camera)
+    let dpi = 1
+    var bloomPass = new UnrealBloomPass(new Vector2(rect.width * dpi, rect.height * dpi), 1.5, 0.4, 0.85)
+    bloomPass.threshold = Params.bloomThreshold
+    bloomPass.strength = Params.bloomStrength
+    bloomPass.radius = Params.bloomRadius
+
+    this.composer = new EffectComposer(renderer)
+    this.composer.addPass(renderScene)
+    this.composer.addPass(bloomPass)
+    this.lookup('base').onResize(() => {
+      let rect = element.getBoundingClientRect()
+      let dpi = 1
+      bloomPass.setSize(rect.width * dpi, rect.height * dpi)
+      this.composer.setSize(rect.width * dpi, rect.height * dpi)
+    })
+
+    this.$parent.$emit('composer', this.composer)
+
+    /* BLOOM END */
+
+    this.scene.background = new Color('#2f2f2f')
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.scene.background = this.shaderCube.out.envMap
 
     // this.camera.lookAt(this.scene.position)
     // this.rayplay = new RayPlay({ mounter: this.lookup('element'), base: this.lookup('base'), camera: this.camera })
