@@ -8,7 +8,7 @@ export class PCamera {
     } else {
       base.mounter.getBoundingClientRect()
     }
-    let camera = new PerspectiveCamera(75, base.getWidth(rect) / base.getHeight(rect), 0.01, 10000000)
+    let camera = new PerspectiveCamera(75, base.getWidth(rect) / base.getHeight(rect), 0.01, 100000000000000)
 
     let resizer = () => {
       let rect = false

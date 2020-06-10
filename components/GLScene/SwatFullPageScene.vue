@@ -2,16 +2,18 @@
   <O3D v-if="layouts && shaderCube">
 
     <LightArea></LightArea>
-    <O3D :animated="true" layout="run">
+    <O3D :animated="true" layout="run" ref="swatrun">
       <O3D :animated="true" layout="center">
         <SwatRun :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatRun>
       </O3D>
+      <!-- <O3D :animated="true" layout="mouse">
+        <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
+      </O3D> -->
     </O3D>
 
+    <!--  -->
+
 <!--
-    <O3D :animated="true" layout="mouse">
-      <MouseDance :shaderCube="shaderCube"></MouseDance>
-    </O3D>
     <O3D :animated="true" layout="mouse2">
       <MouseSillyDance :shaderCube="shaderCube"></MouseSillyDance>
     </O3D> -->
@@ -26,7 +28,7 @@
 </template>
 
 <script>
-import { Tree, RayPlay, PCamera, ShaderCube, makeScroller } from '../Reusable'
+import { Tree, RayPlay, PCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
 import { Scene, Color, Vector3 } from 'three'
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -46,8 +48,6 @@ export default {
       flower1: {},
 
       scene: new Scene(),
-      paint2DTex: false,
-      paintCubeTex: false,
       layouts: false,
       blur: 0,
       socket: false
@@ -65,7 +65,7 @@ export default {
     await this.lookupWait('ready')
 
     this.scene.background = new Color('#ffffff')
-    this.shaderCube = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     // this.scene.background = this.shaderCube.out.envMap
 
     // prepare camera
@@ -73,6 +73,7 @@ export default {
     // this.camera.position.x = -200
     // this.camera.position.y = 100
     this.camera.position.z = 500
+
     // this.camera.lookAt(this.scene.position)
     // this.rayplay = new RayPlay({ mounter: this.lookup('element'), base: this.lookup('base'), camera: this.camera })
 
@@ -87,49 +88,60 @@ export default {
     this.$parent.$emit('scene', this.scene)
     this.$parent.$emit('camera', this.camera)
 
-    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.lookup('element'), limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
+    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.lookup('element'), limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
 
     this.lookup('base').onLoop(() => {
       TWEEN.update()
     })
 
-    const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
-      .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
-      .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-      .onUpdate(() => {
-        // Called after tween.js updates 'coords'.
-        // Move 'box' to the position described by 'coords' with a CSS translation.
-      })
-       // Start the tween immediately.
-    this.$on('gorun', () => {
-      tween.start()
-    })
+    // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
+    //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
+    //   .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+    //   .onUpdate(() => {
+    //     // Called after tween.js updates 'coords'.
+    //     // Move 'box' to the position described by 'coords' with a CSS translation.
+    //   })
+    //    // Start the tween immediately.
+    // this.$on('gorun', () => {
+    //   tween.start()
+    // })
     // let parentScrollBox = this.lookup('scrollBox')
 
     let looper = () => {
       let progress = vscroll.value
+
       // console.log(progress)
       // if (!parentScrollBox) { return }
+      // this.camera.position.y = 350 * progress
+      // this.camera.
+      if (this.$refs.swatrun) {
+        this.camera.position.copy(this.$refs.swatrun.o3d.position)
+        this.camera.position.z += 2000
+        // this.camera.position.y += 250
+        this.camera.lookAt(this.$refs.swatrun.o3d.position)
+      }
+
       this.layouts = {
         lensarea: {
-          pz: 450,
-          py: progress * this.screen.height
+          pz: 390
         },
         run: {
-          sx: 3,
-          sy: 3,
-          sz: 3,
-          pz: -200,
-          ry: 0.192 * Math.PI,
+          sx: 3.5,
+          sy: 3.5,
+          sz: 3.5,
+          // pz: -250,
+          // px: -2250,
+          ry: Math.PI * 0.15,
         },
         center: {
-          // ry: (1.0 - progress) * Math.PI * 1.5,
+          ry: Math.PI * 0.05 * (progress),
           pz: 0,
           sx: 150,
           sy: 150,
           sz: 150,
           py: -150,
-          pz: (1.0 - progress) * -2500
+          px: -200,
+          pz: (1.0 - progress) * -350
         },
         mouse: {
           px: 150,

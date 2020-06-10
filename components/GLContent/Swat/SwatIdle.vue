@@ -26,6 +26,45 @@ export default {
   },
   methods: {
     configModel ({ model, mats }) {
+      // let DirectionalLight = require('three/src/lights/DirectionalLight').DirectionalLight
+      // var directionalLight = new DirectionalLight(0xffffff, 1.6)
+      // this.o3d.add(directionalLight)
+
+      // let PointLight = require('three/src/lights/PointLight').PointLight
+      // let light = new PointLight(0xffffff, 2.6)
+      // light.position.set(0, 20, 2.6)
+      // this.o3d.add(light)
+
+      model.scene.traverse((item) => {
+        console.log(item.name)
+
+        if (item.isMesh && item.name === 'Mesh_0') {
+          // metal
+
+          // item.material = this.shaderCube.out.material
+          // this.shaderCube.out.material.skinning = true
+          item.material.envMap = this.shaderCube.out.envMap
+          // item.material.flatShading = true
+
+          // item.material.roughness = 0.1
+          // item.material.metalness = 0.6
+        }
+
+        if (item.isMesh && item.name === 'Mesh_1') {
+          // Cloth
+
+          // item.material.roughness = 0.1
+          // item.material.metalness = 0.6
+
+          // item.material = this.shaderCube.out.material
+          // this.shaderCube.out.material.skinning = true
+
+          item.material.envMap = this.shaderCube.out.envMap
+        }
+      })
+      this.o3d.add(model.scene)
+
+
       // console.log(model)
       // this.o3d.add(model.scene)
 
@@ -52,8 +91,8 @@ export default {
       //   mixer.update(16 / 1000)
       // })
 
-      console.log(model)
-      this.o3d.add(model.scene)
+      // console.log(model)
+      // this.o3d.add(model.scene)
 
       // var ambient = new AmbientLight(0xffffff, 1); // soft white light
       // this.o3d.add(ambient)

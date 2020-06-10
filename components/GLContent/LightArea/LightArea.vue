@@ -32,15 +32,17 @@ export default {
       var ambient = new AmbientLight(0xffffff, lightness * 2); // soft white light
       this.o3d.add(ambient)
 
-      // var hemLight = new HemisphereLight(0xffffbb, 0x080820, lightness)
-      // this.o3d.add(hemLight)
-
       var directionalLight = new DirectionalLight(0xffffff, lightness)
       this.o3d.add(directionalLight)
 
       let light = new PointLight(0xbababa, lightness)
-      light.position.set(0, 80, 20)
+      light.position.set(0, 20, -80)
       this.o3d.add(light)
+
+
+      let ptLight2 = new PointLight(0xbababa, lightness)
+      ptLight2.position.set(0, 80, 80)
+      this.o3d.add(ptLight2)
     }
   },
   async mounted () {

@@ -15,6 +15,8 @@ export { Damper } from '~/components/Reusable/Damper'
 
 export { ShaderCube } from '~/components/Reusable/shaderCube'
 export { ShaderCubeRefraction } from '~/components/Reusable/shaderCubeRefraction'
+export { ShaderCubeChrome } from '~/components/Reusable/shaderCubeChrome'
+export { ShaderCubeSea } from '~/components/Reusable/shaderCubeSea'
 
 export const getID = () => {
   return '_' + Math.random().toString(36).substr(2, 9)
