@@ -15,6 +15,7 @@
   "dependencies": {
     "@seregpie/three.text-texture": "^2.0.1",
     "@shopping24/rake-js": "^2.2.0",
+    "@tweenjs/tween.js": "^18.5.0",
     "axios": "^0.19.2",
     "compromise": "^13.2.0",
     "expr-eval": "^2.0.2",

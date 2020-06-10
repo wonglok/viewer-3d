@@ -7,7 +7,7 @@
         <ScissorArea class="h-full w-full" style="z-index: -1;">
           <div slot="dom" class="full">
           </div>
-          <SpacewalkScene slot="o3d"></SpacewalkScene>
+          <SwatFullPageScene slot="o3d"></SwatFullPageScene>
         </ScissorArea>
       </div>
       <div class="lg:w-1/2 relative">

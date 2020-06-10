@@ -2,10 +2,12 @@
   <div class="full">
     <div class="fixed top-0 left-0 full pointer-events-none" :style="{ zIndex: -1 }" ref="mounter"></div>
 
-    <div v-show="!openMenu">
-      <HeroUnit></HeroUnit>
-      <FameworkIntroUnit></FameworkIntroUnit>
-      <FooterUnit></FooterUnit>
+    <div v-show="!openMenu" class="w-full h-minus-toolbar-full">
+      <RunnerUnit></RunnerUnit>
+
+      <!-- <HeroUnit></HeroUnit> -->
+      <!-- <FameworkIntroUnit></FameworkIntroUnit> -->
+      <!-- <FooterUnit></FooterUnit> -->
     </div>
     <!-- <div class="w-full h-full"></div> -->
     <!-- <FullMenuBar v-show="openMenu" @close="openMenu = false"></FullMenuBar> -->
@@ -37,7 +39,7 @@ export default {
       window.dispatchEvent(new Event('resize'))
     })
 
-    this.scrollBox = makeScrollBox({ dom: window, base: this.base })
+    // this.scrollBox = makeScrollBox({ dom: window, base: this.base })
 
     // this.origColor = document.body.style.backgroundColor
     // document.body.style.backgroundColor = this.bgColor
@@ -52,4 +54,7 @@ export default {
 </script>
 
 <style scoped>
+.h-minus-toolbar-full{
+  height: calc(100% - 0px);
+}
 </style>

@@ -18,7 +18,7 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
       this.clock = new Clock()
       base.onLoop(() => {
         let delta = this.clock.getDelta()
-        let diff = (this.latestVal - this.dampedVal) * (delta * 1000 / 60 * 0.5)
+        let diff = (this.latestVal - this.dampedVal) * (delta * 1000 / 60 * 0.25)
         this.dampedVal += diff
       })
     }
