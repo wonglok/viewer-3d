@@ -3,20 +3,28 @@
 
     <LightArea></LightArea>
     <DirectionalLight :amount="4"></DirectionalLight>
-    <O3D :visible="isReady">
+    <O3D v-if="isReady">
       <ChromaticsBG></ChromaticsBG>
     </O3D>
 
-    <O3D :visible="isReady" :animated="true" layout="run" ref="swatrun">
+    <O3D :animated="true" layout="run" ref="swatrun">
       <O3D :animated="true" layout="center">
-        <SwatUpperJab :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
+        <SwatSideKick v-if="action === 'side-kick'" :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
+        <SwatMMAKick v-if="action === 'mma-kick'" :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
+        <SwatUpperJab v-if="action === 'upper-jab'" :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
       </O3D>
+
+      <!-- <O3D :animated="true" layout="center">
+        <SwatUpperJab :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
+      </O3D> -->
+
+      <!--
       <O3D :animated="true" layout="left">
         <SwatSideKick :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
       </O3D>
       <O3D :animated="true" layout="right">
         <SwatMMAKick :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
-      </O3D>
+      </O3D> -->
       <!-- <O3D :animated="true" layout="mouse">
         <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
       </O3D> -->
@@ -52,7 +60,10 @@ export default {
   },
   mixins: [Tree],
   data () {
+    let actionList = ['upper-jab', 'mma-kick', 'side-kick']
+    let action = actionList[Math.floor(Math.random() * actionList.length)]
     return {
+      action,
       isReady: false,
       canMount: false,
       loadingManager:false,
@@ -84,7 +95,9 @@ export default {
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     // this.camera.position.x = -200
     // this.camera.position.y = 100
-    this.camera.position.z = 500
+    this.camera.position.z = 2500
+    // this.camera.position.y = 500
+    this.camera.lookAt(this.scene.position)
 
     /* Loader START */
     let makeGLProgress = async () => {
@@ -125,10 +138,10 @@ export default {
               })
               .onComplete(() => {
                 this.canMount = true
-                requestIdleCallback(() => {
+                setTimeout(() => {
                   this.scene.remove(bar)
                   this.isReady = true
-                }, { timeout: 2000 })
+                }, 150)
               })
               .delay(0)
               .start()
@@ -152,7 +165,7 @@ export default {
     var Params = {
       exposure: 1,
       bloomStrength: 1.5,
-      bloomThreshold: 0.975,
+      bloomThreshold: 0.99,
       bloomRadius: 1.2
     }
     let renderer = this.lookup('renderer')
@@ -218,15 +231,25 @@ export default {
     let looper = () => {
       let progress = vscroll.value
 
+      console.log()
+      // if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 0) {
+      //   this.action = 'upper-jab'
+      // } else if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 1) {
+      //   this.action = 'side-kick'
+      // } else if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 2) {
+      //   this.action = 'mma-kick'
+      // }
+
       // console.log(progress)
       // if (!parentScrollBox) { return }
       // this.camera.position.y = 350 * progress
       // this.camera.
       if (this.$refs.swatrun) {
-        this.camera.position.copy(this.$refs.swatrun.o3d.position)
-        this.camera.position.z += 2000
+        // this.camera.position.copy(this.$refs.swatrun.o3d.position)
+        // this.camera.position.z += 2000
+        // this.camera.position.y += 0
         // this.camera.position.y += 250
-        this.camera.lookAt(this.$refs.swatrun.o3d.position)
+        // this.camera.lookAt(this.$refs.swatrun.o3d.position)
       }
 
       this.layouts = {
@@ -237,14 +260,15 @@ export default {
           sx: 5,
           sy: 5,
           sz: 5,
-          pz: -100
+          // pz: -100,
+          rx: Math.PI * 0.05
 
           // pz: -250,
           // px: -2250,
           // ry: Math.PI * 0.15,
         },
         center: {
-          ry: Math.PI * 2 * (progress),
+          ry: Math.PI * 0.23, // + Math.PI * 2 * (progress),
           pz: 0,
           sx: 150,
           sy: 150,
@@ -254,7 +278,7 @@ export default {
           pz: 100
         },
         left: {
-          ry: Math.PI * 2 * (progress),
+          // ry: Math.PI * 2 * (progress),
           px: 100,
           sx: 150,
           sy: 150,
@@ -264,7 +288,7 @@ export default {
           // pz: (1.0 - parentScrollBox.page) * 2500
         },
         right: {
-          ry: Math.PI * 2 * (progress),
+          // ry: Math.PI * 2 * (progress),
           px: -100,
           sx: 150,
           sy: 150,
