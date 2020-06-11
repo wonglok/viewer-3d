@@ -33,11 +33,11 @@
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
-    <div v-show="!isLoading" class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
+    <div :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
-    <div v-show="isLoading" class="absolute z-30 top-0 left-0 text-white w-full h-full" style="background-color: rgb(0,0,0,0.3);" ref="loading">
+    <div v-show="isLoading" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.3);" ref="loading">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
