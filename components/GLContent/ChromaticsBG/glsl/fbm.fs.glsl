@@ -33,7 +33,7 @@ float fbm6( vec2 p )
 }
 
 float pattern (vec2 p) {
-  float vout = fbm4( p + time + fbm6( p + fbm4( p + time )) );
+  float vout = fbm4( p - time + fbm6( p + fbm4( p - time )) );
   return abs(vout);
 }
 

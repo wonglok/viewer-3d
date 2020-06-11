@@ -131,7 +131,7 @@ export default {
     var Params = {
       exposure: 1,
       bloomStrength: 1.5,
-      bloomThreshold: 0.95,
+      bloomThreshold: 0.9,
       bloomRadius: 1.2
     }
     let renderer = this.lookup('renderer')
