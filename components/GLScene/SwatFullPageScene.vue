@@ -114,7 +114,7 @@ export default {
               .onComplete(() => {
                 this.scene.remove(bar)
               })
-              .delay(1500)
+              .delay(500)
               .start()
           }
         }
@@ -131,7 +131,7 @@ export default {
     var Params = {
       exposure: 1,
       bloomStrength: 1.5,
-      bloomThreshold: 0.9,
+      bloomThreshold: 0.98,
       bloomRadius: 1.2
     }
     let renderer = this.lookup('renderer')
@@ -155,7 +155,6 @@ export default {
     })
 
     this.$parent.$emit('composer', this.composer)
-
     /* BLOOM END */
 
     this.scene.background = new Color('#000000')

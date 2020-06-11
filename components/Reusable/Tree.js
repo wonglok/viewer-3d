@@ -20,7 +20,7 @@ let lookup = (vm, key) => {
 }
 
 let castdown = (vm, ev, data) => {
-  if (vm && vm.children.length > 0) {
+  if (vm && vm.children && vm.children.length > 0) {
     vm.$emit(ev, data)
     vm.children.forEach((kid) => {
       castdown(kid, ev, data)

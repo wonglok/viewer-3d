@@ -28,21 +28,20 @@ export default {
 
     },
     async loadStuff () {
-      let lightness = 0.8
-      var ambient = new AmbientLight(0xffffff, lightness * 2); // soft white light
+      let lightness = 3
+      var ambient = new AmbientLight(0xffffff, lightness); // soft white light
       this.o3d.add(ambient)
 
-      var directionalLight = new DirectionalLight(0xffffff, lightness)
-      this.o3d.add(directionalLight)
+      // var directionalLight = new DirectionalLight(0xffffff, lightness)
+      // this.o3d.add(directionalLight)
 
-      let light = new PointLight(0xbababa, lightness)
-      light.position.set(0, 20, -80)
-      this.o3d.add(light)
+      // let light = new PointLight(0xbababa, lightness)
+      // light.position.set(0, 20, -80)
+      // this.o3d.add(light)
 
-
-      let ptLight2 = new PointLight(0xbababa, lightness)
-      ptLight2.position.set(0, 80, 80)
-      this.o3d.add(ptLight2)
+      // let ptLight2 = new PointLight(0xbababa, lightness)
+      // ptLight2.position.set(0, 80, 80)
+      // this.o3d.add(ptLight2)
     }
   },
   async mounted () {
