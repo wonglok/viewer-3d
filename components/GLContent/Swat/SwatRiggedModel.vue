@@ -115,10 +115,15 @@ export default {
 
       let all = await Promise.all([
         new Promise((resolve) => {
+          let url = require('file-loader!./character/swat-guy.glb')
           // eslint-disable-next-line
-          loaderModel.load(require('file-loader!./character/swat-guy.glb'), (v) => {
+          loaderModel.load(url, (v) => {
             resolve(v)
           }, (v) => {
+            let manager = this.lookup('loadingManager')
+            if (manager.onURL) {
+              manager.onURL(url, v.loaded / v.total)
+            }
             // this.loaderAPI.updateProgress(v.loaded / v.total)
           })
         }),

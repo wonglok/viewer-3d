@@ -12,6 +12,6 @@ async function importAll (r, type) {
 }
 
 // importAll(require.context('~/components/Pages', true, /\.vue$/, 'sync'), 'sync')
-importAll(require.context('file-loader!~/components/GLContent/Swat/breakdance', true, /\.fbx$/, 'sync'), 'sync')
+importAll(require.context('file-loader!./', true, /\.fbx$/, 'sync'), 'sync')
 
 export default exporter

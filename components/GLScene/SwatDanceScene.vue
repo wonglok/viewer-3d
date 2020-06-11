@@ -10,7 +10,7 @@
       <O3D :animated="true" layout="run" ref="swatrun">
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correct">
-            <SwatDance :move="move" :scene="scene" :shaderCube="shaderCube"></SwatDance>
+            <SwatRiggedModel :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
@@ -33,8 +33,12 @@
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
-    <div class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
+    <div v-show="!isLoading" class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
+    </div>
+
+    <div v-show="isLoading" class="absolute z-30 top-0 left-0 text-white w-full h-full" style="background-color: rgb(0,0,0,0.3);" ref="loading">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
     <!--  -->
@@ -57,6 +61,7 @@
 import { Tree, RayPlay, PCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
 import { Scene, Color, Vector3, LoadingManager } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -71,6 +76,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      isLoading: false,
       move: false,
       moves: false,
       actionList,
@@ -97,7 +103,24 @@ export default {
       //   this.scene.background = new Color('#fafafa')
       // }, 1000)
     },
-    chooseMove (move) {
+    async chooseMove (item) {
+      this.isLoading = true
+      let loaderFBX = new FBXLoader(this.loadingManager)
+      let move = await new Promise((resolve) => {
+        // eslint-disable-next-line
+        loaderFBX.load(item.url, (v) => {
+          item.fbx = v
+          // console.log(v)
+          resolve(item)
+          this.isLoading = false
+        }, (v) => {
+          // console.log(v)
+          // this.loaderAPI.updateProgress(v.loaded / v.total)
+        }, () => {
+          resolve(item)
+          this.isLoading = false
+        })
+      }, console.log)
       this.move = move
     }
   },
@@ -175,7 +198,7 @@ export default {
                 setTimeout(() => {
                   bar.visible = false
                   this.isReady = true
-                }, 150)
+                }, 10)
               })
               .delay(0)
               .start()
@@ -185,18 +208,29 @@ export default {
     }
     this.loaderAPI = await makeGLProgress()
     this.loadingManager = new LoadingManager()
+    this.loadingManager.stat = { itemsLoaded: 0, itemsTotal: 1 }
+    this.loadingManager.onURL = (url, progress) => {
+      let { itemsLoaded, itemsTotal } = this.loadingManager.stat
+      let overallProgressDetailed = itemsLoaded / itemsTotal + progress / itemsTotal
+      console.log(overallProgressDetailed)
+      this.loaderAPI.updateProgress(overallProgressDetailed)
+    }
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      // console.log(itemsLoaded / itemsTotal)
       this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-      // console.log(itemsLoaded / itemsTotal)
-      this.loaderAPI.updateProgress(0.5)
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
+    }
+    this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     /* Loader End */
 
     /* dance moves */
-    let loaderFBX = new FBXLoader(this.loadingManager)
+    // let loaderFBX = new FBXLoader(this.loadingManager)
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let breakdances = []
     let i = 0
@@ -209,27 +243,32 @@ export default {
       })
       i++
     }
+    this.moves = breakdances
+    this.chooseMove(this.moves[0])
 
-    let tasks = breakdances.map((item) => {
-      return new Promise((resolve) => {
-        // eslint-disable-next-line
-        loaderFBX.load(item.url, (v) => {
-          item.fbx = v
-          // console.log(v)
-          resolve(item)
-        }, (v) => {
-          // console.log(v)
-          // this.loaderAPI.updateProgress(v.loaded / v.total)
-        }, () => {
-          resolve(item)
-        })
-      }, console.log)
-    })
+    // let tasks = breakdances.map((item) => {
+    //   return new Promise((resolve) => {
+    //     // eslint-disable-next-line
+    //     loaderFBX.load(item.url, (v) => {
+    //       item.fbx = v
+    //       // console.log(v)
+    //       resolve(item)
+    //     }, (v) => {
+    //       // console.log(v)
+    //       // this.loaderAPI.updateProgress(v.loaded / v.total)
+    //     }, () => {
+    //       resolve(item)
+    //     })
+    //   }, console.log)
+    // })
 
-    this.moves = await Promise.all(tasks)
-    this.$nextTick(() => {
-      this.move = this.moves[0]
-    })
+    // Promise.all(tasks)
+    //   .then((v) => {
+    //     this.moves = v
+    //     this.$nextTick(() => {
+    //       this.move = this.moves[0]
+    //     })
+    //   })
     /* dance moves end */
 
     /* BLOOM START */
