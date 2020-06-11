@@ -3,9 +3,9 @@
     <O3D  v-if="layouts && shaderCube && loaderAPI">
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
-      <!-- <O3D v-if="isReady">
+      <O3D v-if="isReady">
         <ChromaticsBG></ChromaticsBG>
-      </O3D> -->
+      </O3D>
 
       <O3D :animated="true" layout="run" ref="swatrun">
         <O3D :animated="true" layout="center">
