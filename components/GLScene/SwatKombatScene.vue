@@ -152,7 +152,7 @@ export default {
     var Params = {
       exposure: 1,
       bloomStrength: 1.5,
-      bloomThreshold: 0.95,
+      bloomThreshold: 0.975,
       bloomRadius: 1.2
     }
     let renderer = this.lookup('renderer')
@@ -255,7 +255,7 @@ export default {
         },
         left: {
           ry: Math.PI * 2 * (progress),
-          px: 150,
+          px: 100,
           sx: 150,
           sy: 150,
           sz: 150,
@@ -265,7 +265,7 @@ export default {
         },
         right: {
           ry: Math.PI * 2 * (progress),
-          px: -150,
+          px: -100,
           sx: 150,
           sy: 150,
           sz: 150,
