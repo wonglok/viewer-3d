@@ -1,34 +1,43 @@
 <template>
-  <O3D v-if="layouts && shaderCube && loaderAPI">
+  <O3D>
+    <O3D  v-if="layouts && shaderCube && loaderAPI">
+      <LightArea></LightArea>
+      <DirectionalLight :amount="4"></DirectionalLight>
+      <!-- <O3D v-if="isReady">
+        <ChromaticsBG></ChromaticsBG>
+      </O3D> -->
 
-    <LightArea></LightArea>
-    <DirectionalLight :amount="4"></DirectionalLight>
-    <O3D v-if="isReady">
-      <ChromaticsBG></ChromaticsBG>
+      <O3D :animated="true" layout="run" ref="swatrun">
+        <O3D :animated="true" layout="center">
+          <SwatIdle v-if="action === 'idle'" :scene="scene" :shaderCube="shaderCube"></SwatIdle>
+          <SwatRun v-if="action === 'run'" :scene="scene" :shaderCube="shaderCube"></SwatRun>
+          <SwatSideKick v-if="action === 'side-kick'" :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
+          <SwatMMAKick v-if="action === 'mma-kick'" :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
+          <SwatUpperJab v-if="action === 'upper-jab'" :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
+        </O3D>
+
+        <!-- <O3D :animated="true" layout="center">
+          <SwatUpperJab :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
+        </O3D> -->
+
+        <!--
+        <O3D :animated="true" layout="left">
+          <SwatSideKick :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
+        </O3D>
+        <O3D :animated="true" layout="right">
+          <SwatMMAKick :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
+        </O3D> -->
+        <!-- <O3D :animated="true" layout="mouse">
+          <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
+        </O3D> -->
+      </O3D>
     </O3D>
 
-    <O3D :animated="true" layout="run" ref="swatrun">
-      <O3D :animated="true" layout="center">
-        <SwatSideKick v-if="action === 'side-kick'" :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
-        <SwatMMAKick v-if="action === 'mma-kick'" :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
-        <SwatUpperJab v-if="action === 'upper-jab'" :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
-      </O3D>
-
-      <!-- <O3D :animated="true" layout="center">
-        <SwatUpperJab :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
-      </O3D> -->
-
-      <!--
-      <O3D :animated="true" layout="left">
-        <SwatSideKick :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
-      </O3D>
-      <O3D :animated="true" layout="right">
-        <SwatMMAKick :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
-      </O3D> -->
-      <!-- <O3D :animated="true" layout="mouse">
-        <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
-      </O3D> -->
-    </O3D>
+    <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
+    </div>
+    <div class="absolute z-20 top-0 left-0 text-white">
+      <a v-for="action in actionList" :key="action" @click.prevent="onLeave(`/fighter?action=${action}`)" class="px-2 mx-1 my-2 border-gray-100 border">{{ action }}</a>
+    </div>
 
     <!--  -->
 
@@ -52,7 +61,6 @@ import { Scene, Color, Vector3, LoadingManager } from 'three'
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 const TWEEN = require('@tweenjs/tween.js').default
-
 export default {
   name: 'SwatFullPage',
   components: {
@@ -60,9 +68,10 @@ export default {
   },
   mixins: [Tree],
   data () {
-    let actionList = ['upper-jab', 'mma-kick', 'side-kick']
-    let action = actionList[Math.floor(Math.random() * actionList.length)]
+    let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
+    let action = this.$route.query.action || actionList[0]
     return {
+      actionList,
       action,
       isReady: false,
       canMount: false,
@@ -85,11 +94,41 @@ export default {
       // setTimeout(() => {
       //   this.scene.background = new Color('#fafafa')
       // }, 1000)
+    },
+    onLeave (url) {
+      let contrs = { opacity: 1 }
+      const tween = new TWEEN.Tween(contrs) // Create a new tween that modifies 'coords'.
+        .to({ opacity: 0 }, 500) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+        .onUpdate(() => {
+          // totalStat = dat.dynamic
+          document.body.style.opacity = contrs.opacity
+        })
+        .onComplete(() => {
+          setTimeout(() => {
+            window.location.assign(url)
+          }, 100)
+        })
+        .start()
     }
   },
+  created () {
+    document.body.style.opacity = 0
+  },
   async mounted () {
+    let contrs = { opacity: 0 }
+    const tween = new TWEEN.Tween(contrs) // Create a new tween that modifies 'coords'.
+      .to({ opacity: 1 }, 1000) // Move to (300, 200) in 1 second.
+      .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+      .onUpdate(() => {
+        // totalStat = dat.dynamic
+        document.body.style.opacity = contrs.opacity
+      })
+      .start()
+    this.lookup('base').onLoop(() => {
+      TWEEN.update()
+    })
     await this.lookupWait('ready')
-
 
     // prepare camera
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
@@ -123,6 +162,11 @@ export default {
         bar.position.x = dampping.value * screen.width * screenScaler
       })
       return {
+        reset () {
+          totalStat = 0
+          dampping.value = 0
+          bar.visible = true
+        },
         get loaded () {
           return dampping.value >= 0.999
         },
@@ -139,7 +183,7 @@ export default {
               .onComplete(() => {
                 this.canMount = true
                 setTimeout(() => {
-                  this.scene.remove(bar)
+                  bar.visible = false
                   this.isReady = true
                 }, 150)
               })
@@ -154,6 +198,10 @@ export default {
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
       // console.log(itemsLoaded / itemsTotal)
       this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+    }
+    this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+      // console.log(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(0.3)
     }
     /* Loader End */
 
@@ -200,8 +248,16 @@ export default {
 
     // let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
     // this.controls = new OrbitControls(this.camera, this.lookup('element'))
+    // this.controls.dampping = true
     // this.lookup('base').onLoop(() => {
     //   this.controls.update()
+    // })
+
+    // let i = 0
+    // this.lookup('element').addEventListener('click', () => {
+    //   this.loaderAPI.reset()
+    //   this.action = this.actionList[(i % this.actionList.length)]
+    //   i++
     // })
 
     this.scene.add(this.o3d)
@@ -209,11 +265,8 @@ export default {
     this.$parent.$emit('scene', this.scene)
     this.$parent.$emit('camera', this.camera)
 
-    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.lookup('element'), limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
+    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
 
-    this.lookup('base').onLoop(() => {
-      TWEEN.update()
-    })
 
     // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
     //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
@@ -268,7 +321,7 @@ export default {
           // ry: Math.PI * 0.15,
         },
         center: {
-          ry: Math.PI * 0.23, // + Math.PI * 2 * (progress),
+          ry: Math.PI * 0.23 + Math.PI * 2 * (progress),
           pz: 0,
           sx: 150,
           sy: 150,

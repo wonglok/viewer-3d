@@ -10,7 +10,6 @@ import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Mesh, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial } from 'three'
 
-let loaderModel = new GLTFLoader()
 let loaderTex = new TextureLoader()
 export default {
   name: 'Swat',
@@ -125,13 +124,15 @@ export default {
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
 
+      let loaderModel = new GLTFLoader(this.lookup('loadingManager'))
+
       let all = await Promise.all([
         new Promise((resolve) => {
           // eslint-disable-next-line
           loaderModel.load(require('file-loader!./swat/swat-run.glb'), (v) => {
             resolve(v)
           }, (v) => {
-            this.loaderAPI.updateProgress(v.loaded / v.total)
+            // this.loaderAPI.updateProgress(v.loaded / v.total)
           })
         }),
 
