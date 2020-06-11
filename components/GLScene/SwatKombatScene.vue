@@ -35,8 +35,8 @@
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
-    <div class="absolute z-20 top-0 left-0 text-white">
-      <a v-for="action in actionList" :key="action" @click.prevent="onLeave(`/fighter?action=${action}`)" class="px-2 mx-1 my-2 border-gray-100 border">{{ action }}</a>
+    <div class="absolute z-20 top-0 left-0 text-white py-1">
+      <a v-for="action in actionList" :key="action" @click.prevent="onLeave(`/fighter?action=${action}`)" class="px-2 mx-1 border-gray-100 border">{{ action }}</a>
     </div>
 
     <!--  -->
@@ -58,6 +58,7 @@
 <script>
 import { Tree, RayPlay, PCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
 import { Scene, Color, Vector3, LoadingManager } from 'three'
+
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 const TWEEN = require('@tweenjs/tween.js').default
@@ -201,7 +202,7 @@ export default {
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
       // console.log(itemsLoaded / itemsTotal)
-      this.loaderAPI.updateProgress(0.3)
+      this.loaderAPI.updateProgress(0.5)
     }
     /* Loader End */
 
@@ -266,7 +267,6 @@ export default {
     this.$parent.$emit('camera', this.camera)
 
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
-
 
     // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
     //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
