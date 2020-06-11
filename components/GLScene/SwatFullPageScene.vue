@@ -8,7 +8,7 @@
 
     <O3D :animated="true" layout="run" ref="swatrun">
       <O3D :animated="true" layout="center">
-        <SwatRun :loaderAPI="loaderAPI" :scene="scene" :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatRun>
+        <SwatRun :scene="scene" :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatRun>
       </O3D>
       <!-- <O3D :animated="true" layout="mouse">
         <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
@@ -33,7 +33,7 @@
 
 <script>
 import { Tree, RayPlay, PCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
-import { Scene, Color, Vector3 } from 'three'
+import { Scene, Color, Vector3, LoadingManager } from 'three'
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 const TWEEN = require('@tweenjs/tween.js').default
@@ -98,8 +98,13 @@ export default {
         bar.position.x = dampping.value * screen.width * screenScaler
       })
       return {
+        reset () {
+          totalStat = 0
+          dampping.value = 0
+          bar.visible = true
+        },
         get loaded () {
-          return dampping.value >= 0.98
+          return dampping.value >= 0.999
         },
         updateProgress: (v) => {
           totalStat = 0.95 * v
@@ -112,16 +117,30 @@ export default {
                 totalStat = dat.dynamic
               })
               .onComplete(() => {
-                this.scene.remove(bar)
+                this.canMount = true
+                setTimeout(() => {
+                  bar.visible = false
+                  this.isReady = true
+                }, 150)
               })
-              .delay(500)
+              .delay(0)
               .start()
           }
         }
       }
     }
     this.loaderAPI = await makeGLProgress()
+    this.loadingManager = new LoadingManager()
+    this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      // console.log(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+    }
+    this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+      // console.log(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(0.5)
+    }
     /* Loader End */
+
 
     /* BLOOM START */
     let { Vector2 } = require('three/src/math/Vector2')

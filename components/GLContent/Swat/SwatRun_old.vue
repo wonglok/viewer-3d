@@ -37,9 +37,9 @@ export default {
       // var hemLight = new HemisphereLight(0xffffbb, 0x080820, 3)
       // this.o3d.add(hemLight)
 
-      // let DirectionalLight = require('three/src/lights/DirectionalLight').DirectionalLight
-      // var directionalLight = new DirectionalLight(0xffffff, 4.6)
-      // this.o3d.add(directionalLight)
+      let DirectionalLight = require('three/src/lights/DirectionalLight').DirectionalLight
+      var directionalLight = new DirectionalLight(0xffffff, 4.6)
+      this.o3d.add(directionalLight)
 
       // let PointLight = require('three/src/lights/PointLight').PointLight
       // let light = new PointLight(0xffffff, 2.6)
@@ -49,7 +49,7 @@ export default {
       model.scene.traverse((item) => {
         // console.log(item.name)
 
-        if (item.isMesh && item.name === 'Mesh.001_0') {
+        if (item.isMesh && item.name === 'Mesh.001_1') {
           // metal
 
           // item.material = this.shaderCube.out.material
@@ -63,7 +63,7 @@ export default {
           // item.material.metalness = 0.6
         }
 
-        if (item.isMesh && item.name === 'Mesh.001_1') {
+        if (item.isMesh && item.name === 'Mesh.001_0') {
           // Cloth
 
           // item.material = this.shaderCube.out.material
@@ -73,9 +73,7 @@ export default {
           item.frustumCulled = false
         }
       })
-      this.lookupWait('canMount').then(() => {
-        this.o3d.add(model.scene)
-      })
+      this.o3d.add(model.scene)
 
       // var ambient = new AmbientLight(0xffffff, 1); // soft white light
       // this.o3d.add(ambient)
@@ -125,6 +123,7 @@ export default {
     },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
+
       let loaderModel = new GLTFLoader(this.lookup('loadingManager'))
 
       let all = await Promise.all([
