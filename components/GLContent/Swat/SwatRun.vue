@@ -8,7 +8,7 @@
 import { Tree, ShaderCube } from '../../Reusable'
 // import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer } from 'three'
+import { Mesh, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial } from 'three'
 
 let loaderModel = new GLTFLoader()
 let loaderTex = new TextureLoader()
@@ -16,9 +16,11 @@ export default {
   name: 'Swat',
   mixins: [Tree],
   props: {
+    loaderAPI: {},
     shaderCube: {
       default: false
     },
+    scene: {},
     mode: {}
   },
   components: {
@@ -116,6 +118,9 @@ export default {
     },
     beforeDestroy() {
       this.cleanall()
+      if (this.cleanLoader) {
+        this.cleanLoader()
+      }
     },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
@@ -125,8 +130,11 @@ export default {
           // eslint-disable-next-line
           loaderModel.load(require('file-loader!./swat/swat-run.glb'), (v) => {
             resolve(v)
+          }, (v) => {
+            this.loaderAPI.updateProgress(v.loaded / v.total)
           })
         }),
+
         // new Promise((resolve) => {
         //   // eslint-disable-next-line
         //   loaderTex.load(require('./matcap/red-2.jpg'), (obj) => {

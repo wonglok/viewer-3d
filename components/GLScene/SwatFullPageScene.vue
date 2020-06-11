@@ -1,14 +1,14 @@
 <template>
-  <O3D v-if="layouts && shaderCube">
+  <O3D v-if="layouts && shaderCube && loaderAPI">
 
     <LightArea></LightArea>
-    <O3D>
+    <O3D v-if="loaderAPI.loaded">
       <ChromaticsBG></ChromaticsBG>
     </O3D>
 
     <O3D :animated="true" layout="run" ref="swatrun">
       <O3D :animated="true" layout="center">
-        <SwatRun :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatRun>
+        <SwatRun :loaderAPI="loaderAPI" :scene="scene" :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatRun>
       </O3D>
       <!-- <O3D :animated="true" layout="mouse">
         <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
@@ -46,6 +46,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      loaderAPI: false,
       shaderCube: false,
       ready: false,
       settings: {},
@@ -72,6 +73,55 @@ export default {
     // this.camera.position.x = -200
     // this.camera.position.y = 100
     this.camera.position.z = 500
+
+    /* Loader START */
+    let makeGLProgress = async () => {
+      let totalStat = 0
+      let { Mesh } = require('three/src/objects/Mesh')
+      let { PlaneBufferGeometry } = require('three/src/geometries/PlaneGeometry')
+      let { MeshBasicMaterial } = require('three/src/materials/MeshBasicMaterial')
+      let { getScreen, Damper } = require('../Reusable')
+      let dampping = new Damper(0, this.lookup('base'), 0.5)
+      dampping.value = 0
+      let screen = getScreen({ camera: this.camera, depth: 500 })
+      let screenScaler = 2
+      let geo = new PlaneBufferGeometry(screen.width * screenScaler, 3, 2, 2)
+      geo.translate(-screen.width * screenScaler, 0, 0)
+      let mat = new MeshBasicMaterial({ color: 0xffffff, transparent: true })
+      let bar = new Mesh(geo, mat)
+      this.scene.add(bar)
+      this.cleanLoader = () => {
+        this.scene.remove(bar)
+      }
+      this.lookup('base').onLoop(() => {
+        dampping.value = totalStat
+        bar.position.x = dampping.value * screen.width * screenScaler
+      })
+      return {
+        get loaded () {
+          return dampping.value >= 0.98
+        },
+        updateProgress: (v) => {
+          totalStat = 0.95 * v
+          if (v >= 0.95) {
+            let dat = { dynamic: totalStat }
+            const tween = new TWEEN.Tween(dat) // Create a new tween that modifies 'coords'.
+              .to({ dynamic: 1 }, 1000) // Move to (300, 200) in 1 second.
+              .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+              .onUpdate(() => {
+                totalStat = dat.dynamic
+              })
+              .onComplete(() => {
+                this.scene.remove(bar)
+              })
+              .delay(1500)
+              .start()
+          }
+        }
+      }
+    }
+    this.loaderAPI = await makeGLProgress()
+    /* Loader End */
 
     /* BLOOM START */
     let { Vector2 } = require('three/src/math/Vector2')
@@ -108,7 +158,7 @@ export default {
 
     /* BLOOM END */
 
-    this.scene.background = new Color('#2f2f2f')
+    this.scene.background = new Color('#000000')
     this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     // this.scene.background = this.shaderCube.out.envMap
 
@@ -139,10 +189,10 @@ export default {
     //     // Called after tween.js updates 'coords'.
     //     // Move 'box' to the position described by 'coords' with a CSS translation.
     //   })
-    //    // Start the tween immediately.
     // this.$on('gorun', () => {
     //   tween.start()
     // })
+
     // let parentScrollBox = this.lookup('scrollBox')
 
     let looper = () => {
@@ -172,7 +222,7 @@ export default {
           ry: Math.PI * 0.15,
         },
         center: {
-          ry: Math.PI * 0.05 * (progress),
+          ry: Math.PI * 0.07 * (progress),
           pz: 0,
           sx: 150,
           sy: 150,
