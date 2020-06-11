@@ -330,6 +330,7 @@ export default {
         // this.camera.position.y += 250
         // this.camera.lookAt(this.$refs.swatrun.o3d.position)
       }
+      this.camera.position.z = 3000 + (progress - 0.5) * 3000
 
       this.layouts = {
         // lensarea: {
@@ -352,7 +353,7 @@ export default {
           rx: Math.PI * -0.5
         },
         center: {
-          ry: Math.PI * (progress),
+          // ry: Math.PI * (progress),
           sx: 150,
           sy: 150,
           sz: 150,
