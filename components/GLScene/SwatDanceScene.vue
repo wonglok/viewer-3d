@@ -47,10 +47,11 @@
 
     <!--  -->
 
-<!--
+    <!--
     <O3D :animated="true" layout="mouse2">
       <MouseSillyDance :shaderCube="shaderCube"></MouseSillyDance>
-    </O3D> -->
+    </O3D>
+    -->
 
     <!-- <PointLight></PointLight> -->
 
@@ -157,7 +158,7 @@ export default {
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
     let camera = this.camera = new TCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    let cameraPosition = new Vector3(0, 200, 350)
+    let cameraPosition = new Vector3(0, 500, 350)
     camera.position.z = cameraPosition.z
     this.$watch('guy', () => {
       if (this.guy) {
@@ -177,10 +178,15 @@ export default {
     })
     this.lookup('base').onLoop(() => {
       let progress = vscroll.value
-      let farest = 600
+      let farest = 700
       let defaultCloseup = 200
-      cameraPosition.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest)
-      camera.update()
+      if (this.guy) {
+        camera.lookAt(this.guy.position)
+        cameraPosition.x = this.guy.position.x
+        cameraPosition.y = this.guy.position.y + 50
+        cameraPosition.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest) + this.guy.position.z * 1.0
+        camera.update()
+      }
     })
 
     /* Loader START */
@@ -266,12 +272,14 @@ export default {
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
     let movesOrig = []
     let combinedMapper = {
       ...breakdancesMapper,
       ...gestureMapper,
       ...locomotionMapper,
-      ...capoeiraMapper
+      ...capoeiraMapper,
+      ...rifleMapper
     }
     let i = 0
     for (let kn in combinedMapper) {
@@ -284,7 +292,8 @@ export default {
       i++
     }
     this.moves = movesOrig
-    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freeze var 2'))
+    // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
+    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
 
     // let tasks = breakdances.map((item) => {
     //   return new Promise((resolve) => {
