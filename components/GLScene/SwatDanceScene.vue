@@ -202,7 +202,7 @@ export default {
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
     let farest = 600
-    let defaultCloseup = 350
+    let defaultCloseup = 280
 
     camera.position.z = defaultCloseup
 
