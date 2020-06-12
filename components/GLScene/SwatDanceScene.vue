@@ -10,7 +10,7 @@
       <O3D :animated="true" layout="run" ref="swatrun">
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correct">
-            <SwatRiggedModel @guy="guy = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
+            <SwatRiggedModel @guy="guy = $event" @goal="goal = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
@@ -78,6 +78,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      goal: false,
       loadProgress: 0,
       displayStartMenu: true,
       showTool: true,
@@ -200,20 +201,31 @@ export default {
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    camera.position.z = 500
+    let farest = 600
+    let defaultCloseup = 350
 
-    let v3 = new Vector3()
+    camera.position.z = defaultCloseup
+
+    let lerperLookAt = new Vector3()
+    let lerperCamPos = new Vector3()
+    let targetLookAt = new Vector3()
+    let targetCamPos = new Vector3()
+
     this.lookup('base').onLoop(() => {
       let progress = vscroll.value
-      let farest = 500
-      let defaultCloseup = 100
-      if (this.guy) {
-        v3.x = this.guy.position.x
-        v3.y = this.guy.position.y + 50
-        v3.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest) + this.guy.position.z * 1.0
+      if (this.guy && this.goal) {
+        // targetLookAt.setFromMatrixPosition(this.goal.matrixWorld);
+        this.guy.getWorldPosition(targetLookAt)
 
-        camera.position.lerp(v3, 0.2)
-        camera.lookAt(this.guy.position.clone().add(new Vector3(0, -50, 0)))
+        targetCamPos.x = targetLookAt.x
+        targetCamPos.y = targetLookAt.y + 0
+        targetCamPos.z = targetLookAt.z + defaultCloseup + farest * progress
+
+        lerperLookAt.lerp(targetLookAt, 0.1)
+        lerperCamPos.lerp(targetCamPos, 0.1)
+
+        camera.position.copy(lerperCamPos)
+        camera.lookAt(lerperLookAt)
       }
     })
 
@@ -249,9 +261,9 @@ export default {
     let movesOrig = []
     let combinedMapper = {
       ...breakdancesMapper,
-      ...locomotionMapper,
       ...capoeiraMapper,
       ...rifleMapper,
+      ...locomotionMapper,
       ...gestureMapper
     }
     let i = 0

@@ -7,7 +7,7 @@
 <script>
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Mesh, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera } from 'three'
+import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera } from 'three'
 
 let loaderTex = new TextureLoader()
 export default {
@@ -28,13 +28,18 @@ export default {
   },
   methods: {
     configModel ({ model }) {
+      this.o3d.add(model.scene)
       let guy = false
       model.scene.traverse((item) => {
         // console.log(item.name)
         // console.log(item)
-
         if (item && item.name === 'mixamorigHips') {
+
+          let goal = new Object3D()
+          goal.position.y = 150
+          item.add(goal)
           this.$emit('guy', item)
+          this.$emit('goal', goal)
         }
 
         if (item.isMesh && item.name === 'Mesh_0') {
@@ -61,7 +66,6 @@ export default {
           item.frustumCulled = false
         }
       })
-      this.o3d.add(model.scene)
 
       let runAnimation = () => {
         if (this.lastMixer) {
@@ -74,10 +78,11 @@ export default {
           mixer.clipAction(clip).play();
         });
 
+        let clock = new Clock()
         // let camera = this.camera
         this.lookup('base').onLoop(() => {
           if (mixer.run) {
-            mixer.update(16.6667 / 1000)
+            mixer.update(clock.getDelta())
           }
         })
       }
