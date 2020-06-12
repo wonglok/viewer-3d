@@ -136,7 +136,7 @@ export default {
         }, 10000)
       })
 
-      if (gyroPresent || window.innerWidth < 500) {
+      if (gyroPresent) {
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         this.controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
         this.controls.dampping = true
@@ -202,32 +202,14 @@ export default {
     this.$parent.$emit('camera', this.camera)
     camera.position.z = 500
 
-    // this.$watch('guy', () => {
-    //   if (this.guy) {
-    //     this.camera.position.y = this.guy.position.y
-    //     camera.addTarget({
-    //       name: 'myTarget',
-    //       targetObject: this.guy,
-    //       cameraPosition,
-    //       fixed: true,
-    //       stiffness: 0.0,
-    //       matchRotation: false
-    //     });
-    //     // Now tell this camera to track the target we just created.
-    //     camera.setTarget('myTarget');
-    //   }
-    // })
-
+    let v3 = new Vector3()
     this.lookup('base').onLoop(() => {
       let progress = vscroll.value
-      let farest = 600
-      let defaultCloseup = 200
+      let farest = 500
+      let defaultCloseup = 100
       if (this.guy) {
-
-        let v3 = new Vector3()
-
         v3.x = this.guy.position.x
-        v3.y = this.guy.position.y + 100
+        v3.y = this.guy.position.y + 50
         v3.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest) + this.guy.position.z * 1.0
 
         camera.position.lerp(v3, 0.2)
@@ -405,7 +387,10 @@ export default {
           py: 0
         },
         bg: {
-          pz: -400
+          pz: -400,
+          sx: 1.5,
+          sy: 1.5,
+          sz: 1
         },
         run: {
           ry: Math.PI * -0.25,
