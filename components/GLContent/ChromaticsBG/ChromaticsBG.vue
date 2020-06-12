@@ -6,7 +6,7 @@
 
 <script>
 import { Tree } from '../../Reusable'
-import { PlaneBufferGeometry, Vector2, Mesh, RawShaderMaterial } from 'three'
+import { PlaneBufferGeometry, Vector2, Mesh, RawShaderMaterial, DoubleSide } from 'three'
 // import { Refractor } from 'three/examples/jsm/objects/Refractor'
 // import { FastBlurShader } from './FastBlurShader'
 export default {
@@ -38,7 +38,8 @@ export default {
         // eslint-disable-next-line
         fragmentShader: require('raw-loader!./glsl/fbm.fs.glsl').default,
         uniforms,
-        transparent: true
+        transparent: true,
+        side: DoubleSide
       })
 
       let mesh = new Mesh(geo, mat)

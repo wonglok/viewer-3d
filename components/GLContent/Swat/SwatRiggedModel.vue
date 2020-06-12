@@ -7,7 +7,7 @@
 <script>
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Mesh, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial } from 'three'
+import { Mesh, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera } from 'three'
 
 let loaderTex = new TextureLoader()
 export default {
@@ -18,6 +18,7 @@ export default {
     shaderCube: {
       default: false
     },
+    // camera: {},
     move: {},
     scene: {},
     mode: {}
@@ -27,12 +28,18 @@ export default {
   },
   methods: {
     configModel ({ model }) {
+      let guy = false
       model.scene.traverse((item) => {
         // console.log(item.name)
+        // console.log(item)
+
+        if (item && item.name === 'mixamorigHips') {
+          this.$emit('guy', item)
+        }
 
         if (item.isMesh && item.name === 'Mesh_0') {
           // metal
-
+          // guy = item
           // item.material = this.shaderCube.out.material
           // this.shaderCube.out.material.skinning = true
 
@@ -58,23 +65,55 @@ export default {
         this.o3d.add(model.scene)
       })
 
-        let runAnimation = () => {
-          if (this.lastMixer) {
-            this.lastMixer.run = false
-          }
-          var mixer = new AnimationMixer(model.scene);
-          mixer.run = true
-          this.lastMixer = mixer
-          this.move.fbx.animations.forEach((clip) => {
-            mixer.clipAction(clip).play();
-          });
 
-          this.lookup('base').onLoop(() => {
-            if (mixer.run) {
-              mixer.update(16.6667 / 1000)
+      let runAnimation = () => {
+        if (this.lastMixer) {
+          this.lastMixer.run = false
         }
-          })
-        }
+        var mixer = new AnimationMixer(model.scene);
+        mixer.run = true
+        this.lastMixer = mixer
+        this.move.fbx.animations.forEach((clip) => {
+          mixer.clipAction(clip).play();
+        });
+
+        // let camera = this.camera
+        this.lookup('base').onLoop(() => {
+          if (mixer.run) {
+            mixer.update(16.6667 / 1000)
+          }
+          // model.scene.traverse((item) => {
+          //   if (item.position.x !== 0 && item.position.x !== item.oldpx) {
+          //     console.log(item.position.x, item.name)
+          //     item.oldpx = item.position.x
+          //   }
+          // })
+          // if (guy) {
+          //   var relativeCameraOffset = new Vector3(0,50,300);
+
+          //   var cameraOffset = relativeCameraOffset.applyMatrix4( guy.matrixWorld );
+
+          //   // camera.position.x += cameraOffset.x;
+          //   // camera.position.y += cameraOffset.y;
+          //   // camera.position.z += cameraOffset.z;
+          //   camera.lookAt(guy.position);
+
+          //   // // console.log(guy.position.z)
+          //   // // var relativeCameraOffset = new Vector3(0,50,200);
+
+          //   // // var cameraOffset = relativeCameraOffset.applyMatrix4(model.scene.matrixWorld)
+
+          //   // // camera.position.x = cameraOffset.x
+          //   // // camera.position.y = cameraOffset.y
+          //   // // camera.position.z = cameraOffset.z
+          //   // // camera.lookAt(model.scene.position)
+
+          //   // goto.position.copy(guy.position).add(new Vector3(0, 30, -330))
+          //   // this.camera.position.lerp(goto.position, 0.2)
+          // }
+        })
+      }
+
       if (this.move && this.move.fbx && this.move.fbx.animations) {
         runAnimation()
       }

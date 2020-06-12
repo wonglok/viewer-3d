@@ -1,6 +1,7 @@
 export { Stats } from '~/components/Reusable/Stats.js'
 export { Renderer } from '~/components/Reusable/Renderer.js'
 export { PCamera } from '~/components/Reusable/PCamera.js'
+export { TCamera } from '~/components/Reusable/TCamera.js'
 export { makeBase } from '~/components/Reusable/makeBase.js'
 export { makeScroller } from '~/components/Reusable/Scroller.js'
 export { makeScrollBox } from '~/components/Reusable/ScrollBox.js'
@@ -17,6 +18,8 @@ export { ShaderCube } from '~/components/Reusable/shaderCube'
 export { ShaderCubeRefraction } from '~/components/Reusable/shaderCubeRefraction'
 export { ShaderCubeChrome } from '~/components/Reusable/shaderCubeChrome'
 export { ShaderCubeSea } from '~/components/Reusable/shaderCubeSea'
+
+export { TargetCamera } from '~/components/Reusable/TargetCamera'
 
 export const getID = () => {
   return '_' + Math.random().toString(36).substr(2, 9)
