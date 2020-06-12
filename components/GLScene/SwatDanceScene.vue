@@ -185,7 +185,8 @@ export default {
         },
         updateProgress: (v) => {
           totalStat = 0.95 * v
-          if (v >= 0.95) {
+          if (v >= 0.945) {
+            this.canMount = true
             let dat = { dynamic: totalStat }
             const tween = new TWEEN.Tween(dat) // Create a new tween that modifies 'coords'.
               .to({ dynamic: 1 }, 1000) // Move to (300, 200) in 1 second.
@@ -194,7 +195,6 @@ export default {
                 totalStat = dat.dynamic
               })
               .onComplete(() => {
-                this.canMount = true
                 setTimeout(() => {
                   bar.visible = false
                   this.isReady = true
@@ -215,7 +215,7 @@ export default {
       this.loaderAPI.updateProgress(overallProgressDetailed)
     }
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
@@ -223,7 +223,7 @@ export default {
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
-      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     /* Loader End */
