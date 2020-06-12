@@ -45,8 +45,9 @@
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
-    <div v-show="displayStartMenu" @click="startGame" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm">Start Dancing</div>
+    <div v-show="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm" @click="startGame" v-if="isReady">Start Dancing</div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!isReady">Loading...</div>
     </div>
 
     <!--  -->
@@ -114,11 +115,38 @@ export default {
     }
   },
   methods: {
-    startGame () {
+    async startGame () {
       this.displayStartMenu = false
       sound.play()
 
-      if (window.innerWidth < 500) {
+      let gyroPresent = await new Promise((resolve) => {
+        window.addEventListener('deviceorientation', function(event){
+          var x = event.beta  // In degree in the range [-180,180]
+          var y = event.gamma // In degree in the range [-90,90]
+
+          // Because we don't want to have the device upside down
+          // We constrain the x value to the range [-90,90]
+          if (x > 90) { x =  90 }
+          if (x < -90) { x = -90 }
+
+          // To make computation easier we shift the range of
+          // x and y to [0,180]
+          x += 90;
+          y += 90;
+
+          console.log(x, y)
+          if (isNaN(x) || !x) {
+            resolve(false)
+          } else {
+            resolve(true)
+          }
+        });
+        setTimeout(() => {
+          resolve(false)
+        }, 10000)
+      })
+
+      if (gyroPresent) {
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         this.controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
         this.controls.dampping = true
