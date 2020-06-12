@@ -156,36 +156,41 @@ export default {
     // this.camera.lookAt(this.scene.position)
 
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
-    let camera = this.camera = new TCamera({ base: this.lookup('base'), element: this.lookup('element') })
+    let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    let cameraPosition = new Vector3(0, 500, 350)
-    camera.position.z = cameraPosition.z
-    this.$watch('guy', () => {
-      if (this.guy) {
-        this.camera.position.y = this.guy.position.y
-        camera.addTarget({
-          name: 'myTarget',
-          targetObject: this.guy,
-          cameraPosition,
-          fixed: false,
-          stiffness: 0.0,
-          matchRotation: false
-        });
+    // let cameraPosition = new Vector3(0, 500, 350)
+    camera.position.z = 500
+    // this.$watch('guy', () => {
+    //   if (this.guy) {
+    //     this.camera.position.y = this.guy.position.y
+    //     camera.addTarget({
+    //       name: 'myTarget',
+    //       targetObject: this.guy,
+    //       cameraPosition,
+    //       fixed: true,
+    //       stiffness: 0.0,
+    //       matchRotation: false
+    //     });
 
-        // Now tell this camera to track the target we just created.
-        camera.setTarget('myTarget');
-      }
-    })
+    //     // Now tell this camera to track the target we just created.
+    //     camera.setTarget('myTarget');
+    //   }
+    // })
     this.lookup('base').onLoop(() => {
       let progress = vscroll.value
-      let farest = 700
+      let farest = 600
       let defaultCloseup = 200
       if (this.guy) {
-        camera.lookAt(this.guy.position)
-        cameraPosition.x = this.guy.position.x
-        cameraPosition.y = this.guy.position.y + 50
-        cameraPosition.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest) + this.guy.position.z * 1.0
-        camera.update()
+        camera.lookAt(this.guy.position.clone().add(new Vector3(0, -50, 0)))
+
+        let v3 = new Vector3()
+
+        v3.x = this.guy.position.x
+        v3.y = this.guy.position.y + 100
+        v3.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest) + this.guy.position.z * 1.0
+
+        camera.position.lerp(v3, 0.2)
+        // camera.update()
       }
     })
 
@@ -276,10 +281,10 @@ export default {
     let movesOrig = []
     let combinedMapper = {
       ...breakdancesMapper,
-      ...gestureMapper,
       ...locomotionMapper,
       ...capoeiraMapper,
-      ...rifleMapper
+      ...rifleMapper,
+      ...gestureMapper
     }
     let i = 0
     for (let kn in combinedMapper) {
@@ -292,8 +297,8 @@ export default {
       i++
     }
     this.moves = movesOrig
-    // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
-    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
+    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
+    // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
 
     // let tasks = breakdances.map((item) => {
     //   return new Promise((resolve) => {
@@ -419,7 +424,7 @@ export default {
     let looper = () => {
       this.layouts = {
         all: {
-          py: 150
+          py: 0
         },
         bg: {
           pz: -400
@@ -444,11 +449,11 @@ export default {
         },
         center: {
           // ry: Math.PI * (progress),
-          sx: 150,
-          sy: 150,
-          sz: 150,
+          sx: 180,
+          sy: 180,
+          sz: 180,
 
-          py: -170,
+          py: -180,
           // px: -200,
           // pz: 100
         },
