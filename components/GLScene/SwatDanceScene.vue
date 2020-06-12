@@ -38,7 +38,7 @@
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" @click="showTool = !showTool">Actions</div>
     </div>
     <div v-if="guyMounted && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-64 lg:h-full lg:pb-12 overflow-y-auto">
-      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
+      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
     <div v-show="isLoading" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
@@ -206,6 +206,8 @@ export default {
 
     camera.position.z = defaultCloseup
 
+    let targetPosition = new Vector3()
+
     let lerperLookAt = new Vector3()
     let lerperCamPos = new Vector3()
     let targetLookAt = new Vector3()
@@ -215,11 +217,15 @@ export default {
       let progress = vscroll.value
       if (this.guy && this.goal) {
         // targetLookAt.setFromMatrixPosition(this.goal.matrixWorld);
-        this.guy.getWorldPosition(targetLookAt)
+        this.guy.getWorldPosition(targetPosition)
 
-        targetCamPos.x = targetLookAt.x
-        targetCamPos.y = targetLookAt.y + 0
-        targetCamPos.z = targetLookAt.z + defaultCloseup + farest * progress
+        targetCamPos.x = targetPosition.x
+        targetCamPos.y = targetPosition.y + 80
+        targetCamPos.z = targetPosition.z + defaultCloseup + farest * progress
+
+        targetLookAt.x = targetPosition.x
+        targetLookAt.y = targetPosition.y + 80
+        targetLookAt.z = targetPosition.z
 
         lerperLookAt.lerp(targetLookAt, 0.1)
         lerperCamPos.lerp(targetCamPos, 0.1)
@@ -277,7 +283,8 @@ export default {
       i++
     }
     this.moves = movesOrig
-    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
+    // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
+    this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
 
     // let tasks = breakdances.map((item) => {
