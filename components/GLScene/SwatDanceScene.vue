@@ -45,6 +45,10 @@
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
+    <div v-show="displayStartMenu" @click="startGame" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm">Start Dancing</div>
+    </div>
+
     <!--  -->
 
     <!--
@@ -67,7 +71,13 @@ import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, makeScroller } from 
 import { Scene, Color, Vector3, LoadingManager, Quaternion } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { Howl, Howler } from 'howler'
+var sound = new Howl({
+  src: [require('file-loader!~/components/GLContent/Swat/music/ambinet-b.mp3')]
+})
 
+
+//ambinet-b.mp3
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 const TWEEN = require('@tweenjs/tween.js').default
@@ -81,6 +91,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      displayStartMenu: true,
       showTool: true,
       isLoading: false,
       move: false,
@@ -103,6 +114,19 @@ export default {
     }
   },
   methods: {
+    startGame () {
+      this.displayStartMenu = false
+      sound.play()
+
+      if (window.innerWidth < 500) {
+        let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
+        this.controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
+        this.controls.dampping = true
+        this.lookup('base').onLoop(() => {
+          this.controls.update()
+        })
+      }
+    },
     onReady () {
       // this.ready = true
       // setTimeout(() => {
@@ -160,6 +184,7 @@ export default {
     this.$parent.$emit('camera', this.camera)
     // let cameraPosition = new Vector3(0, 500, 350)
     camera.position.z = 500
+
     // this.$watch('guy', () => {
     //   if (this.guy) {
     //     this.camera.position.y = this.guy.position.y
@@ -171,11 +196,11 @@ export default {
     //       stiffness: 0.0,
     //       matchRotation: false
     //     });
-
     //     // Now tell this camera to track the target we just created.
     //     camera.setTarget('myTarget');
     //   }
     // })
+
     this.lookup('base').onLoop(() => {
       let progress = vscroll.value
       let farest = 600
@@ -367,13 +392,6 @@ export default {
     // this.camera.lookAt(this.scene.position)
     // this.rayplay = new RayPlay({ mounter: this.lookup('element'), base: this.lookup('base'), camera: this.camera })
 
-    // let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
-    // this.controls = new OrbitControls(this.camera, this.lookup('element'))
-    // this.controls.dampping = true
-    // this.lookup('base').onLoop(() => {
-    //   this.controls.update()
-    // })
-
     // let i = 0
     // this.lookup('element').addEventListener('click', () => {
     //   this.loaderAPI.reset()
@@ -385,7 +403,6 @@ export default {
     this.scene.add(this.o3d)
 
     this.$parent.$emit('scene', this.scene)
-
 
     // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
     //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
@@ -430,7 +447,6 @@ export default {
           pz: -400
         },
         run: {
-
           ry: Math.PI * -0.25,
 
           sx: 1,
