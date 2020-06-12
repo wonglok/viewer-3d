@@ -3,7 +3,7 @@
     <O3D  v-if="layouts && shaderCube && loaderAPI">
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
-      <!-- <O3D v-if="isReady">
+      <!-- <O3D v-if="isReady" :animated="true" layout="bg">
         <ChromaticsBG></ChromaticsBG>
       </O3D> -->
 
@@ -265,12 +265,22 @@ export default {
     //   this.controls.update()
     // })
 
-    let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
-    this.controls = new OrbitControls(this.camera, this.$refs['domlayer'])
-    this.controls.dampping = true
-    this.lookup('base').onLoop(() => {
-      this.controls.update()
-    })
+
+    if (window.innerWidth < 500) {
+      let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
+      this.controls = new DeviceOrientationControls(this.camera, this.$refs['domlayer'])
+      this.controls.dampping = true
+      this.lookup('base').onLoop(() => {
+        this.controls.update()
+      })
+    } else {
+      let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
+      this.controls = new OrbitControls(this.camera, this.$refs['domlayer'])
+      this.controls.dampping = true
+      this.lookup('base').onLoop(() => {
+        this.controls.update()
+      })
+    }
 
     // let i = 0
     // this.lookup('element').addEventListener('click', () => {
