@@ -3,7 +3,7 @@
     <O3D v-if="layouts && shaderCube && loaderAPI && camera">
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
-      <O3D :animated="true" layout="bg" v-if="isReady">
+      <O3D :animated="true" layout="bg" :visible="guyMounted">
         <ChromaticsBG></ChromaticsBG>
       </O3D>
 
@@ -37,7 +37,7 @@
     <div class="absolute z-10 top-0 right-0 text-white p-3">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" @click="showTool = !showTool">Actions</div>
     </div>
-    <div v-if="isReady && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-64 lg:h-full lg:pb-12 overflow-y-auto">
+    <div v-if="guyMounted && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-64 lg:h-full lg:pb-12 overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
@@ -45,9 +45,9 @@
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
-    <div v-show="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm" @click="startGame" v-if="isReady">Start Dancing</div>
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!isReady">Loading...</div>
+    <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Loading...</div>
     </div>
 
     <!--  -->
@@ -99,7 +99,6 @@ export default {
       moves: false,
       actionList,
       action,
-      isReady: false,
       canMount: false,
       loadingManager:false,
       loaderAPI: false,
@@ -112,6 +111,11 @@ export default {
       layouts: false,
       blur: 0,
       socket: false
+    }
+  },
+  computed: {
+    guyMounted () {
+      return !!this.guy
     }
   },
   methods: {
@@ -293,7 +297,6 @@ export default {
               .onComplete(() => {
                 setTimeout(() => {
                   bar.visible = false
-                  this.isReady = true
                 }, 10)
               })
               .delay(0)
