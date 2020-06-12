@@ -78,11 +78,12 @@ class CustomWebGLCubeRenderTarget extends WebGLCubeRenderTarget {
 }
 
 export class ShaderCubeSea {
-  constructor ({ renderer, loop, res = 128 }) {
+  constructor ({ renderer, loop, resX = 128, resY = 128 }) {
     this.renderer = renderer
-    this.resX = res || 128
+    this.resX = resX || 128
+    this.resY = resY || 128
     this.renderTargetCube = new CustomWebGLCubeRenderTarget(this.resX, { format: RGBFormat, magFilter: LinearFilter, minFilter: LinearFilter })
-    this.renderTargetPlane = new WebGLRenderTarget(this.resX, this.resX, { format: RGBFormat, magFilter: LinearFilter, minFilter: LinearFilter })
+    this.renderTargetPlane = new WebGLRenderTarget(this.resX, this.resY, { format: RGBFormat, magFilter: LinearFilter, minFilter: LinearFilter })
     this.camera = new Camera()
     this.scene = new Scene()
     this.geo = new PlaneBufferGeometry(2, 2, 2, 2)
@@ -91,7 +92,7 @@ export class ShaderCubeSea {
         value: 0
       },
       resolution: {
-        value: new Vector2(this.resX, this.resX)
+        value: new Vector2(this.resX, this.resY)
       }
     }
     let glsl = v => v[0]

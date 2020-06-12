@@ -252,7 +252,7 @@ export default {
 
     this.scene.background = new Color('#000000')
     this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
-    this.shaderCubeBG = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 512 })
+    this.shaderCubeBG = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: window.innerWidth / 2, resY: window.innerHeight / 2 })
     this.scene.background = this.shaderCubeBG.out.envMap
 
     // this.camera.lookAt(this.scene.position)
