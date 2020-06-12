@@ -37,7 +37,7 @@
     <div class="absolute z-10 top-0 right-0 text-white p-3">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" @click="showTool = !showTool">Actions</div>
     </div>
-    <div v-if="isReady && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-64 lg:h-full overflow-y-auto">
+    <div v-if="isReady && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-64 lg:h-full lg:pb-12 overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
@@ -119,8 +119,6 @@ export default {
           resolve(item)
           this.isLoading = false
         }, (v) => {
-          // console.log(v)
-
           // this.loaderAPI.updateProgress(v.loaded / v.total)
         }, () => {
           resolve(item)
@@ -156,11 +154,11 @@ export default {
     // // this.camera.position.y = 500
     // this.camera.lookAt(this.scene.position)
 
-    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 3 }, onMove: () => {} })
+    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
     let camera = this.camera = new TCamera({ base: this.lookup('base'), element: this.lookup('element') })
-    camera.position.z = 600
     this.$parent.$emit('camera', this.camera)
-    let cameraPosition = new Vector3(0, 200, 300)
+    let cameraPosition = new Vector3(0, 200, 350)
+    camera.position.z = cameraPosition.z
     this.$watch('guy', () => {
       if (this.guy) {
         this.camera.position.y = this.guy.position.y
@@ -168,19 +166,20 @@ export default {
           name: 'myTarget',
           targetObject: this.guy,
           cameraPosition,
-          fixed: true,
-          stiffness: 0.001,
-          matchRotation: true
+          fixed: false,
+          stiffness: 0.0,
+          matchRotation: false
         });
 
         // Now tell this camera to track the target we just created.
         camera.setTarget('myTarget');
       }
     })
-
     this.lookup('base').onLoop(() => {
       let progress = vscroll.value
-      cameraPosition.z = 800 + (progress * 2.0 - 0.5) * 500
+      let farest = 600
+      let defaultCloseup = 200
+      cameraPosition.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest)
       camera.update()
     })
 
@@ -222,7 +221,7 @@ export default {
             this.canMount = true
             let dat = { dynamic: totalStat }
             const tween = new TWEEN.Tween(dat) // Create a new tween that modifies 'coords'.
-              .to({ dynamic: 1 }, 1000) // Move to (300, 200) in 1 second.
+              .to({ dynamic: 1 }, 1000) // Move to (350, 200) in 1 second.
               .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
               .onUpdate(() => {
                 totalStat = dat.dynamic
@@ -409,55 +408,13 @@ export default {
 
     // let parentScrollBox = this.lookup('scrollBox')
     let looper = () => {
-      if (this.guy) {
-        // let guypos = this.guy.position
-        // let looker = new Vector3()
-        // looker.lerp(guypos, 0.2)
-
-        // looker.copy(guypos).add(direction)
-        // this.camera.position.lerp(looker, 0.2)
-        // this.camera.lookAt(looker)
-      }
-
-      // let progress = vscroll.value
-
-      // if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 0) {
-      //   this.action = 'upper-jab'
-      // } else if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 1) {
-      //   this.action = 'side-kick'
-      // } else if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 2) {
-      //   this.action = 'mma-kick'
-      // }
-
-      // console.log(progress)
-      // if (!parentScrollBox) { return }
-      // this.camera.position.y = 350 * progress
-      // this.camera.
-      if (this.$refs.swatrun) {
-        // this.camera.position.copy(this.$refs.swatrun.o3d.position)
-        // this.camera.position.z += 2000
-        // this.camera.position.y += 0
-        // this.camera.position.y += 250
-        // this.camera.lookAt(this.$refs.swatrun.o3d.position)
-      }
-      // this.camera.position.z = 400 + (progress - 0.5) * 400
-
       this.layouts = {
         all: {
-          // pz: (1.0 - progress) * -400,
           py: 150
         },
         bg: {
-          pz: -200
+          pz: -400
         },
-        // flip: {
-        //   rx: -this.camera.quaternion.x,
-        //   ry: -this.camera.quaternion.y,
-        //   rz: -this.camera.quaternion.z
-        // },
-        // lensarea: {
-        //   pz: 390
-        // },
         run: {
 
           ry: Math.PI * -0.25,

@@ -26,7 +26,7 @@ void main (void) {
 	rotatedPosition.x = cos( rotation ) * alignedPosition.x - sin( rotation ) * alignedPosition.y;
 	rotatedPosition.y = sin( rotation ) * alignedPosition.x + cos( rotation ) * alignedPosition.y;
 	mvPosition.xy += rotatedPosition;
-  mvPosition.z += mvPosition.z;
+  // mvPosition.z += mvPosition.z;
 	gl_Position = projectionMatrix * mvPosition;
 
   // gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
