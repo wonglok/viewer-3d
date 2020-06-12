@@ -283,15 +283,15 @@ export default {
       this.loaderAPI.updateProgress(overallProgressDetailed)
     }
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
-      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     /* Loader End */
