@@ -131,7 +131,6 @@ export default {
             if (manager.onURL) {
               manager.onURL(url, v.loaded / v.total)
             }
-            // this.loaderAPI.updateProgress(v.loaded / v.total)
           })
 
           // // eslint-disable-next-line

@@ -1,6 +1,6 @@
 <template>
   <O3D :animated="true" :layout="`all`">
-    <O3D v-if="layouts && shaderCube && loaderAPI && camera">
+    <O3D v-if="layouts && shaderCube && camera">
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
       <O3D :animated="true" layout="bg" :visible="guyMounted">
@@ -47,7 +47,7 @@
 
     <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Loading...</div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Loading... {{ (loadProgress * 100).toFixed(1) }}% </div>
     </div>
 
   </O3D>
@@ -55,7 +55,7 @@
 
 <script>
 import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
-import { Scene, Color, Vector3, LoadingManager, Quaternion } from 'three'
+import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Howl, Howler } from 'howler'
@@ -78,6 +78,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      loadProgress: 0,
       displayStartMenu: true,
       showTool: true,
       isLoading: false,
@@ -124,7 +125,7 @@ export default {
           y += 90;
 
           console.log(x, y)
-          if (isNaN(x) || !x) {
+          if (isNaN(x)) {
             resolve(false)
           } else {
             resolve(true)
@@ -135,7 +136,7 @@ export default {
         }, 10000)
       })
 
-      if (gyroPresent) {
+      if (gyroPresent || window.innerWidth < 500) {
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         this.controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
         this.controls.dampping = true
@@ -199,7 +200,6 @@ export default {
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    // let cameraPosition = new Vector3(0, 500, 350)
     camera.position.z = 500
 
     // this.$watch('guy', () => {
@@ -223,7 +223,6 @@ export default {
       let farest = 600
       let defaultCloseup = 200
       if (this.guy) {
-        camera.lookAt(this.guy.position.clone().add(new Vector3(0, -50, 0)))
 
         let v3 = new Vector3()
 
@@ -232,62 +231,28 @@ export default {
         v3.z = farest * 1.0 + (-(defaultCloseup / farest) + progress) * (farest) + this.guy.position.z * 1.0
 
         camera.position.lerp(v3, 0.2)
-        // camera.update()
+        camera.lookAt(this.guy.position.clone().add(new Vector3(0, -50, 0)))
       }
     })
 
     /* Loader START */
-    let makeGLProgress = async () => {
-      let totalStat = 0
-      let { Mesh } = require('three/src/objects/Mesh')
-      let { PlaneBufferGeometry } = require('three/src/geometries/PlaneGeometry')
-      let { MeshBasicMaterial } = require('three/src/materials/MeshBasicMaterial')
-      let { getScreen, Damper } = require('../Reusable')
-      let dampping = new Damper(0, this.lookup('base'), 0.5)
-      dampping.value = 0
-      let screen = getScreen({ camera: this.camera, depth: 500 })
-      let screenScaler = 2
-      let geo = new PlaneBufferGeometry(screen.width * screenScaler, 0.1, 2, 2)
-      geo.translate(-screen.width * screenScaler, 0, 0)
-      let mat = new MeshBasicMaterial({ color: 0xffffff, transparent: true })
-      let bar = new Mesh(geo, mat)
-      this.scene.add(bar)
-      this.cleanLoader = () => {
-        this.scene.remove(bar)
-      }
-      this.lookup('base').onLoop(() => {
-        dampping.value = totalStat
-        bar.position.x = dampping.value * screen.width * screenScaler
-      })
-      this.$watch('guyMounted', () => {
-        if (this.guyMounted) {
-          this.cleanLoader()
-        }
-      })
-      return {
-        updateProgress: (v) => {
-          totalStat = v
-        }
-      }
-    }
-    this.loaderAPI = await makeGLProgress()
-    this.loadingManager = new LoadingManager()
+    this.loadingManager = DefaultLoadingManager
     this.loadingManager.stat = { itemsLoaded: 0, itemsTotal: 1 }
     this.loadingManager.onURL = (url, progress) => {
       let { itemsLoaded, itemsTotal } = this.loadingManager.stat
       let overallProgressDetailed = itemsLoaded / itemsTotal + progress / itemsTotal
-      this.loaderAPI.updateProgress(overallProgressDetailed)
+      this.loadProgress = (overallProgressDetailed)
     }
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadProgress = (itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadProgress = (itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadProgress = (itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     /* Loader End */

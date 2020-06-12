@@ -62,9 +62,6 @@ export default {
         }
       })
       this.o3d.add(model.scene)
-      // this.lookupWait('canMount').then(() => {
-      // })
-
 
       let runAnimation = () => {
         if (this.lastMixer) {
@@ -82,35 +79,6 @@ export default {
           if (mixer.run) {
             mixer.update(16.6667 / 1000)
           }
-          // model.scene.traverse((item) => {
-          //   if (item.position.x !== 0 && item.position.x !== item.oldpx) {
-          //     console.log(item.position.x, item.name)
-          //     item.oldpx = item.position.x
-          //   }
-          // })
-          // if (guy) {
-          //   var relativeCameraOffset = new Vector3(0,50,300);
-
-          //   var cameraOffset = relativeCameraOffset.applyMatrix4( guy.matrixWorld );
-
-          //   // camera.position.x += cameraOffset.x;
-          //   // camera.position.y += cameraOffset.y;
-          //   // camera.position.z += cameraOffset.z;
-          //   camera.lookAt(guy.position);
-
-          //   // // console.log(guy.position.z)
-          //   // // var relativeCameraOffset = new Vector3(0,50,200);
-
-          //   // // var cameraOffset = relativeCameraOffset.applyMatrix4(model.scene.matrixWorld)
-
-          //   // // camera.position.x = cameraOffset.x
-          //   // // camera.position.y = cameraOffset.y
-          //   // // camera.position.z = cameraOffset.z
-          //   // // camera.lookAt(model.scene.position)
-
-          //   // goto.position.copy(guy.position).add(new Vector3(0, 30, -330))
-          //   // this.camera.position.lerp(goto.position, 0.2)
-          // }
         })
       }
 
