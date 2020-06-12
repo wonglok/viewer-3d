@@ -212,7 +212,6 @@ export default {
     this.loadingManager.onURL = (url, progress) => {
       let { itemsLoaded, itemsTotal } = this.loadingManager.stat
       let overallProgressDetailed = itemsLoaded / itemsTotal + progress / itemsTotal
-      console.log(overallProgressDetailed)
       this.loaderAPI.updateProgress(overallProgressDetailed)
     }
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
@@ -220,11 +219,11 @@ export default {
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
       this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     /* Loader End */
@@ -232,18 +231,23 @@ export default {
     /* dance moves */
     // let loaderFBX = new FBXLoader(this.loadingManager)
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
-    let breakdances = []
+    let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    let movesOrig = []
+    let combinedMapper = {
+      ...breakdancesMapper,
+      ...capoeiraMapper
+    }
     let i = 0
-    for (let kn in breakdancesMapper) {
-      breakdances.push({
+    for (let kn in combinedMapper) {
+      movesOrig.push({
         _id: i,
         displayName: kn,
         fbx: false,
-        url: breakdancesMapper[kn]
+        url: combinedMapper[kn]
       })
       i++
     }
-    this.moves = breakdances
+    this.moves = movesOrig
     this.chooseMove(this.moves[0])
 
     // let tasks = breakdances.map((item) => {
@@ -269,6 +273,7 @@ export default {
     //       this.move = this.moves[0]
     //     })
     //   })
+
     /* dance moves end */
 
     /* BLOOM START */
