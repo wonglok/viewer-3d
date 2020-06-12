@@ -220,11 +220,11 @@ export default {
         this.guy.getWorldPosition(targetPosition)
 
         targetCamPos.x = targetPosition.x
-        targetCamPos.y = targetPosition.y + 80
+        targetCamPos.y = targetPosition.y + 30
         targetCamPos.z = targetPosition.z + defaultCloseup + farest * progress
 
         targetLookAt.x = targetPosition.x
-        targetLookAt.y = targetPosition.y + 80
+        targetLookAt.y = targetPosition.y + 30
         targetLookAt.z = targetPosition.z
 
         lerperLookAt.lerp(targetLookAt, 0.1)
