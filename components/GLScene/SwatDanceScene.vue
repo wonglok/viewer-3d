@@ -50,20 +50,6 @@
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Loading...</div>
     </div>
 
-    <!--  -->
-
-    <!--
-    <O3D :animated="true" layout="mouse2">
-      <MouseSillyDance :shaderCube="shaderCube"></MouseSillyDance>
-    </O3D>
-    -->
-
-    <!-- <PointLight></PointLight> -->
-
-    <!-- <O3D :animated="true" layout="lensarea">
-      <LensArea :dudv="'water'"></LensArea>
-    </O3D> -->
-
   </O3D>
 </template>
 
@@ -99,7 +85,6 @@ export default {
       moves: false,
       actionList,
       action,
-      canMount: false,
       loadingManager:false,
       loaderAPI: false,
       shaderCube: false,
@@ -262,7 +247,7 @@ export default {
       dampping.value = 0
       let screen = getScreen({ camera: this.camera, depth: 500 })
       let screenScaler = 2
-      let geo = new PlaneBufferGeometry(screen.width * screenScaler, 3, 2, 2)
+      let geo = new PlaneBufferGeometry(screen.width * screenScaler, 0.1, 2, 2)
       geo.translate(-screen.width * screenScaler, 0, 0)
       let mat = new MeshBasicMaterial({ color: 0xffffff, transparent: true })
       let bar = new Mesh(geo, mat)
@@ -274,34 +259,14 @@ export default {
         dampping.value = totalStat
         bar.position.x = dampping.value * screen.width * screenScaler
       })
+      this.$watch('guyMounted', () => {
+        if (this.guyMounted) {
+          this.cleanLoader()
+        }
+      })
       return {
-        reset () {
-          totalStat = 0
-          dampping.value = 0
-          bar.visible = true
-        },
-        get loaded () {
-          return dampping.value >= 0.999
-        },
         updateProgress: (v) => {
-          totalStat = 0.95 * v
-          if (v >= 0.945) {
-            this.canMount = true
-            let dat = { dynamic: totalStat }
-            const tween = new TWEEN.Tween(dat) // Create a new tween that modifies 'coords'.
-              .to({ dynamic: 1 }, 1000) // Move to (350, 200) in 1 second.
-              .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-              .onUpdate(() => {
-                totalStat = dat.dynamic
-              })
-              .onComplete(() => {
-                setTimeout(() => {
-                  bar.visible = false
-                }, 10)
-              })
-              .delay(0)
-              .start()
-          }
+          totalStat = v
         }
       }
     }

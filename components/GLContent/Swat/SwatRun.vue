@@ -48,6 +48,9 @@ export default {
 
       model.scene.traverse((item) => {
         // console.log(item.name)
+        if (item && item.name === 'mixamorigHips') {
+          this.$emit('guy', item)
+        }
 
         if (item.isMesh && item.name === 'Mesh.001_0') {
           // metal
@@ -73,9 +76,9 @@ export default {
           item.frustumCulled = false
         }
       })
-      this.lookupWait('canMount').then(() => {
-        this.o3d.add(model.scene)
-      })
+      this.o3d.add(model.scene)
+      // this.lookupWait('canMount').then(() => {
+      // })
 
       // var ambient = new AmbientLight(0xffffff, 1); // soft white light
       // this.o3d.add(ambient)

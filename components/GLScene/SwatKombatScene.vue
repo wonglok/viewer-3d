@@ -75,7 +75,6 @@ export default {
       actionList,
       action,
       isReady: false,
-      canMount: false,
       loadingManager:false,
       loaderAPI: false,
       shaderCube: false,
@@ -174,7 +173,6 @@ export default {
         updateProgress: (v) => {
           totalStat = 0.95 * v
           if (v >= 0.945) {
-            this.canMount = true
             let dat = { dynamic: totalStat }
             const tween = new TWEEN.Tween(dat) // Create a new tween that modifies 'coords'.
               .to({ dynamic: 1 }, 1000) // Move to (300, 200) in 1 second.

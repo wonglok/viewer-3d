@@ -61,9 +61,9 @@ export default {
           item.frustumCulled = false
         }
       })
-      this.lookupWait('canMount').then(() => {
-        this.o3d.add(model.scene)
-      })
+      this.o3d.add(model.scene)
+      // this.lookupWait('canMount').then(() => {
+      // })
 
 
       let runAnimation = () => {

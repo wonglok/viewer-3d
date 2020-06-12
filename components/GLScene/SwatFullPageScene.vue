@@ -117,7 +117,6 @@ export default {
                 totalStat = dat.dynamic
               })
               .onComplete(() => {
-                this.canMount = true
                 setTimeout(() => {
                   bar.visible = false
                   this.isReady = true
