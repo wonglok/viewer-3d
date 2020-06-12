@@ -3,7 +3,7 @@
     <O3D  v-if="layouts && shaderCube && loaderAPI">
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
-      <O3D v-if="isReady">
+      <O3D :animated="true" layout="flip" v-if="isReady">
         <ChromaticsBG></ChromaticsBG>
       </O3D>
 
@@ -33,7 +33,11 @@
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
-    <div v-if="isReady" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
+
+    <div class="absolute z-10 top-0 right-0 text-white p-3">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" @click="showTool = !showTool">Actions</div>
+    </div>
+    <div v-if="isReady && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-64 lg:h-full overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
@@ -59,7 +63,7 @@
 
 <script>
 import { Tree, RayPlay, PCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
-import { Scene, Color, Vector3, LoadingManager } from 'three'
+import { Scene, Color, Vector3, LoadingManager, Quaternion } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
@@ -76,6 +80,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      showTool: true,
       isLoading: false,
       move: false,
       moves: false,
@@ -146,7 +151,7 @@ export default {
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     // this.camera.position.x = -200
     // this.camera.position.y = 100
-    this.camera.position.z = 2500
+    this.camera.position.z = 400
     // this.camera.position.y = 500
     this.camera.lookAt(this.scene.position)
 
@@ -230,11 +235,15 @@ export default {
 
     /* dance moves */
     // let loaderFBX = new FBXLoader(this.loadingManager)
+    let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
+    let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
     let movesOrig = []
     let combinedMapper = {
       ...breakdancesMapper,
+      ...gestureMapper,
+      ...locomotionMapper,
       ...capoeiraMapper
     }
     let i = 0
@@ -331,12 +340,19 @@ export default {
     //   i++
     // })
 
+    let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
+    this.controls = new OrbitControls(this.camera, this.$refs['domlayer'])
+    this.controls.dampping = true
+    this.lookup('base').onLoop(() => {
+      this.controls.update()
+    })
+
     this.scene.add(this.o3d)
 
     this.$parent.$emit('scene', this.scene)
     this.$parent.$emit('camera', this.camera)
 
-    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
+    // let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
 
     // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
     //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
@@ -352,9 +368,8 @@ export default {
     // let parentScrollBox = this.lookup('scrollBox')
 
     let looper = () => {
-      let progress = vscroll.value
+      // let progress = vscroll.value
 
-      console.log()
       // if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 0) {
       //   this.action = 'upper-jab'
       // } else if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 1) {
@@ -374,17 +389,22 @@ export default {
         // this.camera.position.y += 250
         // this.camera.lookAt(this.$refs.swatrun.o3d.position)
       }
-      this.camera.position.z = 3000 + (progress - 0.5) * 3000
+      // this.camera.position.z = 400 + (progress - 0.5) * 400
 
       this.layouts = {
+        flip: {
+          rx: -this.camera.quaternion.x,
+          ry: -this.camera.quaternion.y,
+          rz: -this.camera.quaternion.z
+        },
         // lensarea: {
         //   pz: 390
         // },
         run: {
 
-          sx: 8,
-          sy: 8,
-          sz: 8,
+          sx: 1,
+          sy: 1,
+          sz: 1,
           // pz: -100,
           // rx: Math.PI * 0.05 + Math.PI
 
