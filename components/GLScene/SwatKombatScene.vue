@@ -135,8 +135,8 @@ export default {
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     // this.camera.position.x = -200
     // this.camera.position.y = 100
-    this.camera.position.z = 2500
-    this.camera.position.y = 500
+    this.camera.position.z = 300
+    this.camera.position.y = 100
     this.camera.lookAt(this.scene.position)
 
     /* Loader START */
@@ -345,10 +345,10 @@ export default {
           pz: 390
         },
         run: {
-          sx: 5,
-          sy: 5,
-          sz: 5,
-          py: -600,
+          sx: 1,
+          sy: 1,
+          sz: 1,
+          py: -100,
           // pz: -100,
           ry: Math.PI * 0.45
 
