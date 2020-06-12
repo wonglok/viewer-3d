@@ -33,7 +33,7 @@
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
-    <div :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
+    <div v-if="isReady" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white h-20 overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="inline-block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 

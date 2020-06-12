@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { Tree, RayPlay, PCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
+import { Tree, RayPlay, PCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller } from '../Reusable'
 import { Scene, Color, Vector3, LoadingManager } from 'three'
 
 // import { Interaction } from 'three.interaction'
@@ -136,7 +136,7 @@ export default {
     // this.camera.position.x = -200
     // this.camera.position.y = 100
     this.camera.position.z = 2500
-    // this.camera.position.y = 500
+    this.camera.position.y = 500
     this.camera.lookAt(this.scene.position)
 
     /* Loader START */
@@ -173,7 +173,8 @@ export default {
         },
         updateProgress: (v) => {
           totalStat = 0.95 * v
-          if (v >= 0.95) {
+          if (v >= 0.945) {
+            this.canMount = true
             let dat = { dynamic: totalStat }
             const tween = new TWEEN.Tween(dat) // Create a new tween that modifies 'coords'.
               .to({ dynamic: 1 }, 1000) // Move to (300, 200) in 1 second.
@@ -182,11 +183,10 @@ export default {
                 totalStat = dat.dynamic
               })
               .onComplete(() => {
-                this.canMount = true
                 setTimeout(() => {
                   bar.visible = false
                   this.isReady = true
-                }, 150)
+                }, 10)
               })
               .delay(0)
               .start()
@@ -196,13 +196,23 @@ export default {
     }
     this.loaderAPI = await makeGLProgress()
     this.loadingManager = new LoadingManager()
+    this.loadingManager.stat = { itemsLoaded: 0, itemsTotal: 1 }
+    this.loadingManager.onURL = (url, progress) => {
+      let { itemsLoaded, itemsTotal } = this.loadingManager.stat
+      let overallProgressDetailed = itemsLoaded / itemsTotal + progress / itemsTotal
+      this.loaderAPI.updateProgress(overallProgressDetailed)
+    }
     this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      // console.log(itemsLoaded / itemsTotal)
-      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-      // console.log(itemsLoaded / itemsTotal)
-      this.loaderAPI.updateProgress(0.5)
+      // this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
+    }
+    this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
+      this.loaderAPI.updateProgress(itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
     }
     /* Loader End */
 
@@ -241,8 +251,9 @@ export default {
     /* BLOOM END */
 
     this.scene.background = new Color('#000000')
-    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
-    // this.scene.background = this.shaderCube.out.envMap
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    this.shaderCubeBG = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 512 })
+    this.scene.background = this.shaderCubeBG.out.envMap
 
     // this.camera.lookAt(this.scene.position)
     // this.rayplay = new RayPlay({ mounter: this.lookup('element'), base: this.lookup('base'), camera: this.camera })
@@ -253,6 +264,13 @@ export default {
     // this.lookup('base').onLoop(() => {
     //   this.controls.update()
     // })
+
+    let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
+    this.controls = new OrbitControls(this.camera, this.$refs['domlayer'])
+    this.controls.dampping = true
+    this.lookup('base').onLoop(() => {
+      this.controls.update()
+    })
 
     // let i = 0
     // this.lookup('element').addEventListener('click', () => {
@@ -266,7 +284,7 @@ export default {
     this.$parent.$emit('scene', this.scene)
     this.$parent.$emit('camera', this.camera)
 
-    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
+    // let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 2 }, onMove: () => {} })
 
     // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
     //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
@@ -282,7 +300,7 @@ export default {
     // let parentScrollBox = this.lookup('scrollBox')
 
     let looper = () => {
-      let progress = vscroll.value
+      // let progress = vscroll.value
 
       console.log()
       // if (Math.floor((progress / 2 * 3)).toFixed(0) % 3 === 0) {
@@ -313,22 +331,23 @@ export default {
           sx: 5,
           sy: 5,
           sz: 5,
+          py: -600,
           // pz: -100,
-          rx: Math.PI * 0.05
+          ry: Math.PI * 0.45
 
           // pz: -250,
           // px: -2250,
           // ry: Math.PI * 0.15,
         },
         center: {
-          ry: Math.PI * 0.23 + Math.PI * 2 * (progress),
+          // ry: Math.PI * 0.23 + Math.PI * 2 * (progress),
           pz: 0,
           sx: 150,
           sy: 150,
           sz: 150,
-          py: -150,
+          // py: -150,
           // px: -200,
-          pz: 100
+          // pz: 100
         },
         left: {
           // ry: Math.PI * 2 * (progress),

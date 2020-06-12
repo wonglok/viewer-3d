@@ -101,7 +101,7 @@ export default {
       let run = true
       this.lookup('base').onLoop(() => {
         if (run) {
-          mixer.update(16 / 1000)
+          mixer.update(16.6667 / 1000)
         }
       })
 
@@ -130,10 +130,21 @@ export default {
       let loaderModel = new GLTFLoader(this.lookup('loadingManager'))
       let all = await Promise.all([
         new Promise((resolve) => {
-          // eslint-disable-next-line
-          loaderModel.load(require('file-loader!./swat/upper-jab.glb'), (v) => {
+          // // eslint-disable-next-line
+          // loaderModel.load(require('file-loader!./swat/upper-jab.glb'), (v) => {
+          //   resolve(v)
+          // }, (v) => {
+          //   // this.loaderAPI.updateProgress(v.loaded / v.total)
+          // })
+
+          let url = require('file-loader!./swat/upper-jab.glb')
+          loaderModel.load(url, (v) => {
             resolve(v)
           }, (v) => {
+            let manager = this.lookup('loadingManager')
+            if (manager.onURL) {
+              manager.onURL(url, v.loaded / v.total)
+            }
             // this.loaderAPI.updateProgress(v.loaded / v.total)
           })
         }),

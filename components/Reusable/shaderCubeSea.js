@@ -94,6 +94,7 @@ export class ShaderCubeSea {
         value: new Vector2(this.resX, this.resX)
       }
     }
+    let glsl = v => v[0]
     this.mat = new ShaderMaterial({
       side: DoubleSide,
       transparent: true,
@@ -105,7 +106,7 @@ export class ShaderCubeSea {
           gl_Position = vec4( position, 1.0 );
         }
       `,
-      fragmentShader: `
+      fragmentShader: glsl`
         varying vec3 vNormal;
 
         #include <common>
@@ -139,7 +140,7 @@ export class ShaderCubeSea {
           c /= float(MAX_ITER);
           c = 1.17-pow(c, 1.4);
           vec3 colour = vec3(pow(abs(c), 8.0));
-          vec3 myColor = vec3(0.0, 0.0, 1.0);
+          vec3 myColor = vec3(0.7, 0.7, 0.7);
           colour = clamp(colour * myColor, 0.0, 1.0);
 
           #ifdef SHOW_TILING

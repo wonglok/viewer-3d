@@ -71,8 +71,8 @@ export default {
 
           this.lookup('base').onLoop(() => {
             if (mixer.run) {
-              mixer.update(16 / 1000)
-            }
+              mixer.update(16.6667 / 1000)
+        }
           })
         }
       if (this.move && this.move.fbx && this.move.fbx.animations) {

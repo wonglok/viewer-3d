@@ -131,10 +131,21 @@ export default {
 
       let all = await Promise.all([
         new Promise((resolve) => {
-          // eslint-disable-next-line
-          loaderModel.load(require('file-loader!./swat/side-kick.glb'), (v) => {
+          // // eslint-disable-next-line
+          // loaderModel.load(require('file-loader!./swat/side-kick.glb'), (v) => {
+          //   resolve(v)
+          // }, (v) => {
+          //   // this.loaderAPI.updateProgress(v.loaded / v.total)
+          // })
+
+          let url = require('file-loader!./swat/side-kick.glb')
+          loaderModel.load(url, (v) => {
             resolve(v)
           }, (v) => {
+            let manager = this.lookup('loadingManager')
+            if (manager.onURL) {
+              manager.onURL(url, v.loaded / v.total)
+            }
             // this.loaderAPI.updateProgress(v.loaded / v.total)
           })
         }),

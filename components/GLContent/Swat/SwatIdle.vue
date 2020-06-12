@@ -114,7 +114,7 @@ export default {
       });
 
       this.lookup('base').onLoop(() => {
-        mixer.update(16 / 1000)
+        mixer.update(16.6667 / 1000)
       })
     },
     async loadStuff () {
@@ -123,9 +123,21 @@ export default {
       let all = await Promise.all([
         new Promise((resolve) => {
           // eslint-disable-next-line
-          loaderModel.load(require('file-loader!./swat/idle.glb'), (v) => {
+          let url = require('file-loader!./swat/idle.glb')
+          loaderModel.load(url, (v) => {
             resolve(v)
+          }, (v) => {
+            let manager = this.lookup('loadingManager')
+            if (manager.onURL) {
+              manager.onURL(url, v.loaded / v.total)
+            }
+            // this.loaderAPI.updateProgress(v.loaded / v.total)
           })
+
+          // // eslint-disable-next-line
+          // loaderModel.load(require('file-loader!./swat/idle.glb'), (v) => {
+          //   resolve(v)
+          // })
         }),
         // new Promise((resolve) => {
         //   // eslint-disable-next-line
