@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     configModel ({ model }) {
-      this.o3d.add(model.scene)
       let guy = false
       model.scene.traverse((item) => {
         // console.log(item.name)
@@ -67,6 +66,8 @@ export default {
         }
       })
 
+
+
       let runAnimation = () => {
         if (this.lastMixer) {
           this.lastMixer.run = false
@@ -96,6 +97,7 @@ export default {
         }
       })
 
+      this.o3d.add(model.scene)
       setTimeout(() => {
         this.$emit('loaded')
       }, 0)
