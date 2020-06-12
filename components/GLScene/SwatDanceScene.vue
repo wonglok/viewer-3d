@@ -392,15 +392,17 @@ export default {
       // this.camera.position.z = 400 + (progress - 0.5) * 400
 
       this.layouts = {
-        flip: {
-          rx: -this.camera.quaternion.x,
-          ry: -this.camera.quaternion.y,
-          rz: -this.camera.quaternion.z
-        },
+        // flip: {
+        //   rx: -this.camera.quaternion.x,
+        //   ry: -this.camera.quaternion.y,
+        //   rz: -this.camera.quaternion.z
+        // },
         // lensarea: {
         //   pz: 390
         // },
         run: {
+
+          ry: Math.PI * -0.5,
 
           sx: 1,
           sy: 1,
