@@ -77,12 +77,12 @@
       </div>
     </div>
 
-    <div v-if="guyMounted && showTool" :class="{ 'opacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 h-40 lg:h-full lg:pb-12 overflow-y-auto">
-      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
+    <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 h-40 lg:h-64 overflow-y-auto">
+      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" style="background-color: rgba(0,0,0,0.4);">{{ moveItem.displayName }}</a>
     </div>
 
-    <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading... <span v-if="!guyMounted">{{ (loadProgress * 100).toFixed(1) }}%</span> </div>
+    <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20">Loading... <span v-if="!guyMounted">{{ (loadProgress * 100).toFixed(1) }}%</span> </div>
     </div>
 
 
@@ -96,7 +96,7 @@
 
 <script>
 import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller, ChaseControls } from '../Reusable'
-import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera } from 'three'
+import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera, FileLoader } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Howl, Howler } from 'howler'
@@ -167,7 +167,7 @@ export default {
     async chooseMove (item) {
       this.isLoadingMotion = true
       let loaderFBX = new FBXLoader(this.loadingManager)
-      let move = await new Promise((resolve) => {
+      let move = await new Promise(async (resolve) => {
         // eslint-disable-next-line
         loaderFBX.load(item.url, (v) => {
           item.fbx = v
@@ -244,8 +244,11 @@ export default {
     let looper = () => {
       this.layouts = {
         walk: {
-          pz: 900,
-          py: 65
+          sx: 2.5,
+          sy: 2.5,
+          sz: 2.5,
+          pz: 900 * 2.5,
+          py: 170 * 2.5
         },
         bg: {
           // pz: -400,
@@ -330,8 +333,8 @@ export default {
     this.$watch('useAutoChase', () => {
       this.controls.reset()
       if (!this.useAutoChase) {
-        camera.position.z = 900
-        // camera.position.y = 500
+        camera.position.z = 500
+        camera.position.y = 50
       }
     })
     this.$nextTick(() => {
@@ -407,14 +410,14 @@ export default {
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
-    let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
-    let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
+    // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    // let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
 
     let movesOrig = []
     let combinedMapper = {
       ...breakdancesMapper,
-      ...capoeiraMapper,
-      ...rifleMapper,
+      // ...capoeiraMapper,
+      // ...rifleMapper,
       ...locomotionMapper,
       ...gestureMapper
     }

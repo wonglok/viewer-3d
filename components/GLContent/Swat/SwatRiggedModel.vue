@@ -7,7 +7,7 @@
 <script>
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera } from 'three'
+import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader } from 'three'
 
 let loaderTex = new TextureLoader()
 export default {
@@ -104,21 +104,72 @@ export default {
     },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
-      let loaderModel = new GLTFLoader(this.lookup('loadingManager'))
-      // let loaderFBX = new FBXLoader(this.lookup('loadingManager'))
 
-      let all = await Promise.all([
-        new Promise((resolve) => {
-          let url = require('file-loader!./character/swat-guy.glb')
-          // eslint-disable-next-line
-          loaderModel.load(url, (v) => {
-            resolve(v)
+      // let loaderFBX = new FBXLoader(this.lookup('loadingManager'))
+      let loadArrayBuffer = async (url) => {
+        return new Promise((resolve) => {
+          let loaderFile = new FileLoader(this.lookup('loadingManager'))
+          loaderFile.setResponseType('arraybuffer')
+          loaderFile.load(url, (arrbuff) => {
+            resolve(arrbuff)
           }, (v) => {
             let manager = this.lookup('loadingManager')
             if (manager.onURL) {
               manager.onURL(url, v.loaded / v.total)
             }
           })
+        })
+      }
+
+      let localforage = require('localforage')
+      let provideArrayBuffer = async (url) => {
+        let NS = 'array-buffer-@' + url
+        var store = localforage.createInstance({
+          name: 'rigged-model-swat'
+        });
+        try {
+          var value = await store.getItem(NS);
+          if (!value) {
+            let arrayBuffer = await loadArrayBuffer(url)
+            value = arrayBuffer
+            await store.setItem(NS, arrayBuffer)
+          }
+          console.log(value)
+          return value
+        } catch (err) {
+          console.log(err);
+          await store.removeItem(NS);
+        }
+      }
+
+      let modelParser = (arrBuff) => {
+        return new Promise((resolve) => {
+          let loaderModel = new GLTFLoader(this.lookup('loadingManager'))
+          loaderModel.parse(arrBuff, '/', (parsed) => {
+            console.log(parsed)
+            resolve(parsed)
+          })
+        })
+      }
+
+      let all = await Promise.all([
+        new Promise(async (resolve) => {
+          let url = require('file-loader!./character/swat-guy.glb')
+          let arrayBuffer = await provideArrayBuffer(url)
+          let gltfobj = await modelParser(arrayBuffer)
+          resolve(gltfobj)
+          // // eslint-disable-next-line
+          // loaderFile.load(url, (v) => {
+          //   loaderModel.parse(v, '/', (parsed) => {
+          //     console.log(parsed)
+          //     resolve(parsed)
+          //   })
+          // }, (v) => {
+          //   let manager = this.lookup('loadingManager')
+          //   if (manager.onURL) {
+          //     manager.onURL(url, v.loaded / v.total)
+          //   }
+          // })
         }),
 
         // new Promise((resolve) => {
