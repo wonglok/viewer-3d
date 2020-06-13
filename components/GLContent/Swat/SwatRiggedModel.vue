@@ -65,10 +65,20 @@ export default {
 
         let clock = new Clock()
         // let camera = this.camera
+        let map = new WeakMap()
         this.lookup('base').onLoop(() => {
           if (mixer.run) {
             mixer.update(clock.getDelta())
           }
+          // model.scene.traverse((item) => {
+          //   if (item && item.position) {
+          //     if (map.has(item)) {
+          //       map.get(item) !== item.position.x
+          //       console.log(item.name)
+          //     }
+          //     map.set(item, item.position.x)
+          //   }
+          // })
         })
       }
 
@@ -83,18 +93,92 @@ export default {
 
       this.o3d.add(model.scene)
 
+      /*
+      mixamorigHips
+      mixamorigSpine
+      mixamorigSpine1
+      mixamorigSpine2
+      mixamorigNeck
+      mixamorigHead
+      mixamorigHeadTop_End
+      mixamorigLeftShoulder
+      mixamorigLeftArm
+      mixamorigLeftForeArm
+      mixamorigLeftHand
+      mixamorigLeftHandThumb1
+      mixamorigLeftHandThumb2
+      mixamorigLeftHandThumb3
+      mixamorigLeftHandThumb4
+      mixamorigLeftHandIndex1
+      mixamorigLeftHandIndex2
+      mixamorigLeftHandIndex3
+      mixamorigLeftHandIndex4
+      mixamorigLeftHandMiddle1
+      mixamorigLeftHandMiddle2
+      mixamorigLeftHandMiddle3
+      mixamorigLeftHandMiddle4
+      mixamorigLeftHandRing1
+      mixamorigLeftHandRing2
+      mixamorigLeftHandRing3
+      mixamorigLeftHandRing4
+      mixamorigLeftHandPinky1
+      mixamorigLeftHandPinky2
+      mixamorigLeftHandPinky3
+      mixamorigLeftHandPinky4
+      mixamorigRightShoulder
+      mixamorigRightArm
+      mixamorigRightForeArm
+      mixamorigRightHand
+      mixamorigRightHandThumb1
+      mixamorigRightHandThumb2
+      mixamorigRightHandThumb3
+      mixamorigRightHandThumb4
+      mixamorigRightHandIndex1
+      mixamorigRightHandIndex2
+      mixamorigRightHandIndex3
+      mixamorigRightHandIndex4
+      mixamorigRightHandMiddle1
+      mixamorigRightHandMiddle2
+      mixamorigRightHandMiddle3
+      mixamorigRightHandMiddle4
+      mixamorigRightHandRing1
+      mixamorigRightHandRing2
+      mixamorigRightHandRing3
+      mixamorigRightHandRing4
+      mixamorigRightHandPinky1
+      mixamorigRightHandPinky2
+      mixamorigRightHandPinky3
+      mixamorigRightHandPinky4
+      mixamorigLeftUpLeg
+      mixamorigLeftLeg
+      mixamorigLeftFoot
+      mixamorigLeftToeBase
+      mixamorigLeftToe_End
+      mixamorigRightUpLeg
+      mixamorigRightLeg
+      mixamorigRightFoot
+      mixamorigRightToeBase
+      mixamorigRightToe_End
+      Ch15
+      Mesh_0
+      Mesh_1
+      */
       setTimeout(() => {
         model.scene.traverse((item) => {
-          // console.log(item.name)
+          console.log(item.name)
           // console.log(item)
-          if (item && item.name === 'mixamorigHips') {
-            let guyHead = new Object3D()
-            guyHead.position.y = 45
-            guyHead.position.z = 0
-            item.add(guyHead)
+
+          if (item && item.name === 'mixamorigSpine') {
             let guyCenter = new Object3D()
+            guyCenter.position.y = 30
             item.add(guyCenter)
             this.$emit('guy', guyCenter)
+          }
+          if (item && item.name === 'mixamorigHead') {
+            let guyHead = new Object3D()
+            guyHead.position.y = 0
+            guyHead.position.z = 0
+            item.add(guyHead)
             this.$emit('guyHead', guyHead)
           }
         })

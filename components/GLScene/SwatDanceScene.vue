@@ -339,6 +339,9 @@ export default {
     })
     this.$nextTick(() => {
       this.useAutoChase = window.innerWidth < 500
+      if (process.env.NODE_ENV === 'development') {
+        this.useAutoChase = true
+      }
     })
     // this.lookup('base').onResize(() => {
     //   this.useAutoChase = window.innerWidth < 500
@@ -361,9 +364,9 @@ export default {
         this.guy.getWorldPosition(centerPosition)
 
         // make use of position
-        targetCamPos.x = headPosition.x
-        targetCamPos.y = headPosition.y + config.cameraExtraHeight
-        targetCamPos.z = headPosition.z + config.defaultCloseup + config.farest * progress * (this.useAutoChase ? 1 : 0)
+        targetCamPos.x = centerPosition.x
+        targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+        targetCamPos.z = centerPosition.z + config.defaultCloseup + config.farest * progress * (this.useAutoChase ? 1 : 0)
 
         targetLookAt.x = headPosition.x
         targetLookAt.y = headPosition.y - config.cameraExtraHeight
@@ -410,14 +413,16 @@ export default {
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
-    let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
+    // let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
+    let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
     // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
     // let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
 
     let movesOrig = []
     let combinedMapper = {
       ...thrillerMapper,
-      ...breakdancesMapper,
+      ...danceingMapper,
+      // ...breakdancesMapper,
       // ...capoeiraMapper,
       // ...rifleMapper,
       ...locomotionMapper,
@@ -433,6 +438,7 @@ export default {
       })
       i++
     }
+
     this.moves = movesOrig
 
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
