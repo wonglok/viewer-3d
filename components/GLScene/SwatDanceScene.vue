@@ -409,12 +409,14 @@ export default {
 
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
+    let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
     // let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
 
     let movesOrig = []
     let combinedMapper = {
+      ...thrillerMapper,
       ...breakdancesMapper,
       // ...capoeiraMapper,
       // ...rifleMapper,
@@ -436,7 +438,8 @@ export default {
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
-    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
+    // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
+    this.chooseMove(this.moves.find(e => e.displayName === 'Thriller Part 3'))
 
     // if (window.innerWidth < 500) {
     //   let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
