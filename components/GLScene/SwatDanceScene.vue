@@ -67,7 +67,7 @@
     </div>
 
     <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 h-40 lg:h-64 overflow-y-auto">
-      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" style="background-color: rgba(0,0,0,0.4);">{{ moveItem.displayName }}</a>
+      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :class="{ 'bg-blue-500': move === moveItem }">{{ moveItem.displayName }}</a>
     </div>
 
     <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
@@ -236,6 +236,9 @@ export default {
     let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
     let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
     let idleMapper = require('../GLContent/Swat/idle/fbx').default
+    let kneeMapper = require('../GLContent/Swat/knee/fbx').default
+
+    // kneeMapper
 
     let movesOrig = []
 
@@ -265,11 +268,13 @@ export default {
     }
     if (this.$route.query.fight) {
       addToArr(idleMapper)
+      addToArr(kneeMapper)
       addToArr(kickMapper)
       addToArr(boxingMapper)
       addToArr(mmaMapper)
       addToArr(boxinghitMapper)
       addToArr(hurtMapper)
+
       // addToArr(capoeiraMapper)
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
