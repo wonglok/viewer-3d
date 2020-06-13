@@ -6,7 +6,7 @@
 
 <script>
 import { Tree } from '../../Reusable'
-import { CircleBufferGeometry, Vector2, Mesh, RawShaderMaterial, DoubleSide } from 'three'
+import { PlaneBufferGeometry, Vector2, Mesh, RawShaderMaterial, DoubleSide } from 'three'
 // import { Refractor } from 'three/examples/jsm/objects/Refractor'
 // import { FastBlurShader } from './FastBlurShader'
 export default {
@@ -25,10 +25,10 @@ export default {
     // let RES_SIZE = 512
 
     this.$on('init', async () => {
-      let geo = new CircleBufferGeometry(512, 256, 256)
+      let geo = new PlaneBufferGeometry(1024, 1024, 512, 512)
       let uniforms = {
         time: { value: 0 },
-        sceneRect: { value: new Vector2(256, 256) }
+        sceneRect: { value: new Vector2(512, 512) }
       }
       let mat = new RawShaderMaterial({
         // eslint-disable-next-line
@@ -43,9 +43,9 @@ export default {
       let mesh = new Mesh(geo, mat)
       mesh.frustumCulled = false
 
-      this.o3d.children.forEach((v) => {
-        this.o3d.remove(v)
-      })
+      // this.o3d.children.forEach((v) => {
+      //   this.o3d.remove(v)
+      // })
       this.o3d.add(mesh)
 
       this.lookup('base').onLoop(() => {
@@ -55,6 +55,9 @@ export default {
     this.$emit('init')
   },
   beforeDestroy () {
+    this.o3d.children.forEach((v) => {
+      this.o3d.remove(v)
+    })
   }
 }
 </script>

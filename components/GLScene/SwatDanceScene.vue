@@ -3,10 +3,13 @@
     <O3D v-if="layouts && shaderCube && camera">
       <AmbinetLight :amount="2"></AmbinetLight>
       <DirectionalLight :amount="3"></DirectionalLight>
-
-      <O3D :animated="true" layout="bg">
-        <ChromaticsFloor></ChromaticsFloor>
+      <O3D :animated="true" layout="walk">
+        <Spacewalk></Spacewalk>
       </O3D>
+
+      <!-- <O3D :animated="true" layout="bg">
+        <ChromaticsFloor></ChromaticsFloor>
+      </O3D> -->
 
       <O3D :animated="true" layout="run">
         <O3D :animated="true" layout="center">
@@ -207,7 +210,7 @@ export default {
     var Params = {
       exposure: 1,
       bloomStrength: 1.75,
-      bloomThreshold: 0.8862,
+      bloomThreshold: 0.95534,
       bloomRadius: 1.3
     }
     let renderer = this.lookup('renderer')
@@ -234,15 +237,15 @@ export default {
     this.$parent.$emit('composer', this.composer)
     /* BLOOM END */
 
-
     // this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
     // this.scene.background = this.shaderCubeSea.out.envMap
-
 
     // let parentScrollBox = this.lookup('scrollBox')
     let looper = () => {
       this.layouts = {
-        all: {
+        walk: {
+          pz: 900,
+          py: 65
         },
         bg: {
           // pz: -400,
@@ -328,7 +331,7 @@ export default {
       this.controls.reset()
       if (!this.useAutoChase) {
         camera.position.z = 900
-        camera.position.y = 500
+        // camera.position.y = 500
       }
     })
     this.$nextTick(() => {
