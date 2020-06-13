@@ -189,6 +189,80 @@ export default {
   },
   async mounted () {
     await this.lookupWait('ready')
+    /* Loader START */
+    this.loadingManager = DefaultLoadingManager
+    this.loadingManager.onURL = (url, progress) => {
+      let { itemsLoaded, itemsTotal } = this.loadingManager.stat
+      let overallProgressDetailed = itemsLoaded / itemsTotal + progress / itemsTotal
+      this.loadProgress = (overallProgressDetailed)
+    }
+    this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+      this.loadProgress = (itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
+    }
+    this.loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+      this.loadProgress = (itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
+    }
+    this.loadingManager.onEnd = (url, itemsLoaded, itemsTotal) => {
+      this.loadProgress = (itemsLoaded / itemsTotal)
+      this.loadingManager.stat = { itemsLoaded, itemsTotal }
+    }
+    /* Loader End */
+
+    /* Dance Moves */
+    let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
+    let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
+    let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
+    let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
+    let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
+    // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
+    let fightMapper = require('../GLContent/Swat/fight/fbx').default
+
+    let movesOrig = []
+
+    let addToArr = (mapper) => {
+      let arr = []
+      for (let kn in mapper) {
+        arr.push({
+          _id: getID(),
+          displayName: kn,
+          fbx: false,
+          url: mapper[kn]
+        })
+      }
+      arr.sort((a, b) => {
+        return a.displayName - b.displayName
+      })
+      movesOrig = [
+        ...movesOrig,
+        ...arr
+      ]
+    }
+    if (this.$route.query.fight) {
+      addToArr(fightMapper)
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
+    } else {
+      addToArr(thrillerMapper)
+      addToArr(breakdancesMapper)
+      addToArr(danceingMapper)
+
+      // addToArr(capoeiraMapper)
+      addToArr(rifleMapper)
+      addToArr(locomotionMapper)
+      addToArr(gestureMapper)
+
+      // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
+      // this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
+      // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
+      // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
+      // this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'))
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'))
+    }
+    this.moves = movesOrig
+    /* Moves End */
+
     this.lookup('base').onLoop(() => {
       TWEEN.update()
     })
