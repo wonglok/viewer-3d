@@ -1,8 +1,8 @@
 <template>
   <O3D :animated="true" :layout="`all`">
     <O3D v-if="layouts && shaderCube && camera">
-      <LightArea></LightArea>
-      <DirectionalLight :amount="4"></DirectionalLight>
+      <AmbinetLight :amount="2"></AmbinetLight>
+      <DirectionalLight :amount="3"></DirectionalLight>
 
       <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
@@ -40,7 +40,7 @@
       <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div> -->
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Camera</div>
 
-      <div v-if="isDev && viewSettings">
+      <div v-if="isDev">
         <div>
           <div class="text-white">
             cameraExtraHeight
@@ -60,6 +60,17 @@
             <input type="text" class="w-8 text-black px-1" @keydown.up="viewSettings.defaultCloseup += 25" @keydown.down="viewSettings.defaultCloseup -= 25" v-model="viewSettings.defaultCloseup">
           </div>
         </div>
+
+        <div v-if="Bloom">
+          <div class="text-white">
+            Bloom.threshold
+          </div>
+          <div>
+            <input type="range" min="0" step="0.00001" max="1" v-model="Bloom.threshold">
+            <input type="text" class="w-8 text-black px-1" @keydown.up="Bloom.threshold += 0.1" @keydown.down="Bloom.threshold -= 0.1" v-model="Bloom.threshold">
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -105,6 +116,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      Bloom: false,
       camera: false,
       guyHead: false,
       loadProgress: 0,
@@ -181,7 +193,7 @@ export default {
     scene.add(this.o3d)
     this.$parent.$emit('scene', scene)
 
-    scene.background = new Color('#bababa')
+    scene.background = new Color('#aaaaaa')
     this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
 
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
@@ -194,9 +206,9 @@ export default {
     let { UnrealBloomPass } = require('three/examples/jsm/postprocessing/UnrealBloomPass')
     var Params = {
       exposure: 1,
-      bloomStrength: 1.5,
-      bloomThreshold: 0.95,
-      bloomRadius: 1.2
+      bloomStrength: 1.75,
+      bloomThreshold: 0.8862,
+      bloomRadius: 1.3
     }
     let renderer = this.lookup('renderer')
     let element = this.lookup('element')
@@ -204,6 +216,7 @@ export default {
     var renderScene = new RenderPass(scene, camera)
     let dpi = 1
     var bloomPass = new UnrealBloomPass(new Vector2(rect.width * dpi, rect.height * dpi), 1.5, 0.4, 0.85)
+    this.Bloom = bloomPass
     bloomPass.threshold = Params.bloomThreshold
     bloomPass.strength = Params.bloomStrength
     bloomPass.radius = Params.bloomRadius

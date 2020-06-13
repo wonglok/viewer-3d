@@ -142,9 +142,9 @@ export class ShaderCubeChrome {
         void main (void) {
           vec2 uv = gl_FragCoord.xy / resolution.xy;
           gl_FragColor = vec4(vec3(
-            1.0 - pattern(uv * 10.1 + -0.68 * cos(time * 0.1)),
-            1.0 - pattern(uv * 10.1 + 0.0 * cos(time * 0.1)),
-            1.0 - pattern(uv * 10.1 + 0.68 * cos(time * 0.1))
+            1.0 - pattern(uv * 20.1 + -0.68 * cos(time * 0.1)),
+            1.0 - pattern(uv * 20.1 + 0.0 * cos(time * 0.1)),
+            1.0 - pattern(uv * 20.1 + 0.68 * cos(time * 0.1))
           ), 1.0);
         }
       `

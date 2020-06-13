@@ -46,7 +46,7 @@ export default {
      */
     extend(config, ctx) {
       config.devServer = {
-        hot: false,
+        hot: true,
         inline: false,
       }
     },

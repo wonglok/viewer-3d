@@ -6,7 +6,7 @@
 
 <script>
 import { Tree } from '../../Reusable'
-import { PlaneBufferGeometry, Vector2, Mesh, RawShaderMaterial, DoubleSide } from 'three'
+import { CircleBufferGeometry, Vector2, Mesh, RawShaderMaterial, DoubleSide } from 'three'
 // import { Refractor } from 'three/examples/jsm/objects/Refractor'
 // import { FastBlurShader } from './FastBlurShader'
 export default {
@@ -25,7 +25,7 @@ export default {
     // let RES_SIZE = 512
 
     this.$on('init', async () => {
-      let geo = new PlaneBufferGeometry(1024, 1024, 256, 256)
+      let geo = new CircleBufferGeometry(512, 256, 256)
       let uniforms = {
         time: { value: 0 },
         sceneRect: { value: new Vector2(256, 256) }
