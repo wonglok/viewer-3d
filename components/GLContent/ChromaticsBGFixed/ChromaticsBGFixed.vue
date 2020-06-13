@@ -27,7 +27,7 @@ export default {
     this.$on('init', async () => {
       // let camera = this.lookup('camera')
       let screen = await this.getScreen()
-      let geo = new PlaneBufferGeometry(screen.width, screen.height, 5, 5)
+      let geo = new PlaneBufferGeometry(screen.width, screen.height, 20, 20)
       let uniforms = {
         time: { value: 0 },
         sceneRect: { value: new Vector2() }
@@ -43,14 +43,13 @@ export default {
       })
 
       let mesh = new Mesh(geo, mat)
-      mesh.frustumCulled = false
 
       this.lookup('base').onResize(async () => {
         let element = this.lookup('element')
         let elRect = element.getBoundingClientRect()
         uniforms.sceneRect.value = new Vector2(elRect.width, elRect.height)
         let screen = await this.getScreen()
-        let geo = new PlaneBufferGeometry(screen.width, screen.height, 5, 5)
+        let geo = new PlaneBufferGeometry(screen.width, screen.height, 20, 20)
         mesh.geometry = geo
       })
 

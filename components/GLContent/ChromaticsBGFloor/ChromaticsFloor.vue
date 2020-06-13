@@ -25,12 +25,11 @@ export default {
     // let RES_SIZE = 1024
 
     this.$on('init', async () => {
-      // let camera = this.lookup('camera')
-      let screen = await this.getScreen()
-      let geo = new PlaneBufferGeometry(screen.width, screen.height, 5, 5)
+      let geo = new PlaneBufferGeometry(2048, 2048, 512, 512)
+
       let uniforms = {
         time: { value: 0 },
-        sceneRect: { value: new Vector2() }
+        sceneRect: { value: new Vector2(2048, 2048) }
       }
       let mat = new RawShaderMaterial({
         // eslint-disable-next-line
@@ -44,15 +43,6 @@ export default {
 
       let mesh = new Mesh(geo, mat)
       mesh.frustumCulled = false
-
-      this.lookup('base').onResize(async () => {
-        let element = this.lookup('element')
-        let elRect = element.getBoundingClientRect()
-        uniforms.sceneRect.value = new Vector2(elRect.width, elRect.height)
-        let screen = await this.getScreen()
-        let geo = new PlaneBufferGeometry(screen.width, screen.height, 5, 5)
-        mesh.geometry = geo
-      })
 
       this.o3d.children.forEach((v) => {
         this.o3d.remove(v)

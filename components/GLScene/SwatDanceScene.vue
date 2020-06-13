@@ -4,9 +4,9 @@
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
 
-      <!-- <O3D :animated="true" layout="bg" :visible="guyMounted">
-        <ChromaticsBG></ChromaticsBG>
-      </O3D> -->
+      <O3D :animated="true" layout="bg" :visible="guyMounted">
+        <ChromaticsFloor></ChromaticsFloor>
+      </O3D>
 
       <O3D :animated="true" layout="run" ref="swatrun">
         <O3D :animated="true" layout="center">
@@ -36,7 +36,7 @@
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
 
-    <div class="absolute z-10 top-0 right-0 p-3">
+    <div class="absolute z-10 top-0 right-0 p-3" v-if="guyMounted">
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
       <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div> -->
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Camera</div>
@@ -240,17 +240,13 @@ export default {
 
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    this.useAutoChase = false
+    this.useAutoChase = undefined
     this.viewSettings = {
-      cameraExtraHeight: 0,
-      farest: 600,
-      defaultCloseup: 333
+      cameraExtraHeight: 45,
+      farest: 900,
+      defaultCloseup: 280
     }
-
     camera.position.z = this.viewSettings.defaultCloseup
-    if (!this.useAutoChase) {
-      camera.position.z = 500
-    }
 
     let headPosition = new Vector3()
     let centerPosition = new Vector3()
@@ -259,15 +255,24 @@ export default {
     let targetLookAt = new Vector3()
     let targetCamPos = new Vector3()
     let centerRelPos = new Vector3()
-    let emptyLookAt = new Vector3()
 
-    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'], lerperLookAt, centerRelPos)
+    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'])
     this.controls.enablePan = true
     this.controls.enableDamping = true
 
     this.$watch('useAutoChase', () => {
       this.controls.reset()
+      if (!this.useAutoChase) {
+        camera.position.z = 900
+        camera.position.y = 500
+      }
     })
+    this.$nextTick(() => {
+      this.useAutoChase = window.innerWidth < 500
+    })
+    // this.lookup('base').onResize(() => {
+    //   this.useAutoChase = window.innerWidth < 500
+    // })
 
     this.lookup('base').onLoop(() => {
       let config = this.viewSettings
@@ -288,7 +293,7 @@ export default {
         // make use of position
         targetCamPos.x = headPosition.x
         targetCamPos.y = headPosition.y + config.cameraExtraHeight
-        targetCamPos.z = headPosition.z + config.defaultCloseup + config.farest * progress
+        targetCamPos.z = headPosition.z + config.defaultCloseup + config.farest * progress * (this.useAutoChase ? 1 : 0)
 
         targetLookAt.x = headPosition.x
         targetLookAt.y = headPosition.y - config.cameraExtraHeight
@@ -433,9 +438,9 @@ export default {
     /* BLOOM END */
 
     this.scene.background = new Color('#bababa')
-    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
-    this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
-    this.scene.background = this.shaderCubeSea.out.envMap
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    // this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
+    // this.scene.background = this.shaderCubeSea.out.envMap
 
     this.scene.add(this.o3d)
     this.$parent.$emit('scene', this.scene)
@@ -452,10 +457,12 @@ export default {
         all: {
         },
         bg: {
-          pz: -400,
-          sx: 1.5,
-          sy: 1.5,
-          sz: 1
+          // pz: -400,
+          sx: 2,
+          sy: 2,
+          sz: 1,
+          py: -180,
+          rx: Math.PI * 0.5
         },
         run: {
           ry: Math.PI * -0.25,
