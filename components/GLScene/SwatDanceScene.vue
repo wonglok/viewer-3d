@@ -3,21 +3,21 @@
     <O3D v-if="layouts && shaderCube && camera">
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
-      <O3D :animated="true" layout="bg" :visible="guyMounted">
+
+      <!-- <O3D :animated="true" layout="bg" :visible="guyMounted">
         <ChromaticsBG></ChromaticsBG>
-      </O3D>
+      </O3D> -->
 
       <O3D :animated="true" layout="run" ref="swatrun">
         <O3D :animated="true" layout="center">
-          <O3D :animated="true" layout="correct">
-            <SwatRiggedModel @guy="guy = $event" @goal="goal = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
+          <O3D :animated="true" layout="correctAxis">
+            <SwatRiggedModel @guy="guy = $event; $emit('setupGuy')" @guyHead="guyHead = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
         <!-- <O3D :animated="true" layout="center">
           <SwatUpperJab :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
         </O3D> -->
-
         <!--
         <O3D :animated="true" layout="left">
           <SwatSideKick :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
@@ -27,35 +27,61 @@
         </O3D> -->
         <!-- <O3D :animated="true" layout="mouse">
           <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
-        </O3D> -->
+        </O3D>
+        -->
       </O3D>
     </O3D>
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
     </div>
 
-    <div class="absolute z-10 top-0 right-0 text-white p-3">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" @click="showTool = !showTool">Actions</div>
+    <div class="absolute z-10 top-0 right-0 p-3">
+      <div class="text-white block px-2 mx-1 my-1 mb-3 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Cam</div>
+
+      <div v-if="isDev && viewSettings">
+        <div>
+          <div class="text-white">
+            cameraExtraHeight
+          </div>
+          <div>
+            <input type="range" min="-200" step="0.001" max="200" v-model="viewSettings.cameraExtraHeight">
+            <input type="text" class="w-8 text-black px-1" @keydown.up="viewSettings.cameraExtraHeight += 25" @keydown.down="viewSettings.cameraExtraHeight -= 25" v-model="viewSettings.cameraExtraHeight">
+          </div>
+        </div>
+
+        <div>
+          <div class="text-white">
+            defaultCloseup
+          </div>
+          <div>
+            <input type="range" min="-1024" step="0.001" max="1024" v-model="viewSettings.defaultCloseup">
+            <input type="text" class="w-8 text-black px-1" @keydown.up="viewSettings.defaultCloseup += 25" @keydown.down="viewSettings.defaultCloseup -= 25" v-model="viewSettings.defaultCloseup">
+          </div>
+        </div>
+      </div>
     </div>
-    <div v-if="guyMounted && showTool" :class="{ 'opacity-25': isLoading }" class="absolute z-20 top-0 left-0 text-white w-64 h-40 lg:h-full lg:pb-12 overflow-y-auto">
+
+    <div v-if="guyMounted && showTool" :class="{ 'opacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 h-40 lg:h-full lg:pb-12 overflow-y-auto">
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
-    <div v-show="isLoading" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
+    <div v-show="isLoadingMotion" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
     <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Loading... {{ (loadProgress * 100).toFixed(1) }}% </div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Downloading 3D Assets... {{ (loadProgress * 100).toFixed(1) }}% </div>
     </div>
 
   </O3D>
 </template>
 
 <script>
-import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, makeScroller } from '../Reusable'
-import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager } from 'three'
+import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller, ChaseControls } from '../Reusable'
+import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Howl, Howler } from 'howler'
@@ -78,11 +104,11 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
-      goal: false,
+      guyHead: false,
       loadProgress: 0,
       displayStartMenu: true,
       showTool: true,
-      isLoading: false,
+      isLoadingMotion: false,
       move: false,
       moves: false,
       actionList,
@@ -97,7 +123,13 @@ export default {
       scene: new Scene(),
       layouts: false,
       blur: 0,
-      socket: false
+      socket: false,
+      gyroCam: false,
+      gyroPresent: false,
+      useAutoChase: true,
+
+      viewSettings: false,
+      isDev: process.env.NODE_ENV === 'development'
     }
   },
   computed: {
@@ -110,7 +142,7 @@ export default {
       this.displayStartMenu = false
       sound.play()
 
-      let gyroPresent = await new Promise((resolve) => {
+      let gyroPresent = this.gyroPresent = this.gyroCam = await new Promise((resolve) => {
         window.addEventListener('deviceorientation', function(event){
           var x = event.beta  // In degree in the range [-180,180]
           var y = event.gamma // In degree in the range [-90,90]
@@ -142,7 +174,9 @@ export default {
         this.controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
         this.controls.dampping = true
         this.lookup('base').onLoop(() => {
-          this.controls.update()
+          if (this.gyroCam) {
+            this.controls.update()
+          }
         })
       }
     },
@@ -153,7 +187,7 @@ export default {
       // }, 1000)
     },
     async chooseMove (item) {
-      this.isLoading = true
+      this.isLoadingMotion = true
       let loaderFBX = new FBXLoader(this.loadingManager)
       let move = await new Promise((resolve) => {
         // eslint-disable-next-line
@@ -161,30 +195,30 @@ export default {
           item.fbx = v
           // console.log(v)
           resolve(item)
-          this.isLoading = false
+          this.isLoadingMotion = false
         }, (v) => {
           // this.loaderAPI.updateProgress(v.loaded / v.total)
         }, () => {
           resolve(item)
-          this.isLoading = false
+          this.isLoadingMotion = false
         })
       }, console.log)
       this.move = move
     }
   },
   created () {
-    document.body.style.opacity = 0
+    // document.body.style.opacity = 0
   },
   async mounted () {
-    let contrs = { opacity: 0 }
-    const tween = new TWEEN.Tween(contrs) // Create a new tween that modifies 'coords'.
-      .to({ opacity: 1 }, 1000) // Move to (300, 200) in 1 second.
-      .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-      .onUpdate(() => {
-        // totalStat = dat.dynamic
-        document.body.style.opacity = contrs.opacity
-      })
-      .start()
+    // let contrs = { opacity: 0 }
+    // const tween = new TWEEN.Tween(contrs) // Create a new tween that modifies 'coords'.
+    //   .to({ opacity: 1 }, 1000) // Move to (300, 200) in 1 second.
+    //   .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+    //   .onUpdate(() => {
+    //     // totalStat = dat.dynamic
+    //     document.body.style.opacity = contrs.opacity
+    //   })
+    //   .start()
     this.lookup('base').onLoop(() => {
       TWEEN.update()
     })
@@ -199,45 +233,69 @@ export default {
     // this.camera.lookAt(this.scene.position)
 
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
+
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    let farest = 600
-    let defaultCloseup = 280
-
-    camera.position.z = defaultCloseup
-
-    let targetPosition = new Vector3()
-
+    this.useAutoChase = true
+    this.viewSettings = {
+      cameraExtraHeight: 0,
+      farest: 600,
+      defaultCloseup: 333
+    }
+    camera.position.z = this.viewSettings.defaultCloseup
+    let headPosition = new Vector3()
+    let centerPosition = new Vector3()
     let lerperLookAt = new Vector3()
     let lerperCamPos = new Vector3()
     let targetLookAt = new Vector3()
     let targetCamPos = new Vector3()
+    let headRelPos = new Vector3()
+
+    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'], targetLookAt, headRelPos)
+    this.controls.enablePan = true
+    this.controls.enableDamping = true
 
     this.lookup('base').onLoop(() => {
+      let config = this.viewSettings
+
+      for (let kn in config) {
+        if (typeof config[kn] === 'string') {
+          config[kn] = Number(config[kn])
+        }
+      }
+
       let progress = vscroll.value
-      if (this.guy && this.goal) {
-        // targetLookAt.setFromMatrixPosition(this.goal.matrixWorld);
-        this.guy.getWorldPosition(targetPosition)
+      if (this.guy && this.guyHead) {
+        // getting position
+        headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
+        headRelPos.copy(this.guy.position)
+        this.guy.getWorldPosition(centerPosition)
 
-        targetCamPos.x = targetPosition.x
-        targetCamPos.y = targetPosition.y + 30
-        targetCamPos.z = targetPosition.z + defaultCloseup + farest * progress
+        // make use of position
+        targetCamPos.x = headPosition.x
+        targetCamPos.y = headPosition.y + config.cameraExtraHeight
+        targetCamPos.z = headPosition.z + config.defaultCloseup + config.farest * progress
 
-        targetLookAt.x = targetPosition.x
-        targetLookAt.y = targetPosition.y + 30
-        targetLookAt.z = targetPosition.z
+        targetLookAt.x = headPosition.x
+        targetLookAt.y = headPosition.y - config.cameraExtraHeight
+        targetLookAt.z = headPosition.z
 
-        lerperLookAt.lerp(targetLookAt, 0.1)
-        lerperCamPos.lerp(targetCamPos, 0.1)
+        lerperLookAt.lerp(targetLookAt, 0.05)
+        lerperCamPos.lerp(targetCamPos, 0.05)
 
-        camera.position.copy(lerperCamPos)
-        camera.lookAt(lerperLookAt)
+        if (this.useAutoChase) {
+          this.controls.enabled = false
+          camera.lookAt(targetLookAt)
+          camera.position.copy(lerperCamPos)
+        } else {
+          this.controls.enabled = true
+          this.controls.update()
+        }
       }
     })
 
     /* Loader START */
     this.loadingManager = DefaultLoadingManager
-    this.loadingManager.stat = { itemsLoaded: 0, itemsTotal: 1 }
     this.loadingManager.onURL = (url, progress) => {
       let { itemsLoaded, itemsTotal } = this.loadingManager.stat
       let overallProgressDetailed = itemsLoaded / itemsTotal + progress / itemsTotal
@@ -313,6 +371,16 @@ export default {
 
     /* dance moves end */
 
+    /* AutoStart Start */
+    if (process.env.NODE_ENV === 'development') {
+      this.$watch('guy', () => {
+        if (this.guy && window.innerWidth > 500) {
+          this.startGame()
+        }
+      })
+    }
+    /* AutoStart End */
+
     /* BLOOM START */
     let { Vector2 } = require('three/src/math/Vector2')
     let { EffectComposer } = require('three/examples/jsm/postprocessing/EffectComposer')
@@ -349,50 +417,12 @@ export default {
 
     this.scene.background = new Color('#bababa')
     this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
-    // this.scene.background = this.shaderCube.out.envMap
-
-    // this.camera.lookAt(this.scene.position)
-    // this.rayplay = new RayPlay({ mounter: this.lookup('element'), base: this.lookup('base'), camera: this.camera })
-
-    // let i = 0
-    // this.lookup('element').addEventListener('click', () => {
-    //   this.loaderAPI.reset()
-    //   this.action = this.actionList[(i % this.actionList.length)]
-    //   i++
-    // })
-
+    this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
+    this.scene.background = this.shaderCubeSea.out.envMap
 
     this.scene.add(this.o3d)
-
     this.$parent.$emit('scene', this.scene)
 
-    // const tween = new TWEEN.Tween(vscroll) // Create a new tween that modifies 'coords'.
-    //   .to({ value: 1 }, 3000) // Move to (300, 200) in 1 second.
-    //   .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-    //   .onUpdate(() => {
-    //     // Called after tween.js updates 'coords'.
-    //     // Move 'box' to the position described by 'coords' with a CSS translation.
-    //   })
-    // this.$on('gorun', () => {
-    //   tween.start()
-    // })
-
-
-    // let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
-    // this.controls = new OrbitControls(this.camera, this.$refs['domlayer'])
-    // this.controls.enablePan = false
-    // this.controls.enableDamping = true
-    // let direction = new Vector3(0, -130, 400)
-
-    // this.lookup('base').onLoop(() => {
-    //   this.controls.update()
-    //   if (this.guy.position) {
-    //     let guypos = this.guy.position
-    //     let looker = new Vector3()
-    //     looker.lerp(guypos, 0.2)
-    //     this.controls.object.position.copy(looker).add(direction)
-    //   }
-    // })
 
     // let origPos = this.camera.position.clone()
     // this.controls.addEventListener('change', () => {
@@ -403,7 +433,6 @@ export default {
     let looper = () => {
       this.layouts = {
         all: {
-          py: 0
         },
         bg: {
           pz: -400,
@@ -424,7 +453,7 @@ export default {
           // px: -2250,
           // ry: Math.PI * 0.15,
         },
-        correct: {
+        correctAxis: {
           rz: Math.PI * 0.5,
           rx: Math.PI * -0.5
         },
@@ -434,30 +463,28 @@ export default {
           sy: 180,
           sz: 180,
 
-          py: -180,
-          // px: -200,
-          // pz: 100
+          py: -180
         },
-        left: {
-          // ry: Math.PI * 2 * (progress),
-          px: 100,
-          sx: 150,
-          sy: 150,
-          sz: 150,
-          py: -150,
-          // pz: (1 - parentScrollBox.page) * -2000
-          // pz: (1.0 - parentScrollBox.page) * 2500
-        },
-        right: {
-          // ry: Math.PI * 2 * (progress),
-          px: -100,
-          sx: 150,
-          sy: 150,
-          sz: 150,
-          py: -150,
-          // pz: (1 - parentScrollBox.page) * -2000
-          // pz: (1.0 - parentScrollBox.page) * 2500
-        }
+        // left: {
+        //   // ry: Math.PI * 2 * (progress),
+        //   px: 100,
+        //   sx: 150,
+        //   sy: 150,
+        //   sz: 150,
+        //   py: -150,
+        //   // pz: (1 - parentScrollBox.page) * -2000
+        //   // pz: (1.0 - parentScrollBox.page) * 2500
+        // },
+        // right: {
+        //   // ry: Math.PI * 2 * (progress),
+        //   px: -100,
+        //   sx: 150,
+        //   sy: 150,
+        //   sz: 150,
+        //   py: -150,
+        //   // pz: (1 - parentScrollBox.page) * -2000
+        //   // pz: (1.0 - parentScrollBox.page) * 2500
+        // }
       }
     }
 

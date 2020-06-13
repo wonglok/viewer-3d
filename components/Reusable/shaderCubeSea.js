@@ -168,7 +168,7 @@ export class ShaderCubeSea {
 
     this.renderTargetPlane.texture.mapping = EquirectangularReflectionMapping
     this.renderTargetCube.texture.mapping = CubeReflectionMapping
-    // this.renderTargetCube.texture.mapping = CubeRefractionMapping
+    this.renderTargetCube.texture.mapping = CubeRefractionMapping
 
     this.renderTargetCube.setup(renderer, this.renderTargetPlane.texture)
     loop(() => {

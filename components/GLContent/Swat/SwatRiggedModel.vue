@@ -33,12 +33,12 @@ export default {
         // console.log(item.name)
         // console.log(item)
         if (item && item.name === 'mixamorigHips') {
-
-          let goal = new Object3D()
-          goal.position.y = 150
-          item.add(goal)
+          let guyHead = new Object3D()
+          guyHead.position.y = 45
+          guyHead.position.z = 0
+          item.add(guyHead)
           this.$emit('guy', item)
-          this.$emit('goal', goal)
+          this.$emit('guyHead', guyHead)
         }
 
         if (item.isMesh && item.name === 'Mesh_0') {
