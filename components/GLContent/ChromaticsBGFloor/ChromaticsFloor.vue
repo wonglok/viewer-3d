@@ -22,14 +22,13 @@ export default {
     }
   },
   mounted () {
-    // let RES_SIZE = 1024
+    // let RES_SIZE = 512
 
     this.$on('init', async () => {
-      let geo = new PlaneBufferGeometry(2048, 2048, 512, 512)
-
+      let geo = new PlaneBufferGeometry(1024, 1024, 256, 256)
       let uniforms = {
         time: { value: 0 },
-        sceneRect: { value: new Vector2(2048, 2048) }
+        sceneRect: { value: new Vector2(256, 256) }
       }
       let mat = new RawShaderMaterial({
         // eslint-disable-next-line

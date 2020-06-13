@@ -4,14 +4,14 @@
       <LightArea></LightArea>
       <DirectionalLight :amount="4"></DirectionalLight>
 
-      <O3D :animated="true" layout="bg" :visible="guyMounted">
+      <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
       </O3D>
 
-      <O3D :animated="true" layout="run" ref="swatrun">
+      <O3D :animated="true" layout="run">
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correctAxis">
-            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
+            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
@@ -29,7 +29,6 @@
           <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
         </O3D>
         -->
-
       </O3D>
     </O3D>
 
@@ -69,8 +68,9 @@
     </div>
 
     <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading... <span v-if="!guyMounted">{{ (loadProgress * 100).toFixed(1) }}%</span> </div>
     </div>
+
 
     <!-- <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
       <div class="block px-2 mx-1 my-1 border-gray-100 -border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
@@ -105,6 +105,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      camera: false,
       guyHead: false,
       loadProgress: 0,
       displayStartMenu: false,
@@ -121,7 +122,6 @@ export default {
       settings: {},
       flower1: {},
       guy: false,
-      scene: new Scene(),
       layouts: false,
       blur: 0,
       socket: false,
@@ -142,47 +142,6 @@ export default {
     async startGame () {
       sound.play()
       this.displayStartMenu = false
-
-      // let gyroPresent = this.gyroPresent = this.gyroCam = await new Promise((resolve) => {
-      //   window.addEventListener('deviceorientation', function(event){
-      //     var x = event.beta  // In degree in the range [-180,180]
-      //     var y = event.gamma // In degree in the range [-90,90]
-
-      //     // Because we don't want to have the device upside down
-      //     // We constrain the x value to the range [-90,90]
-      //     if (x > 90) { x =  90 }
-      //     if (x < -90) { x = -90 }
-
-      //     // To make computation easier we shift the range of
-      //     // x and y to [0,180]
-      //     x += 90;
-      //     y += 90;
-
-      //     console.log(x, y)
-      //     if (isNaN(x)) {
-      //       resolve(false)
-      //     } else {
-      //       resolve(true)
-      //     }
-      //   });
-      //   setTimeout(() => {
-      //     resolve(false)
-      //   }, 10000)
-      // })
-
-      // if (window.innerWidth < 500) {
-      //   let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
-      //   let controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
-      //   controls.dampping = true
-      //   this.lookup('base').onLoop(() => {
-      //     if (this.gyroCam) {
-      //       controls.enabled = true
-      //       controls.update()
-      //     } else {
-      //       controls.enabled = false
-      //     }
-      //   })
-      // }
     },
     onReady () {
       // this.ready = true
@@ -214,37 +173,129 @@ export default {
     // document.body.style.opacity = 0
   },
   async mounted () {
-    // let contrs = { opacity: 0 }
-    // const tween = new TWEEN.Tween(contrs) // Create a new tween that modifies 'coords'.
-    //   .to({ opacity: 1 }, 1000) // Move to (300, 200) in 1 second.
-    //   .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
-    //   .onUpdate(() => {
-    //     // totalStat = dat.dynamic
-    //     document.body.style.opacity = contrs.opacity
-    //   })
-    //   .start()
+    await this.lookupWait('ready')
     this.lookup('base').onLoop(() => {
       TWEEN.update()
     })
-    await this.lookupWait('ready')
+    let scene = new Scene()
+    scene.add(this.o3d)
+    this.$parent.$emit('scene', scene)
 
-    // prepare camera
-    // this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
-    // // this.camera.position.x = -200
-    // // this.camera.position.y = 100
-    // this.camera.position.z = 400
-    // // this.camera.position.y = 500
-    // this.camera.lookAt(this.scene.position)
+    scene.background = new Color('#bababa')
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+
+    let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
+    this.$parent.$emit('camera', camera)
+
+    /* BLOOM START */
+    let { Vector2 } = require('three/src/math/Vector2')
+    let { EffectComposer } = require('three/examples/jsm/postprocessing/EffectComposer')
+    let { RenderPass } = require('three/examples/jsm/postprocessing/RenderPass')
+    let { UnrealBloomPass } = require('three/examples/jsm/postprocessing/UnrealBloomPass')
+    var Params = {
+      exposure: 1,
+      bloomStrength: 1.5,
+      bloomThreshold: 0.99,
+      bloomRadius: 1.2
+    }
+    let renderer = this.lookup('renderer')
+    let element = this.lookup('element')
+    let rect = element.getBoundingClientRect()
+    var renderScene = new RenderPass(scene, camera)
+    let dpi = 1
+    var bloomPass = new UnrealBloomPass(new Vector2(rect.width * dpi, rect.height * dpi), 1.5, 0.4, 0.85)
+    bloomPass.threshold = Params.bloomThreshold
+    bloomPass.strength = Params.bloomStrength
+    bloomPass.radius = Params.bloomRadius
+
+    this.composer = new EffectComposer(renderer)
+    this.composer.addPass(renderScene)
+    this.composer.addPass(bloomPass)
+    this.lookup('base').onResize(() => {
+      let rect = element.getBoundingClientRect()
+      let dpi = 1
+      bloomPass.setSize(rect.width * dpi, rect.height * dpi)
+      this.composer.setSize(rect.width * dpi, rect.height * dpi)
+    })
+
+    this.$parent.$emit('composer', this.composer)
+    /* BLOOM END */
+
+
+    // this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
+    // this.scene.background = this.shaderCubeSea.out.envMap
+
+
+    // let parentScrollBox = this.lookup('scrollBox')
+    let looper = () => {
+      this.layouts = {
+        all: {
+        },
+        bg: {
+          // pz: -400,
+          sx: 2,
+          sy: 2,
+          sz: 1,
+          py: -180,
+          rx: Math.PI * 0.5
+        },
+        run: {
+          ry: Math.PI * -0.25,
+
+          sx: 1,
+          sy: 1,
+          sz: 1,
+          // pz: -100,
+          // rx: Math.PI * 0.05 + Math.PI
+
+          // pz: -250,
+          // px: -2250,
+          // ry: Math.PI * 0.15,
+        },
+        correctAxis: {
+          rz: Math.PI * 0.5,
+          rx: Math.PI * -0.5
+        },
+        center: {
+          // ry: Math.PI * (progress),
+          sx: 180,
+          sy: 180,
+          sz: 180,
+
+          py: -180
+        },
+        // left: {
+        //   // ry: Math.PI * 2 * (progress),
+        //   px: 100,
+        //   sx: 150,
+        //   sy: 150,
+        //   sz: 150,
+        //   py: -150,
+        //   // pz: (1 - parentScrollBox.page) * -2000
+        //   // pz: (1.0 - parentScrollBox.page) * 2500
+        // },
+        // right: {
+        //   // ry: Math.PI * 2 * (progress),
+        //   px: -100,
+        //   sx: 150,
+        //   sy: 150,
+        //   sz: 150,
+        //   py: -150,
+        //   // pz: (1 - parentScrollBox.page) * -2000
+        //   // pz: (1.0 - parentScrollBox.page) * 2500
+        // }
+      }
+    }
+
+    this.lookup('base').onLoop(looper)
 
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
 
-    let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
-    this.$parent.$emit('camera', this.camera)
     this.useAutoChase = undefined
     this.viewSettings = {
       cameraExtraHeight: 45,
       farest: 900,
-      defaultCloseup: 280
+      defaultCloseup: 333
     }
     camera.position.z = this.viewSettings.defaultCloseup
 
@@ -256,7 +307,7 @@ export default {
     let targetCamPos = new Vector3()
     let centerRelPos = new Vector3()
 
-    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'])
+    this.controls = new ChaseControls(camera, this.$refs['domlayer'])
     this.controls.enablePan = true
     this.controls.enableDamping = true
 
@@ -367,152 +418,19 @@ export default {
     this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
 
-    // let tasks = breakdances.map((item) => {
-    //   return new Promise((resolve) => {
-    //     // eslint-disable-next-line
-    //     loaderFBX.load(item.url, (v) => {
-    //       item.fbx = v
-    //       // console.log(v)
-    //       resolve(item)
-    //     }, (v) => {
-    //       // console.log(v)
-    //       // this.loaderAPI.updateProgress(v.loaded / v.total)
-    //     }, () => {
-    //       resolve(item)
-    //     })
-    //   }, console.log)
-    // })
-
-    // Promise.all(tasks)
-    //   .then((v) => {
-    //     this.moves = v
-    //     this.$nextTick(() => {
-    //       this.move = this.moves[0]
-    //     })
+    // if (window.innerWidth < 500) {
+    //   let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
+    //   let controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
+    //   controls.dampping = true
+    //   this.lookup('base').onLoop(() => {
+    //     if (this.gyroCam) {
+    //       controls.enabled = true
+    //       controls.update()
+    //     } else {
+    //       controls.enabled = false
+    //     }
     //   })
-
-    /* dance moves end */
-
-    /* AutoStart Start */
-    if (process.env.NODE_ENV === 'development') {
-      this.$watch('guy', () => {
-        if (this.guy && window.innerWidth > 500) {
-          this.startGame()
-        }
-      })
-    }
-    /* AutoStart End */
-
-    /* BLOOM START */
-    let { Vector2 } = require('three/src/math/Vector2')
-    let { EffectComposer } = require('three/examples/jsm/postprocessing/EffectComposer')
-    let { RenderPass } = require('three/examples/jsm/postprocessing/RenderPass')
-    let { UnrealBloomPass } = require('three/examples/jsm/postprocessing/UnrealBloomPass')
-    var Params = {
-      exposure: 1,
-      bloomStrength: 1.5,
-      bloomThreshold: 0.99,
-      bloomRadius: 1.2
-    }
-    let renderer = this.lookup('renderer')
-    let element = this.lookup('element')
-    let rect = element.getBoundingClientRect()
-    var renderScene = new RenderPass(this.scene, this.camera)
-    let dpi = 1
-    var bloomPass = new UnrealBloomPass(new Vector2(rect.width * dpi, rect.height * dpi), 1.5, 0.4, 0.85)
-    bloomPass.threshold = Params.bloomThreshold
-    bloomPass.strength = Params.bloomStrength
-    bloomPass.radius = Params.bloomRadius
-
-    this.composer = new EffectComposer(renderer)
-    this.composer.addPass(renderScene)
-    this.composer.addPass(bloomPass)
-    this.lookup('base').onResize(() => {
-      let rect = element.getBoundingClientRect()
-      let dpi = 1
-      bloomPass.setSize(rect.width * dpi, rect.height * dpi)
-      this.composer.setSize(rect.width * dpi, rect.height * dpi)
-    })
-
-    this.$parent.$emit('composer', this.composer)
-    /* BLOOM END */
-
-    this.scene.background = new Color('#bababa')
-    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
-    // this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
-    // this.scene.background = this.shaderCubeSea.out.envMap
-
-    this.scene.add(this.o3d)
-    this.$parent.$emit('scene', this.scene)
-
-
-    // let origPos = this.camera.position.clone()
-    // this.controls.addEventListener('change', () => {
-    //   origPos.copy(this.camera.position)
-    // })
-
-    // let parentScrollBox = this.lookup('scrollBox')
-    let looper = () => {
-      this.layouts = {
-        all: {
-        },
-        bg: {
-          // pz: -400,
-          sx: 2,
-          sy: 2,
-          sz: 1,
-          py: -180,
-          rx: Math.PI * 0.5
-        },
-        run: {
-          ry: Math.PI * -0.25,
-
-          sx: 1,
-          sy: 1,
-          sz: 1,
-          // pz: -100,
-          // rx: Math.PI * 0.05 + Math.PI
-
-          // pz: -250,
-          // px: -2250,
-          // ry: Math.PI * 0.15,
-        },
-        correctAxis: {
-          rz: Math.PI * 0.5,
-          rx: Math.PI * -0.5
-        },
-        center: {
-          // ry: Math.PI * (progress),
-          sx: 180,
-          sy: 180,
-          sz: 180,
-
-          py: -180
-        },
-        // left: {
-        //   // ry: Math.PI * 2 * (progress),
-        //   px: 100,
-        //   sx: 150,
-        //   sy: 150,
-        //   sz: 150,
-        //   py: -150,
-        //   // pz: (1 - parentScrollBox.page) * -2000
-        //   // pz: (1.0 - parentScrollBox.page) * 2500
-        // },
-        // right: {
-        //   // ry: Math.PI * 2 * (progress),
-        //   px: -100,
-        //   sx: 150,
-        //   sy: 150,
-        //   sz: 150,
-        //   py: -150,
-        //   // pz: (1 - parentScrollBox.page) * -2000
-        //   // pz: (1.0 - parentScrollBox.page) * 2500
-        // }
-      }
-    }
-
-    this.lookup('base').onLoop(looper)
+    // }
   }
 }
 </script>

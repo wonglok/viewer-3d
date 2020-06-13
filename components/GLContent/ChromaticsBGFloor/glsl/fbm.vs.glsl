@@ -71,6 +71,6 @@ void main (void) {
 	// gl_Position = projectionMatrix * mvPosition;
 
 	vec3 nPos = position;
-	nPos.z = levitation * 200.0;
+	nPos.z = levitation * 80.0;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(nPos, 1.0);
 }
