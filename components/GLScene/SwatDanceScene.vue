@@ -11,7 +11,7 @@
       <O3D :animated="true" layout="run" ref="swatrun">
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correctAxis">
-            <SwatRiggedModel @guy="guy = $event; $emit('setupGuy')" @guyHead="guyHead = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
+            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" :move="move" :scene="scene" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
@@ -37,9 +37,9 @@
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3">
-      <div class="text-white block px-2 mx-1 my-1 mb-3 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Cam Lock</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
+      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div> -->
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Lock</div>
 
       <div v-if="isDev && viewSettings">
         <div>
@@ -86,12 +86,12 @@ import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManage
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Howl, Howler } from 'howler'
+
 var sound = new Howl({
   src: [require('file-loader!~/components/GLContent/Swat/music/ambinet-b.mp3')]
 })
 
-
-//ambinet-b.mp3
+// ambinet-b.mp3
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 const TWEEN = require('@tweenjs/tween.js').default
@@ -107,7 +107,7 @@ export default {
     return {
       guyHead: false,
       loadProgress: 0,
-      displayStartMenu: true,
+      displayStartMenu: false,
       showTool: true,
       isLoadingMotion: false,
       move: false,
@@ -126,7 +126,7 @@ export default {
       blur: 0,
       socket: false,
       gyroCam: false,
-      gyroPresent: window.innerWidth < 500,
+      gyroPresent: false,
       useAutoChase: true,
 
       viewSettings: false,
@@ -140,8 +140,8 @@ export default {
   },
   methods: {
     async startGame () {
-      this.displayStartMenu = false
       sound.play()
+      this.displayStartMenu = false
 
       // let gyroPresent = this.gyroPresent = this.gyroCam = await new Promise((resolve) => {
       //   window.addEventListener('deviceorientation', function(event){
@@ -170,16 +170,19 @@ export default {
       //   }, 10000)
       // })
 
-      if (window.innerWidth < 500) {
-        let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
-        this.controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
-        this.controls.dampping = true
-        this.lookup('base').onLoop(() => {
-          if (this.gyroCam) {
-            this.controls.update()
-          }
-        })
-      }
+      // if (window.innerWidth < 500) {
+      //   let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
+      //   let controls = new DeviceOrientationControls(this.camera, this.lookup('element'))
+      //   controls.dampping = true
+      //   this.lookup('base').onLoop(() => {
+      //     if (this.gyroCam) {
+      //       controls.enabled = true
+      //       controls.update()
+      //     } else {
+      //       controls.enabled = false
+      //     }
+      //   })
+      // }
     },
     onReady () {
       // this.ready = true

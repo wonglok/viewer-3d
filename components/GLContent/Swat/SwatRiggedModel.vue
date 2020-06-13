@@ -29,18 +29,8 @@ export default {
   methods: {
     configModel ({ model }) {
       let guy = false
-      model.scene.traverse((item) => {
-        // console.log(item.name)
-        // console.log(item)
-        if (item && item.name === 'mixamorigHips') {
-          let guyHead = new Object3D()
-          guyHead.position.y = 45
-          guyHead.position.z = 0
-          item.add(guyHead)
-          this.$emit('guy', item)
-          this.$emit('guyHead', guyHead)
-        }
 
+      model.scene.traverse((item) => {
         if (item.isMesh && item.name === 'Mesh_0') {
           // metal
           // guy = item
@@ -65,8 +55,6 @@ export default {
           item.frustumCulled = false
         }
       })
-
-
 
       let runAnimation = () => {
         if (this.lastMixer) {
@@ -98,9 +86,24 @@ export default {
       })
 
       this.o3d.add(model.scene)
+
       setTimeout(() => {
+        model.scene.traverse((item) => {
+          // console.log(item.name)
+          // console.log(item)
+          if (item && item.name === 'mixamorigHips') {
+            let guyHead = new Object3D()
+            guyHead.position.y = 45
+            guyHead.position.z = 0
+            item.add(guyHead)
+            let guyCenter = new Object3D()
+            item.add(guyCenter)
+            this.$emit('guy', guyCenter)
+            this.$emit('guyHead', guyHead)
+          }
+        })
         this.$emit('loaded')
-      }, 0)
+      }, 300)
     },
     beforeDestroy() {
       this.cleanall()
