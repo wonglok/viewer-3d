@@ -434,8 +434,9 @@ export default {
     this.moves = movesOrig
 
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
-    this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
+    // this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
+    this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
 
     // if (window.innerWidth < 500) {
     //   let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
