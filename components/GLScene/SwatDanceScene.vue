@@ -39,7 +39,7 @@
     <div class="absolute z-10 top-0 right-0 p-3">
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
       <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div> -->
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Lock</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Camera</div>
 
       <div v-if="isDev && viewSettings">
         <div>
@@ -240,13 +240,17 @@ export default {
 
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', this.camera)
-    this.useAutoChase = true
+    this.useAutoChase = false
     this.viewSettings = {
       cameraExtraHeight: 0,
       farest: 600,
       defaultCloseup: 333
     }
+
     camera.position.z = this.viewSettings.defaultCloseup
+    if (!this.useAutoChase) {
+      camera.position.z = 500
+    }
 
     let headPosition = new Vector3()
     let centerPosition = new Vector3()
@@ -254,12 +258,16 @@ export default {
     let lerperCamPos = new Vector3()
     let targetLookAt = new Vector3()
     let targetCamPos = new Vector3()
-    let headRelPos = new Vector3()
+    let centerRelPos = new Vector3()
     let emptyLookAt = new Vector3()
 
-    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'], emptyLookAt, headRelPos)
+    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'], lerperLookAt, centerRelPos)
     this.controls.enablePan = true
     this.controls.enableDamping = true
+
+    this.$watch('useAutoChase', () => {
+      this.controls.reset()
+    })
 
     this.lookup('base').onLoop(() => {
       let config = this.viewSettings
@@ -274,7 +282,7 @@ export default {
       if (this.guy && this.guyHead) {
         // getting position
         headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-        headRelPos.copy(this.guy.position)
+        centerRelPos.copy(this.guy.position)
         this.guy.getWorldPosition(centerPosition)
 
         // make use of position
@@ -321,13 +329,15 @@ export default {
     }
     /* Loader End */
 
-    /* dance moves */
+    /* Dance Moves */
     // let loaderFBX = new FBXLoader(this.loadingManager)
+
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
     let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
+
     let movesOrig = []
     let combinedMapper = {
       ...breakdancesMapper,
@@ -347,6 +357,7 @@ export default {
       i++
     }
     this.moves = movesOrig
+
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
     this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
