@@ -68,14 +68,14 @@
       <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border">{{ moveItem.displayName }}</a>
     </div>
 
-    <div v-show="isLoadingMotion" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
+    <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.3);" ref="loading">
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20">Loading...</div>
     </div>
 
-    <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
+    <!-- <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
+      <div class="block px-2 mx-1 my-1 border-gray-100 -border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Downloading 3D Assets... {{ (loadProgress * 100).toFixed(1) }}% </div>
-    </div>
+    </div> -->
 
   </O3D>
 </template>
@@ -247,6 +247,7 @@ export default {
       defaultCloseup: 333
     }
     camera.position.z = this.viewSettings.defaultCloseup
+
     let headPosition = new Vector3()
     let centerPosition = new Vector3()
     let lerperLookAt = new Vector3()
@@ -254,8 +255,9 @@ export default {
     let targetLookAt = new Vector3()
     let targetCamPos = new Vector3()
     let headRelPos = new Vector3()
+    let emptyLookAt = new Vector3()
 
-    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'], targetLookAt, headRelPos)
+    this.controls = new ChaseControls(this.camera, this.$refs['domlayer'], emptyLookAt, headRelPos)
     this.controls.enablePan = true
     this.controls.enableDamping = true
 

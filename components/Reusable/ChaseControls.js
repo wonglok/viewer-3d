@@ -217,8 +217,8 @@ var OrbitControls = function ( object, domElement, lookAtPos, lookAtRelativePos 
 
 			position.copy( scope.target ).add( offset );
 
-			// scope.object.lookAt( scope.target );
-			scope.object.lookAt( scope.lookAtPos );
+			scope.object.lookAt( scope.target );
+			// scope.object.lookAt( scope.lookAtPos );
 
 			if ( scope.enableDamping === true ) {
 
