@@ -12,26 +12,15 @@
       </O3D> -->
 
       <O3D :animated="true" layout="run">
+
+
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correctAxis">
             <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
-        <!-- <O3D :animated="true" layout="center">
-          <SwatUpperJab :scene="scene" :shaderCube="shaderCube"></SwatUpperJab>
-        </O3D> -->
-        <!--
-        <O3D :animated="true" layout="left">
-          <SwatSideKick :scene="scene" :shaderCube="shaderCube"></SwatSideKick>
-        </O3D>
-        <O3D :animated="true" layout="right">
-          <SwatMMAKick :scene="scene" :shaderCube="shaderCube"></SwatMMAKick>
-        </O3D> -->
-        <!-- <O3D :animated="true" layout="mouse">
-          <SwatIdle :shaderCube="shaderCube" @loaded="$emit('gorun')"></SwatIdle>
-        </O3D>
-        -->
+
       </O3D>
     </O3D>
 
@@ -145,7 +134,8 @@ export default {
       useAutoChase: true,
 
       viewSettings: false,
-      isDev: process.env.NODE_ENV === 'development'
+      isDev: process.env.NODE_ENV === 'development',
+      moveCursor: 0,
     }
   },
   computed: {
@@ -154,6 +144,20 @@ export default {
     }
   },
   methods: {
+    async onNext () {
+      this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
+      this.moveCursor++
+      this.moveCursor = this.moveCursor % this.moves.length
+      let chosen = this.moves[this.moveCursor]
+      await this.chooseMove(chosen)
+    },
+    async onPrev () {
+      this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
+      this.moveCursor--
+      this.moveCursor = this.moveCursor % this.moves.length
+      let chosen = this.moves[this.moveCursor]
+      await this.chooseMove(chosen)
+    },
     async startGame () {
       sound.play()
       this.displayStartMenu = false
@@ -189,6 +193,14 @@ export default {
   },
   async mounted () {
     await this.lookupWait('ready')
+    window.addEventListener('keydown', (ev) => {
+      if (ev.keyCode === 39) {
+        this.onNext()
+      } else if (ev.keyCode === 37) {
+        this.onPrev()
+      }
+    })
+
     /* Loader START */
     this.loadingManager = DefaultLoadingManager
     this.loadingManager.onURL = (url, progress) => {
@@ -216,9 +228,14 @@ export default {
     let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
-    // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
     let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
-    let fightMapper = require('../GLContent/Swat/fight/fbx').default
+    let mmaMapper = require('../GLContent/Swat/mma/fbx').default
+    let kickMapper = require('../GLContent/Swat/kick/fbx').default
+    let hurtMapper = require('../GLContent/Swat/hurt/fbx').default
+    let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
+    let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
+    let idleMapper = require('../GLContent/Swat/idle/fbx').default
 
     let movesOrig = []
 
@@ -233,7 +250,13 @@ export default {
         })
       }
       arr.sort((a, b) => {
-        return a.displayName - b.displayName
+        if (a.displayName > b.displayName) {
+            return 1
+        } else if (b.displayName > a.displayName) {
+            return -1
+        } else {
+          return 0
+        }
       })
       movesOrig = [
         ...movesOrig,
@@ -241,14 +264,21 @@ export default {
       ]
     }
     if (this.$route.query.fight) {
-      addToArr(fightMapper)
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
+      addToArr(idleMapper)
+      addToArr(kickMapper)
+      addToArr(boxingMapper)
+      addToArr(mmaMapper)
+      addToArr(boxinghitMapper)
+      addToArr(hurtMapper)
+      // addToArr(capoeiraMapper)
+      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
+      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Goalkeeper Drop Kick'))
     } else {
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
       addToArr(danceingMapper)
 
-      // addToArr(capoeiraMapper)
       addToArr(rifleMapper)
       addToArr(locomotionMapper)
       addToArr(gestureMapper)
@@ -271,7 +301,8 @@ export default {
     this.$parent.$emit('scene', scene)
 
     scene.background = new Color('#aaaaaa')
-    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 512, resY: 512 })
 
     let camera = this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.$parent.$emit('camera', camera)
@@ -355,28 +386,9 @@ export default {
           sy: 180,
           sz: 180,
 
-          py: -180
-        },
-        // left: {
-        //   // ry: Math.PI * 2 * (progress),
-        //   px: 100,
-        //   sx: 150,
-        //   sy: 150,
-        //   sz: 150,
-        //   py: -150,
-        //   // pz: (1 - parentScrollBox.page) * -2000
-        //   // pz: (1.0 - parentScrollBox.page) * 2500
-        // },
-        // right: {
-        //   // ry: Math.PI * 2 * (progress),
-        //   px: -100,
-        //   sx: 150,
-        //   sy: 150,
-        //   sz: 150,
-        //   py: -150,
-        //   // pz: (1 - parentScrollBox.page) * -2000
-        //   // pz: (1.0 - parentScrollBox.page) * 2500
-        // }
+          py: -180,
+          pz: 100
+        }
       }
     }
 
@@ -403,6 +415,7 @@ export default {
     this.controls = new ChaseControls(camera, this.$refs['domlayer'])
     this.controls.enablePan = true
     this.controls.enableDamping = true
+    this.controls.enableKeys = false
 
     this.$watch('useAutoChase', () => {
       this.controls.reset()

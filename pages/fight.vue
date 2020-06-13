@@ -15,6 +15,7 @@ export default {
   computed: {
   },
   async asyncData({ isDev, route, store, env, params, query, req, res, redirect, error }) {
+    redirect('/?fight=1')
     return {}
   }
 }

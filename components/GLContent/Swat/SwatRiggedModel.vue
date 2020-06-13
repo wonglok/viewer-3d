@@ -177,7 +177,7 @@ export default {
           if (item && item.name === 'mixamorigHead') {
             let guyHead = new Object3D()
             guyHead.position.y = 0
-            guyHead.position.z = 0
+            guyHead.position.z = 10
             item.add(guyHead)
             this.$emit('guyHead', guyHead)
           }
