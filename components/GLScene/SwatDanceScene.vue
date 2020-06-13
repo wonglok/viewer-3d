@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller, ChaseControls } from '../Reusable'
+import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller, ChaseControls, getID } from '../Reusable'
 import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera, FileLoader } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -413,31 +413,40 @@ export default {
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
-    // let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
+    let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
-    // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
-    // let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
+    let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
 
     let movesOrig = []
-    let combinedMapper = {
-      ...thrillerMapper,
-      ...danceingMapper,
-      // ...breakdancesMapper,
-      // ...capoeiraMapper,
-      // ...rifleMapper,
-      ...locomotionMapper,
-      ...gestureMapper
-    }
-    let i = 0
-    for (let kn in combinedMapper) {
-      movesOrig.push({
-        _id: i,
-        displayName: kn,
-        fbx: false,
-        url: combinedMapper[kn]
+
+    let addToArr = (mapper) => {
+      let arr = []
+      for (let kn in mapper) {
+        arr.push({
+          _id: getID(),
+          displayName: kn,
+          fbx: false,
+          url: mapper[kn]
+        })
+      }
+      arr.sort((a, b) => {
+        return a.displayName - b.displayName
       })
-      i++
+      movesOrig = [
+        ...movesOrig,
+        ...arr
+      ]
     }
+
+    addToArr(thrillerMapper)
+    addToArr(breakdancesMapper)
+    addToArr(danceingMapper)
+
+    addToArr(capoeiraMapper)
+    addToArr(rifleMapper)
+    addToArr(locomotionMapper)
+    addToArr(gestureMapper)
 
     this.moves = movesOrig
 
@@ -445,7 +454,8 @@ export default {
     // this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
     // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
-    this.chooseMove(this.moves.find(e => e.displayName === 'Thriller Part 3'))
+    // this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'))
+    this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'))
 
     // if (window.innerWidth < 500) {
     //   let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
