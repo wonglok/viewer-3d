@@ -25,33 +25,32 @@ export default {
   },
   methods: {
     configModel ({ model }) {
-      let guy = false
+      model.scene.traverse((item) => {
+        item.frustumCulled = false
+        if (item.isMesh && item.name === 'Mesh_0') {
+          // metal
+          // guy = item
+          // item.material = this.shaderCube.out.material
+          // this.shaderCube.out.material.skinning = true
 
-      // model.scene.traverse((item) => {
-      //   if (item.isMesh && item.name === 'Mesh_0') {
-      //     // metal
-      //     // guy = item
-      //     // item.material = this.shaderCube.out.material
-      //     // this.shaderCube.out.material.skinning = true
+          item.material.envMap = this.shaderCube.out.envMap
+          item.frustumCulled = false
 
-      //     item.material.envMap = this.shaderCube.out.envMap
-      //     item.frustumCulled = false
+          // item.material.flatShading = true
+          // item.material.roughness = 0.1
+          // item.material.metalness = 0.6
+        }
 
-      //     // item.material.flatShading = true
-      //     // item.material.roughness = 0.1
-      //     // item.material.metalness = 0.6
-      //   }
+        if (item.isMesh && item.name === 'Mesh_1') {
+          // Cloth
 
-      //   if (item.isMesh && item.name === 'Mesh_1') {
-      //     // Cloth
+          // item.material = this.shaderCube.out.material
+          // this.shaderCube.out.material.skinning = true
 
-      //     // item.material = this.shaderCube.out.material
-      //     // this.shaderCube.out.material.skinning = true
-
-      //     item.material.envMap = this.shaderCube.out.envMap
-      //     item.frustumCulled = false
-      //   }
-      // })
+          item.material.envMap = this.shaderCube.out.envMap
+          item.frustumCulled = false
+        }
+      })
 
       let runAnimation = () => {
         if (this.lastMixer) {
