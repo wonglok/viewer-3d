@@ -7,7 +7,7 @@
 <script>
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader } from 'three'
+import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, Clock, AnimationMixer, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader } from 'three'
 
 let loaderTex = new TextureLoader()
 export default {
@@ -18,20 +18,15 @@ export default {
       default: false
     },
     // camera: {},
-    // move: {}
-  },
-  data () {
-    return {
-      gltf: false
-    }
+    moves: {
+      default () {
+        return []
+      }
+    },
+    move: {}
   },
   components: {
     ...require('../../webgl')
-  },
-  beforeDestroy () {
-    if (this.gltf) {
-      this.$emit('removeGLTF', this.gltf)
-    }
   },
   methods: {
     configModel ({ model }) {
@@ -47,6 +42,7 @@ export default {
 
               item.material.envMap = this.shaderCube.out.envMap
               item.frustumCulled = false
+
               // item.material.flatShading = true
               // item.material.roughness = 0.0
               // item.material.metalness = 1.0
@@ -64,9 +60,58 @@ export default {
         })
       })
       this.$emit('configModelMat')
-      model.gltfName = 'swat-guy'
-      this.gltf = model
-      this.$emit('setupGLTF', model)
+
+      let runAnimation = () => {
+        if (this.lastMixer) {
+          this.lastMixer.run = false
+        }
+        var mixer = new AnimationMixer(model.scene);
+        mixer.run = true
+        this.lastMixer = mixer
+        this.move.fbx.animations.forEach((clip) => {
+          let action = mixer.clipAction(clip)
+          action.play();
+        });
+
+        let clock = new Clock()
+
+        // let camera = this.camera
+        // let map = new WeakMap()
+
+        // if (actions.length >= 2) {
+        //   actions.forEach(() => {
+        //     action.enabled = true
+        //     action.setEffectiveTimeScale( 1 );
+        //     action.setEffectiveWeight( weight );
+        //   })
+        // }
+
+        this.lookup('base').onLoop(() => {
+          if (mixer.run) {
+            mixer.update(clock.getDelta())
+          }
+
+          // model.scene.traverse((item) => {
+          //   if (item && item.position) {
+          //     if (map.has(item)) {
+          //       map.get(item) !== item.position.x
+          //       console.log(item.name)
+          //     }
+          //     map.set(item, item.position.x)
+          //   }
+          // })
+        })
+      }
+
+      if (this.move && this.move.fbx && this.move.fbx.animations) {
+        runAnimation()
+      }
+      this.$watch('move', () => {
+        if (this.move && this.move.fbx && this.move.fbx.animations) {
+          runAnimation()
+        }
+      })
+
       this.o3d.add(model.scene)
 
       /*
@@ -141,12 +186,12 @@ export default {
       */
       setTimeout(() => {
         model.scene.traverse((item) => {
-          // console.log(item.name)
-          // console.log(item)-
+          console.log(item.name)
+          // console.log(item)
 
-          if (item && item.name === 'mixamorigSpine2') {
+          if (item && item.name === 'mixamorigSpine') {
             let guyCenter = new Object3D()
-            guyCenter.position.y = 0
+            guyCenter.position.y = 30
             item.add(guyCenter)
             this.$emit('guy', guyCenter)
           }

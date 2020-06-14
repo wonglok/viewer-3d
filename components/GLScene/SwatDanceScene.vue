@@ -12,13 +12,13 @@
         <ChromaticsFloor></ChromaticsFloor>
       </O3D> -->
 
-      <O3D :animated="true" layout="run">
-        <O3D :animated="true" layout="center">
-          <O3D :animated="true" layout="correctAxis">
-            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyFace="guyFace = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
-          </O3D>
+      <!-- <O3D :animated="true" layout="run"> -->
+      <O3D :animated="true" layout="center">
+        <O3D :animated="true" layout="correctAxis">
+          <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyFace="guyFace = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
         </O3D>
       </O3D>
+      <!-- </O3D> -->
     </O3D>
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
@@ -72,7 +72,7 @@
       <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: move === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
     </div>
 
-    <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
+    <div v-show="!guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20">Loading... <span v-if="!guyMounted">{{ (loadProgress * 100).toFixed(1) }}%</span> </div>
     </div>
 
@@ -89,7 +89,7 @@
 
 <script>
 import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller, ChaseControls, getID } from '../Reusable'
-import { Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera, FileLoader } from 'three'
+import { Clock, AnimationMixer, Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera, FileLoader } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Howl, Howler } from 'howler'
@@ -112,6 +112,8 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      lastTweenMap: new Map(),
+      gltfs: [],
       useBloom: true,
       Bloom: false,
       camera: false,
@@ -120,6 +122,7 @@ export default {
       displayStartMenu: false,
       showTool: true,
       isLoadingMotion: false,
+      lastMove: false,
       move: false,
       moves: false,
       actionList,
@@ -139,7 +142,6 @@ export default {
       viewCameraMode: true,
       guyFace: false,
       guyBack: false,
-
       viewSettings: false,
       isDev: process.env.NODE_ENV === 'development',
       moveCursor: 0,
@@ -156,6 +158,114 @@ export default {
       // setTimeout(() => {
       //   this.scene.background = new Color('#fafafa')
       // }, 1000)
+    },
+    removeGLTF ({ gltf }) {
+      this.gltfs.splice(this.gltfs.indexOf(gltf), 1)
+    },
+    async setupGLTF ({ gltf }) {
+      this.gltfs.push(gltf)
+      var mixer = gltf.mixer = new AnimationMixer(gltf.scene);
+      let clock = new Clock()
+      this.lookup('base').onLoop(() => {
+        mixer.update(clock.getDelta())
+      })
+      if (this.move) {
+        this.chooseMove(this.move, true)
+      }
+    },
+    async tryWaitAnimationEnd (animation) {
+      return new Promise(async (resolve) => {
+        this.waitDoOnce({
+          getter: () => {
+            return animation.enabled == false
+          },
+          fnc: (v) => {
+            resolve(v)
+          }
+        })
+      })
+    },
+    chooseAnimationNow ({ fromMove, toMove, mixer }) {
+      if (fromMove) {
+        fromMove.actionFBX.animations.forEach((clip) => {
+          let action = mixer.clipAction(clip)
+          action.setEffectiveTimeScale(1)
+          action.setEffectiveWeight(0)
+          action.enabled = false
+          action.stop()
+        })
+      }
+      if (toMove) {
+        toMove.actionFBX.animations.forEach((clip) => {
+          let action = mixer.clipAction(clip)
+          action.setEffectiveTimeScale(1)
+          action.setEffectiveWeight(1)
+          action.enabled = true
+          action.play()
+        })
+      }
+    },
+    chooseAnimation ({ fromMove, toMove, mixer }) {
+      if (fromMove) {
+        fromMove.actionFBX.animations.forEach((clip) => {
+          let action = mixer.clipAction(clip)
+          let vari = { weight: 1 }
+          const tween = new TWEEN.Tween(vari) // Create a new tween that modifies 'coords'.
+            .to({ weight: 0 }, 1000) // Move to (300, 200) in 1 second.
+            .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+            .onStart(() => {
+              action.enabled = true
+            })
+            .onUpdate(() => {
+              action.setEffectiveTimeScale(1);
+              action.setEffectiveWeight(vari.weight);
+            })
+            .onComplete(() => {
+              action.setEffectiveWeight(0)
+              action.enabled = false
+            })
+            .onStop(() => {
+              action.setEffectiveWeight(0)
+              action.enabled = false
+            })
+
+          tween.start()
+        })
+      }
+      if (toMove) {
+        toMove.actionFBX.animations.forEach((clip) => {
+          let action = mixer.clipAction(clip)
+          let vari = { weight: 0 }
+          const tween = new TWEEN.Tween(vari) // Create a new tween that modifies 'coords'.
+            .to({ weight: 1 }, 1000) // Move to (300, 200) in 1 second.
+            .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+            .onStart(() => {
+              action.enabled = true
+              action.play()
+            })
+            .onUpdate(() => {
+              action.setEffectiveTimeScale(1)
+              action.setEffectiveWeight(vari.weight)
+            })
+            .onComplete(() => {
+              action.enabled = true
+            })
+            .onStop(() => {
+              action.setEffectiveTimeScale(1)
+              action.setEffectiveWeight(vari.weight)
+              action.enabled = true
+            })
+            .start()
+
+          let hh = (e) => {
+            if (e.action === action) {
+              mixer.removeEventListener('loop', hh)
+              this.$emit('move-end', toMove)
+            }
+          }
+          mixer.addEventListener('loop', hh)
+        })
+      }
     },
     async onNext () {
       this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
@@ -175,24 +285,54 @@ export default {
       sound.play()
       this.displayStartMenu = false
     },
-    async chooseMove (item, autoFocus) {
-      this.isLoadingMotion = true
-      let loaderFBX = new FBXLoader(this.loadingManager)
-      let move = await new Promise(async (resolve) => {
+    async waitGetGLTFByname (gltfName) {
+      return new Promise(async (resolve) => {
+        this.waitDoOnce({
+          getter: () => {
+            return this.gltfs.find(e => e.gltfName === gltfName)
+          },
+          fnc: (v) => {
+            resolve(v)
+          }
+        })
+      })
+    },
+    async loadMove (chosenMove) {
+      let loaderFBX = this.loaderFBX = this.loaderFBX || new FBXLoader(this.loadingManager)
+      return await new Promise(async (resolve) => {
+        if (chosenMove.actionFBX) {
+          resolve(chosenMove)
+          this.isLoadingMotion = false
+          return
+        }
         // eslint-disable-next-line
-        loaderFBX.load(item.url, (v) => {
-          item.fbx = v
+        loaderFBX.load(chosenMove.url, (v) => {
+          chosenMove.actionFBX = v
           // console.log(v)
-          resolve(item)
+          resolve(chosenMove)
           this.isLoadingMotion = false
         }, (v) => {
           // this.loaderAPI.updateProgress(v.loaded / v.total)
         }, () => {
-          resolve(item)
+          resolve(chosenMove)
           this.isLoadingMotion = false
         })
       }, console.log)
+    },
+    async chooseMove (chosenMove, autoFocus, now = false) {
+      this.isLoadingMotion = true
+      let fromMove = this.move
+
+      let move = await this.loadMove(chosenMove)
+      let toMove = move
       this.move = move
+
+      let gltf = await this.waitGetGLTFByname('swat-guy')
+      if (now) {
+        await this.chooseAnimationNow({ fromMove, toMove, mixer: gltf.mixer, gltf })
+      } else {
+        await this.chooseAnimation({ fromMove, toMove, mixer: gltf.mixer, gltf })
+      }
 
       if (autoFocus) {
         this.$nextTick(() => {
@@ -202,7 +342,6 @@ export default {
             try {
               dom.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' })
             } catch (e) {
-
             }
           }
         })
@@ -263,12 +402,11 @@ export default {
     let idleMapper = require('../GLContent/Swat/idle/fbx').default
     let kneeMapper = require('../GLContent/Swat/knee/fbx').default
     let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
-
     // kneeMapper
 
     let movesOrig = []
 
-    let addToArr = (mapper) => {
+    let addToArr = async (mapper, preload) => {
       let arr = []
       for (let kn in mapper) {
         arr.push({
@@ -291,6 +429,13 @@ export default {
         ...movesOrig,
         ...arr
       ]
+
+      if (preload) {
+        for (let mymove of arr) {
+          this.loadMove(mymove)
+        }
+      }
+      return arr
     }
     if (this.$route.query.fight) {
       addToArr(idleMapper)
@@ -301,22 +446,9 @@ export default {
       addToArr(superheroMapper)
       addToArr(boxinghitMapper)
       addToArr(hurtMapper)
-
       // addToArr(capoeiraMapper)
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Warming Up'), true)
-        .then(() => {
-          setTimeout(() => {
-            this.$emit('resetCam', 'face')
-          }, 0)
-          this.$once('changeToChase', () => {
-            this.viewCameraMode = 'chase'
-          })
-          this.$watch('move', () => {
-            this.$emit('changeToChase')
-          })
-        })
     } else {
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
@@ -325,7 +457,6 @@ export default {
       addToArr(rifleMapper)
       addToArr(locomotionMapper)
       addToArr(gestureMapper)
-
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
       // this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
@@ -336,21 +467,39 @@ export default {
       // Macarena Dance
       // Hip Hop Dancing (3) copy
 
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Macarena Dance'), true)
-        .then(() => {
-          setTimeout(() => {
-            this.$emit('resetCam', 'face')
-          }, 0)
-          this.$once('changeToChase', () => {
-            this.viewCameraMode = 'chase'
-          })
-          this.$watch('move', () => {
-            this.$emit('changeToChase')
-          })
-        })
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'), true)
     }
     this.moves = movesOrig
+
+    this.chooseDefaultDanceMove = async () => {
+      if (this.$route.query.fight) {
+        await this.chooseMove(movesOrig.find(e => e.displayName === 'Warming Up'), true, true)
+          // .then(() => {
+          //   setTimeout(() => {
+          //     this.$emit('resetCam', 'face')
+          //   }, 0)
+          //   this.$once('changeToChase', () => {
+          //     this.viewCameraMode = 'chase'
+          //   })
+          //   this.$watch('move', () => {
+          //     this.$emit('changeToChase')
+          //   })
+          // })
+      } else {
+        await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Floor Combo'), true)
+          // .then(() => {
+          //   setTimeout(() => {
+          //     this.$emit('resetCam', 'face')
+          //   }, 0)
+          //   this.$once('changeToChase', () => {
+          //     this.viewCameraMode = 'chase'
+          //   })
+          //   this.$watch('move', () => {
+          //     this.$emit('changeToChase')
+          //   })
+          // })
+      }
+    }
     /* Moves End */
 
     this.lookup('base').onLoop(() => {
@@ -434,24 +583,26 @@ export default {
           py: -180,
           rx: Math.PI * 0.5
         },
-        run: {
-          ry: Math.PI * -0.25,
+        // run: {
+        //   // ry: Math.PI * -0.25,
+        //   sx: 1,
+        //   sy: 1,
+        //   sz: 1,
+        //   // pz: -100,
+        //   // rx: Math.PI * 0.05 + Math.PI
 
-          sx: 1,
-          sy: 1,
-          sz: 1,
-          // pz: -100,
-          // rx: Math.PI * 0.05 + Math.PI
+        //   // pz: -250,
+        //   // px: -2250,
+        //   // ry: Math.PI * 0.15,
+        // },
 
-          // pz: -250,
-          // px: -2250,
-          // ry: Math.PI * 0.15,
-        },
         correctAxis: {
           rz: Math.PI * 0.5,
           rx: Math.PI * -0.5
         },
         center: {
+          ry: Math.PI * -0.5,
+
           // ry: Math.PI * (progress),
           sx: 180,
           sy: 180,
@@ -485,6 +636,7 @@ export default {
     let guyEyePos = new Vector3()
     let infrontOFhead = new Vector3()
     let guyBackPos = new Vector3()
+    let guyBodyPos = new Vector3()
 
     this.controls = new ChaseControls(camera, this.$refs['domlayer'])
     this.controls.enablePan = true
@@ -547,10 +699,11 @@ export default {
 
       if (this.guy && this.guyHead && this.guyFace && this.guyBack) {
         // getting position
-        headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
         this.guy.getWorldPosition(centerPosition)
 
         // looker (guyFace)
+        headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
+        guyBodyPos.setFromMatrixPosition(this.guy.matrixWorld)
         guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
         guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
         // infrontOFhead.(headPosition)
@@ -579,9 +732,9 @@ export default {
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
           targetCamPos.z = centerPosition.z + extraZoom
 
-          targetLookAt.x = headPosition.x
-          targetLookAt.y = headPosition.y - config.cameraExtraHeight
-          targetLookAt.z = headPosition.z
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
         }
 
         if (this.viewCameraMode === 'face') {
@@ -591,8 +744,8 @@ export default {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'chase') {
-          lerperLookAt.lerp(targetLookAt, 0.05)
-          lerperCamPos.lerp(targetCamPos, 0.05)
+          lerperLookAt.lerp(targetLookAt, 1)
+          lerperCamPos.lerp(targetCamPos, 1)
         }
 
         if (this.viewCameraMode === 'static') {
@@ -603,6 +756,18 @@ export default {
           camera.lookAt(targetLookAt)
           camera.position.copy(lerperCamPos)
         }
+      }
+    })
+
+    this.$on('move-end', (move) => {
+      if (move.displayName === 'Warming Up') {
+        this.chooseMove(this.moves.find(e => e.displayName === 'Taunt'), true)
+      }
+      if (move.displayName === 'Taunt') {
+        this.chooseMove(this.moves.find(e => e.displayName === 'Taunt (1)'), true)
+      }
+      if (move.displayName === 'Taunt (1)') {
+        this.chooseMove(this.moves.find(e => e.displayName === 'Mma Idle'), true)
       }
     })
 
@@ -619,6 +784,8 @@ export default {
     //     }
     //   })
     // }
+
+    await this.chooseDefaultDanceMove()
   }
 }
 </script>

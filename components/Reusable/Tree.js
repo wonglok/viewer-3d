@@ -162,6 +162,31 @@ export const Tree = {
     castdown (ev, data) {
       return castdown(this, ev, data)
     },
+    async waitGet (key) {
+      return new Promise(async (resolve) => {
+        this.waitDoOnce({
+          getter: () => {
+            return this[key]
+          },
+          fnc: (v) => {
+            resolve(v)
+          }
+        })
+      })
+    },
+    // async oneByOneTask (v) {
+    //   this.internalTasks.push(v)
+    //   let run = async () => {
+    //     this.isRunningTask = true
+    //     for (var i = 0; i < this.internalTasks.length; i++) {
+    //       await this.internalTasks[i]()
+    //     }
+    //     this.isRunningTask = false
+    //   }
+    //   if (!this.isRunningTask) {
+    //     run()
+    //   }
+    // },
     async lookupWait (key) {
       return new Promise(async (resolve) => {
         this.waitDoOnce({
