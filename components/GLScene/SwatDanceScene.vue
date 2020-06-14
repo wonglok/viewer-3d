@@ -206,7 +206,14 @@ export default {
       }
     },
     chooseAnimation ({ fromMove, toMove, mixer }) {
-      if (fromMove) {
+      // if (this.lastTweenMap.get('fromMove')) {
+      //   fromMove.actionFBX.animations.forEach((clip) => {
+      //     let action = mixer.clipAction(clip)
+      //     action.stop()
+      //   })
+      // }
+
+      if (fromMove && toMove !== fromMove) {
         fromMove.actionFBX.animations.forEach((clip) => {
           let action = mixer.clipAction(clip)
           let vari = { weight: 1 }
@@ -221,18 +228,23 @@ export default {
               action.setEffectiveWeight(vari.weight);
             })
             .onComplete(() => {
+              this.lastTweenMap.set('fromMove', false)
               action.setEffectiveWeight(0)
               action.enabled = false
             })
             .onStop(() => {
+              this.lastTweenMap.set('fromMove', false)
               action.setEffectiveWeight(0)
               action.enabled = false
             })
-
-          tween.start()
+          if (this.lastTweenMap.get('fromMove')) {
+            this.lastTweenMap.get('fromMove').chain(tween)
+          } else {
+            tween.start()
+          }
         })
       }
-      if (toMove) {
+      if (toMove && toMove !== fromMove) {
         toMove.actionFBX.animations.forEach((clip) => {
           let action = mixer.clipAction(clip)
           let vari = { weight: 0 }
@@ -248,15 +260,21 @@ export default {
               action.setEffectiveWeight(vari.weight)
             })
             .onComplete(() => {
+              this.lastTweenMap.set('toMove', false)
               action.enabled = true
             })
             .onStop(() => {
+              this.lastTweenMap.set('toMove', false)
               action.setEffectiveTimeScale(1)
               action.setEffectiveWeight(vari.weight)
               action.enabled = true
             })
             .start()
-
+          if (this.lastTweenMap.get('toMove')) {
+            this.lastTweenMap.get('toMove').chain(tween)
+          } else {
+            tween.start()
+          }
           let hh = (e) => {
             if (e.action === action) {
               mixer.removeEventListener('loop', hh)
@@ -762,12 +780,6 @@ export default {
     this.$on('move-end', (move) => {
       if (move.displayName === 'Warming Up') {
         this.chooseMove(this.moves.find(e => e.displayName === 'Taunt'), true)
-      }
-      if (move.displayName === 'Taunt') {
-        this.chooseMove(this.moves.find(e => e.displayName === 'Taunt (1)'), true)
-      }
-      if (move.displayName === 'Taunt (1)') {
-        this.chooseMove(this.moves.find(e => e.displayName === 'Mma Idle'), true)
       }
     })
 
