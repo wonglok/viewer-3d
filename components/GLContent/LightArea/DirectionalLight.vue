@@ -14,7 +14,7 @@ export default {
   name: 'Swat',
   mixins: [Tree],
   props: {
-    amount: {
+    intensity: {
       default: 3.6
     }
   },
@@ -32,8 +32,11 @@ export default {
     },
     async loadStuff () {
       let DirectionalLight = require('three/src/lights/DirectionalLight').DirectionalLight
-      var directionalLight = new DirectionalLight(0xffffff, this.amount)
+      var directionalLight = new DirectionalLight(0xffffff, this.intensity)
       this.o3d.add(directionalLight)
+      this.$watch('intensity', () => {
+        directionalLight.intensity = this.intensity
+      })
     }
   },
   async mounted () {

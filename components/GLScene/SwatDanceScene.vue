@@ -1,8 +1,9 @@
 <template>
   <O3D :animated="true" :layout="`all`">
     <O3D v-if="layouts && shaderCube && camera">
-      <AmbinetLight :amount="2"></AmbinetLight>
-      <DirectionalLight :amount="3"></DirectionalLight>
+      <AmbinetLight :intensity="2"></AmbinetLight>
+      <DirectionalLight :intensity="1"></DirectionalLight>
+      <HemisphereLight :intensity="1"></HemisphereLight>
       <O3D :animated="true" layout="walk">
         <Spacewalk></Spacewalk>
       </O3D>
@@ -12,15 +13,11 @@
       </O3D> -->
 
       <O3D :animated="true" layout="run">
-
-
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correctAxis">
             <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyFace="guyFace = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
-
-
       </O3D>
     </O3D>
 
@@ -34,6 +31,8 @@
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+
 
       <div v-if="isDev">
         <div>
@@ -78,6 +77,8 @@
     </div>
 
 
+
+
     <!-- <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
       <div class="block px-2 mx-1 my-1 border-gray-100 -border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Downloading 3D Assets... {{ (loadProgress * 100).toFixed(1) }}% </div>
@@ -111,6 +112,7 @@ export default {
     let actionList = ['run', 'upper-jab', 'mma-kick', 'side-kick', 'idle']
     let action = this.$route.query.action || actionList[0]
     return {
+      useBloom: true,
       Bloom: false,
       camera: false,
       guyHead: false,
@@ -318,7 +320,13 @@ export default {
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
       // this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'))
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'), true)
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'), true)
+        // .then(() => {
+        //   setTimeout(() => {
+        //     this.$emit('resetCam', 'face')
+        //   }, 100)
+        // })
+      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'), true)
     }
     this.moves = movesOrig
     /* Moves End */
@@ -369,7 +377,18 @@ export default {
       this.composer.setSize(rect.width * dpi, rect.height * dpi)
     })
 
-    this.$parent.$emit('composer', this.composer)
+    // this.$parent.$emit('composer', this.composer)
+    this.$on('syncBloom', () => {
+      if (this.useBloom) {
+        this.$parent.$emit('composer', this.composer)
+      } else {
+        this.$parent.$emit('composer', false)
+      }
+    })
+    this.$watch('useBloom', () => {
+      this.$emit('syncBloom')
+    })
+    this.$emit('syncBloom')
     /* BLOOM END */
 
     // this.shaderCubeSea = new ShaderCubeSea({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, resX: 1024, resY: 1024 })
@@ -449,8 +468,7 @@ export default {
     this.controls.enablePan = true
     this.controls.enableDamping = true
     this.controls.enableKeys = false
-
-    this.$watch('viewCameraMode', () => {
+    let resetCam = () => {
       vscroll.value = 0
       this.controls.reset()
       if (this.viewCameraMode === 'static') {
@@ -475,12 +493,19 @@ export default {
           defaultCloseup: 333
         }
       }
+    }
+    this.$watch('viewCameraMode', () => {
+      resetCam()
     })
+    this.$on('resetCam', (v = 'chase') => {
+      this.viewCameraMode = v
+    })
+    this.viewCameraMode = 'chase'
 
-    this.viewCameraMode = ''
-    this.$nextTick(() => {
-      this.viewCameraMode = 'chase'
-    })
+    // this.viewCameraMode = ''
+    // this.$nextTick(() => {
+    //   this.viewCameraMode = 'chase'
+    // })
 
     this.lookup('base').onLoop(() => {
       let config = this.viewSettings

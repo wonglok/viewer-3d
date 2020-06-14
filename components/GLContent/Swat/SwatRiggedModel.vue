@@ -32,7 +32,6 @@ export default {
           if (this.shaderCube) {
             if (item.isMesh && item.name === 'Mesh_1') {
               // metal
-
               // item.material = this.shaderCube.out.material
               // this.shaderCube.out.material.skinning = true
 
@@ -46,7 +45,6 @@ export default {
 
             if (item.isMesh && item.name === 'Mesh_0') {
               // Cloth
-
               // item.material = this.shaderCube.out.material
               // this.shaderCube.out.material.skinning = true
 

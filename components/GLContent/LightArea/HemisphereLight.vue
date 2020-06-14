@@ -15,7 +15,7 @@ export default {
   mixins: [Tree],
   props: {
     intensity: {
-      defult: 3
+      default: 3.6
     }
   },
   components: {
@@ -31,11 +31,12 @@ export default {
 
     },
     async loadStuff () {
-      var ambient = new AmbientLight(0xffffff, this.intensity); // soft white light
+      let HemisphereLight = require('three/src/lights/HemisphereLight').HemisphereLight
+      var lightInstance = new HemisphereLight(0xffffff, this.intensity)
+      this.o3d.add(lightInstance)
       this.$watch('intensity', () => {
-        ambient.intensity = this.intensity
+        lightInstance.intensity = this.intensity
       })
-      this.o3d.add(ambient)
     }
   },
   async mounted () {
