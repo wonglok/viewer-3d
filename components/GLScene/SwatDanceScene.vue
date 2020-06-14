@@ -400,19 +400,20 @@ export default {
       if (this.$route.query.fight) {
         // await this.pickMove({ chosenMove: movesOrig.find(e => e.displayName === 'Double Leg Takedown - Attacker (1)'), autoFocusDIV: true })
         await this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Warming Up'), autoFocusDIV: true, blendInAction: false })
+          .then(() => {
+            setTimeout(() => {
+              this.$emit('resetCam', 'face')
+            }, 0)
+            this.$once('changeToChase', () => {
+              this.viewCameraMode = 'chase'
+            })
+            this.$watch('move', () => {
+              this.$emit('changeToChase')
+            })
+          })
         // await this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Mma Idle'), autoFocusDIV: true })
         // await this.pickMove(this.moves.find(e => e.displayName === 'Warming Up'), true, true)
-          // .then(() => {
-          //   setTimeout(() => {
-          //     this.$emit('resetCam', 'face')
-          //   }, 0)
-          //   this.$once('changeToChase', () => {
-          //     this.viewCameraMode = 'chase'
-          //   })
-          //   this.$watch('move', () => {
-          //     this.$emit('changeToChase')
-          //   })
-          // })
+
       } else {
         await this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Northern Soul Floor Combo'), autoFocusDIV: true })
           // .then(() => {
