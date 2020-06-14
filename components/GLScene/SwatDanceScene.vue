@@ -69,7 +69,7 @@
       </div>
     </div>
 
-    <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 overflow-y-auto moves-box">
+    <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-56 overflow-y-auto moves-box">
       <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: move === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
     </div>
 
@@ -451,6 +451,7 @@ export default {
     this.controls.enableKeys = false
 
     this.$watch('viewCameraMode', () => {
+      vscroll.value = 0
       this.controls.reset()
       if (this.viewCameraMode === 'static') {
         camera.position.z = 1000
@@ -478,16 +479,11 @@ export default {
 
     this.viewCameraMode = ''
     this.$nextTick(() => {
-      if (this.$route.query.fight) {
-        this.viewCameraMode = 'face'
-      } else {
-        this.viewCameraMode = 'chase'
-      }
+      this.viewCameraMode = 'chase'
     })
 
     this.lookup('base').onLoop(() => {
       let config = this.viewSettings
-
       for (let kn in config) {
         if (typeof config[kn] === 'string') {
           let orig = config[kn]
@@ -582,7 +578,7 @@ export default {
 
 <style lang="postcss">
 .moves-box{
-  height: 35%;
+  height: 170px;
 }
 @screen lg {
   .moves-box{
