@@ -178,7 +178,7 @@ export default {
           if (item && item.name === 'mixamorigSpine') {
             let guyBack = new Object3D()
             guyBack.position.y = 30
-            guyBack.position.z = -100
+            guyBack.position.z = -80
             item.add(guyBack)
             this.$emit('guyBack', guyBack)
           }
@@ -187,7 +187,7 @@ export default {
             let guyFace = new Object3D()
             guyFace.position.x = 0
             guyFace.position.y = 0
-            guyFace.position.z = 100
+            guyFace.position.z = 80
             item.add(guyFace)
             this.$emit('guyFace', guyFace)
           }

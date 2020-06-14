@@ -42,7 +42,7 @@
           </div>
           <div>
             <input type="range" min="-200" step="0.001" max="200" v-model="viewSettings.cameraExtraHeight">
-            <input type="text" class="w-8 text-black px-1" @keydown.up="viewSettings.cameraExtraHeight += 25" @keydown.down="viewSettings.cameraExtraHeight -= 25" v-model="viewSettings.cameraExtraHeight">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.cameraExtraHeight += 25" @keydown.down="viewSettings.cameraExtraHeight -= 25" v-model="viewSettings.cameraExtraHeight">
           </div>
         </div>
 
@@ -52,7 +52,7 @@
           </div>
           <div>
             <input type="range" min="-1024" step="0.001" max="1024" v-model="viewSettings.defaultCloseup">
-            <input type="text" class="w-8 text-black px-1" @keydown.up="viewSettings.defaultCloseup += 25" @keydown.down="viewSettings.defaultCloseup -= 25" v-model="viewSettings.defaultCloseup">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.defaultCloseup += 25" @keydown.down="viewSettings.defaultCloseup -= 25" v-model="viewSettings.defaultCloseup">
           </div>
         </div>
 
@@ -62,7 +62,7 @@
           </div>
           <div>
             <input type="range" min="0" step="0.00001" max="1" v-model="Bloom.threshold">
-            <input type="text" class="w-8 text-black px-1" @keydown.up="Bloom.threshold += 0.1" @keydown.down="Bloom.threshold -= 0.1" v-model="Bloom.threshold">
+            <input type="number" step="0.00001" class="w-8 text-black px-1" @keydown.up="Bloom.threshold += 0.1" @keydown.down="Bloom.threshold -= 0.1" v-model="Bloom.threshold">
           </div>
         </div>
 
@@ -301,7 +301,7 @@ export default {
       // addToArr(capoeiraMapper)
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Goalkeeper Drop Kick'), true)
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Warming Up'), true)
     } else {
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
@@ -455,9 +455,9 @@ export default {
         camera.position.y = 50
       } else if (this.viewCameraMode === 'face') {
         this.viewSettings = {
-          cameraExtraHeight: 30,
+          cameraExtraHeight: 0,
           farest: 900,
-          defaultCloseup: 50
+          defaultCloseup: 32.283
         }
       } else if (this.viewCameraMode === 'back') {
         this.viewSettings = {
@@ -476,7 +476,11 @@ export default {
 
     this.viewCameraMode = ''
     this.$nextTick(() => {
-      this.viewCameraMode = 'chase'
+      if (this.$route.query.fight) {
+        this.viewCameraMode = 'face'
+      } else {
+        this.viewCameraMode = 'chase'
+      }
     })
 
     this.lookup('base').onLoop(() => {
@@ -484,7 +488,12 @@ export default {
 
       for (let kn in config) {
         if (typeof config[kn] === 'string') {
-          config[kn] = Number(config[kn])
+          let orig = config[kn]
+          let newVal = Number(config[kn])
+          if (isNaN(newVal)) {
+          } else {
+            config[kn] = newVal
+          }
         }
       }
 
@@ -494,10 +503,9 @@ export default {
       if (this.guy && this.guyHead && this.guyFace && this.guyBack) {
         // getting position
         headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-        // centerRelPos.copy(this.guy.position)
         this.guy.getWorldPosition(centerPosition)
 
-        // this.guyFace.getWorldPosition(guyEyePos)
+        // looker (guyFace)
         guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
         guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
         // infrontOFhead.(headPosition)
