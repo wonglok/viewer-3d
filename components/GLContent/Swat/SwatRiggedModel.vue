@@ -32,6 +32,9 @@ export default {
     if (this.gltf) {
       this.$emit('removeGLTF', this.gltf)
     }
+    this.o3d.children.forEach((kid) => {
+      this.o3d.remove(kid)
+    })
   },
   methods: {
     configModel ({ model }) {
@@ -77,6 +80,7 @@ export default {
       mixamorigNeck
       mixamorigHead
       mixamorigHeadTop_End
+
       mixamorigLeftShoulder
       mixamorigLeftArm
       mixamorigLeftForeArm
@@ -139,50 +143,47 @@ export default {
       Mesh_0
       Mesh_1
       */
-      setTimeout(() => {
-        model.scene.traverse((item) => {
-          // console.log(item.name)
-          // console.log(item)-
+      model.scene.traverse((item) => {
 
-          if (item && item.name === 'mixamorigSpine2') {
-            let guyCenter = new Object3D()
-            guyCenter.position.y = 0
-            item.add(guyCenter)
-            this.$emit('guy', guyCenter)
-          }
+        // console.log(item.name)
+        // console.log(item)
 
-          if (item && item.name === 'mixamorigSpine') {
-            let guyBack = new Object3D()
-            guyBack.position.y = 30
-            guyBack.position.z = -80
-            item.add(guyBack)
-            this.$emit('guyBack', guyBack)
-          }
+        if (item && item.name === 'mixamorigSpine2') {
+          let guyCenter = new Object3D()
+          guyCenter.position.y = 0
+          item.add(guyCenter)
+          this.$emit('guy', guyCenter)
+        }
 
-          if (item && item.name === 'mixamorigHead') {
-            let guyFace = new Object3D()
-            guyFace.position.x = 0
-            guyFace.position.y = 0
-            guyFace.position.z = 80
-            item.add(guyFace)
-            this.$emit('guyFace', guyFace)
-          }
+        if (item && item.name === 'mixamorigSpine') {
+          let guyBack = new Object3D()
+          guyBack.position.y = 0
+          guyBack.position.z = 0
+          item.add(guyBack)
+          this.$emit('guyBack', guyBack)
+        }
 
-          if (item && item.name === 'mixamorigHead') {
-            let guyHead = new Object3D()
-            guyHead.position.y = 0
-            guyHead.position.z = 0
-            item.add(guyHead)
-            this.$emit('guyHead', guyHead)
-          }
-        })
-      }, 0)
-    },
-    beforeDestroy() {
-      this.o3d.children.forEach((kid) => {
-        this.o3d.remove(kid)
+        if (item && item.name === 'mixamorigHead') {
+          let guyFace = new Object3D()
+          guyFace.position.x = 0
+          guyFace.position.y = 0
+          guyFace.position.z = 0
+          item.add(guyFace)
+          this.$emit('guyFace', guyFace)
+        }
+
+        if (item && item.name === 'mixamorigHead') {
+          let guyHead = new Object3D()
+          guyHead.position.y = 0
+          guyHead.position.z = 0
+          item.add(guyHead)
+          this.$emit('guyHead', guyHead)
+        }
       })
     },
+    // beforeDestroy() {
+
+    // },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
 

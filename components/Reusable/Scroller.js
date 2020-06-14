@@ -1,6 +1,6 @@
 import { Clock } from 'three'
 // can scroll how many pages = limit.y
-export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', canRun: true, y: 1000 }, onMove = () => {} }) => {
+export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', initValue: 0, canRun: true, ny: 0, y: 1000 }, onMove = () => {} }) => {
   let state = {
     tsY: 0,
     tdY: 0,
@@ -12,7 +12,8 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
   }
   class ValueDamper {
     constructor (v = 0) {
-      this.maxY = limit.y
+      // this.minY = limit.ny,
+      // this.maxY = limit.y
       this.latestVal = v
       this.dampedVal = v
       this.clock = new Clock()
@@ -34,9 +35,9 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
   }
 
   let browserScrollBox = document.querySelector('.broswer-scroll-box')
-  let scrollAmount = 0
-  let SmoothY = new ValueDamper(0.0)
-  SmoothY.value = 0.0
+  let scrollAmount = limit.initValue || 0
+  let SmoothY = new ValueDamper(limit.initValue || 0)
+  SmoothY.value = 0
   if (browserScrollBox) {
     browserScrollBox.addEventListener('scroll', () => {
       let value = (browserScrollBox.scrollTop) / window.innerHeight
@@ -52,11 +53,11 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
         return
       }
       let delta = evt.deltaY
-      if (limit.direction !== 'vertical') {
+      if (limit.direction === 'horizontal') {
         delta = evt.deltaX
       }
       scrollAmount += delta
-      if (scrollAmount < 0) {
+      if (scrollAmount < (limit.ny * window.innerHeight)) {
         scrollAmount -= delta
       } else if (scrollAmount > (limit.y * window.innerHeight)) {
         scrollAmount -= delta
@@ -71,7 +72,7 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
       let t1 = evt.touches[0]
 
       let key = 'pageY'
-      if (limit.direction !== 'vertical') {
+      if (limit.direction === 'horizontal') {
         key = 'pageX'
       }
       // console.log(t1)
@@ -84,7 +85,7 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
         return
       }
       let key = 'pageY'
-      if (limit.direction !== 'vertical') {
+      if (limit.direction === 'horizontal') {
         key = 'pageX'
       }
       if (state.tD) {
@@ -116,7 +117,7 @@ export const makeScroller = ({ base, mounter, limit = { direction: 'vertical', c
       let delta = state.inertiaY * state.tdY * 2.11 / 1000
       state.taY -= delta
 
-      if (state.taY <= 0) {
+      if (state.taY <= limit.ny) {
         state.taY += delta
       } else if (state.taY >= limit.y) {
         state.taY += delta

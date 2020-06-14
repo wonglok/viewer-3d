@@ -25,16 +25,46 @@
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="guyMounted">
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
+
       <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div> -->
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Scene Camera</div>
+
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
 
 
       <div v-if="isDev">
+        <div>
+          <div class="text-white">
+            adjustX
+          </div>
+          <div>
+            <input type="range" min="-500" step="0.0001" max="500" v-model="viewSettings.adjustX">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.adjustX += 25" @keydown.down="viewSettings.adjustX -= 25" v-model="viewSettings.adjustX">
+          </div>
+        </div>
+        <div>
+          <div class="text-white">
+            adjustY
+          </div>
+          <div>
+            <input type="range" min="-500" step="0.0001" max="500" v-model="viewSettings.adjustY">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.adjustY += 25" @keydown.down="viewSettings.adjustY -= 25" v-model="viewSettings.adjustY">
+          </div>
+        </div>
+        <div>
+          <div class="text-white">
+            adjustZ
+          </div>
+          <div>
+            <input type="range" min="-500" step="0.0001" max="500" v-model="viewSettings.adjustZ">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.adjustZ += 25" @keydown.down="viewSettings.adjustZ -= 25" v-model="viewSettings.adjustZ">
+          </div>
+        </div>
         <div>
           <div class="text-white">
             cameraExtraHeight
@@ -69,7 +99,7 @@
     </div>
 
     <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-56 overflow-y-auto moves-box">
-      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: move === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="pickMove({ chosenMove: moveItem })" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: move === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
     </div>
 
     <div v-show="!guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
@@ -170,7 +200,7 @@ export default {
         mixer.update(clock.getDelta())
       })
       if (this.move) {
-        this.chooseMove(this.move, true)
+        this.pickMove({ chosenMove: this.move, autoFocusDIV: true, blendInAction: false })
       }
     },
     async tryWaitAnimationEnd (animation) {
@@ -185,34 +215,27 @@ export default {
         })
       })
     },
-    chooseAnimationNow ({ fromMove, toMove, mixer }) {
-      if (fromMove) {
-        fromMove.actionFBX.animations.forEach((clip) => {
-          let action = mixer.clipAction(clip)
-          action.setEffectiveTimeScale(1)
-          action.setEffectiveWeight(0)
-          action.enabled = false
-          action.stop()
-        })
-      }
-      if (toMove) {
-        toMove.actionFBX.animations.forEach((clip) => {
-          let action = mixer.clipAction(clip)
-          action.setEffectiveTimeScale(1)
-          action.setEffectiveWeight(1)
-          action.enabled = true
-          action.play()
-        })
-      }
-    },
+    // chooseAnimationNow ({ fromMove, toMove, mixer }) {
+    //   if (fromMove) {
+    //     fromMove.actionFBX.animations.forEach((clip) => {
+    //       let action = mixer.clipAction(clip)
+    //       action.setEffectiveTimeScale(1)
+    //       action.setEffectiveWeight(0)
+    //       action.enabled = false
+    //       action.stop()
+    //     })
+    //   }
+    //   if (toMove) {
+    //     toMove.actionFBX.animations.forEach((clip) => {
+    //       let action = mixer.clipAction(clip)
+    //       action.setEffectiveTimeScale(1)
+    //       action.setEffectiveWeight(1)
+    //       action.enabled = true
+    //       action.play()
+    //     })
+    //   }
+    // },
     chooseAnimation ({ fromMove, toMove, mixer }) {
-      // if (this.lastTweenMap.get('fromMove')) {
-      //   fromMove.actionFBX.animations.forEach((clip) => {
-      //     let action = mixer.clipAction(clip)
-      //     action.stop()
-      //   })
-      // }
-
       if (fromMove && toMove !== fromMove) {
         fromMove.actionFBX.animations.forEach((clip) => {
           let action = mixer.clipAction(clip)
@@ -244,7 +267,7 @@ export default {
           }
         })
       }
-      if (toMove && toMove !== fromMove) {
+      if (toMove && fromMove) {
         toMove.actionFBX.animations.forEach((clip) => {
           let action = mixer.clipAction(clip)
           let vari = { weight: 0 }
@@ -284,20 +307,27 @@ export default {
           mixer.addEventListener('loop', hh)
         })
       }
+      if (!fromMove && toMove) {
+        toMove.actionFBX.animations.forEach((clip) => {
+          let action = mixer.clipAction(clip)
+          action.enabled = true
+          action.play()
+        })
+      }
     },
     async onNext () {
       this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
       this.moveCursor++
       this.moveCursor = this.moveCursor % this.moves.length
       let chosen = this.moves[this.moveCursor]
-      await this.chooseMove(chosen, true)
+      await this.pickMove(chosen, true)
     },
     async onPrev () {
       this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
       this.moveCursor--
       this.moveCursor = this.moveCursor % this.moves.length
       let chosen = this.moves[this.moveCursor]
-      await this.chooseMove(chosen, true)
+      await this.pickMove(chosen, true)
     },
     async startGame () {
       sound.play()
@@ -337,7 +367,7 @@ export default {
         })
       }, console.log)
     },
-    async chooseMove (chosenMove, autoFocus, now = false) {
+    async pickMove ({ chosenMove, autoFocusDIV, blendInAction = true }) {
       this.isLoadingMotion = true
       let fromMove = this.move
 
@@ -346,13 +376,14 @@ export default {
       this.move = move
 
       let gltf = await this.waitGetGLTFByname('swat-guy')
-      if (now) {
-        await this.chooseAnimationNow({ fromMove, toMove, mixer: gltf.mixer, gltf })
-      } else {
-        await this.chooseAnimation({ fromMove, toMove, mixer: gltf.mixer, gltf })
-      }
 
-      if (autoFocus) {
+      await this.chooseAnimation({ fromMove, toMove, mixer: gltf.mixer, gltf })
+      // if (blendInAction) {
+      //   await this.chooseAnimationNow({ fromMove, toMove, mixer: gltf.mixer, gltf })
+      // } else {
+      // }
+
+      if (autoFocusDIV) {
         this.$nextTick(() => {
           let list = this.$refs[`item-${move._id}`]
           if (list) {
@@ -363,6 +394,38 @@ export default {
             }
           }
         })
+      }
+    },
+    async chooseDefaultDanceMove () {
+      if (this.$route.query.fight) {
+        // await this.pickMove({ chosenMove: movesOrig.find(e => e.displayName === 'Double Leg Takedown - Attacker (1)'), autoFocusDIV: true })
+        await this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Warming Up'), autoFocusDIV: true, blendInAction: false })
+        // await this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Mma Idle'), autoFocusDIV: true })
+        // await this.pickMove(this.moves.find(e => e.displayName === 'Warming Up'), true, true)
+          // .then(() => {
+          //   setTimeout(() => {
+          //     this.$emit('resetCam', 'face')
+          //   }, 0)
+          //   this.$once('changeToChase', () => {
+          //     this.viewCameraMode = 'chase'
+          //   })
+          //   this.$watch('move', () => {
+          //     this.$emit('changeToChase')
+          //   })
+          // })
+      } else {
+        await this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Northern Soul Floor Combo'), autoFocusDIV: true })
+          // .then(() => {
+          //   setTimeout(() => {
+          //     this.$emit('resetCam', 'face')
+          //   }, 0)
+          //   this.$once('changeToChase', () => {
+          //     this.viewCameraMode = 'chase'
+          //   })
+          //   this.$watch('move', () => {
+          //     this.$emit('changeToChase')
+          //   })
+          // })
       }
     }
   },
@@ -464,60 +527,16 @@ export default {
       addToArr(superheroMapper)
       addToArr(boxinghitMapper)
       addToArr(hurtMapper)
-      // addToArr(capoeiraMapper)
-      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
-      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
+      addToArr(rifleMapper)
+      addToArr(locomotionMapper)
     } else {
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
       addToArr(danceingMapper)
-
-      addToArr(rifleMapper)
-      addToArr(locomotionMapper)
       addToArr(gestureMapper)
-      // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance freezes'))
-      // this.chooseMove(this.moves.find(e => e.displayName === 'brooklyn uprock'))
-      // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
-      // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
-      // this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'))
-      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'), true)
-      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Hokey Pokey'))
-      // Macarena Dance
-      // Hip Hop Dancing (3) copy
-
-      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'), true)
     }
     this.moves = movesOrig
 
-    this.chooseDefaultDanceMove = async () => {
-      if (this.$route.query.fight) {
-        await this.chooseMove(movesOrig.find(e => e.displayName === 'Warming Up'), true, true)
-          // .then(() => {
-          //   setTimeout(() => {
-          //     this.$emit('resetCam', 'face')
-          //   }, 0)
-          //   this.$once('changeToChase', () => {
-          //     this.viewCameraMode = 'chase'
-          //   })
-          //   this.$watch('move', () => {
-          //     this.$emit('changeToChase')
-          //   })
-          // })
-      } else {
-        await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Floor Combo'), true)
-          // .then(() => {
-          //   setTimeout(() => {
-          //     this.$emit('resetCam', 'face')
-          //   }, 0)
-          //   this.$once('changeToChase', () => {
-          //     this.viewCameraMode = 'chase'
-          //   })
-          //   this.$watch('move', () => {
-          //     this.$emit('changeToChase')
-          //   })
-          // })
-      }
-    }
     /* Moves End */
 
     this.lookup('base').onLoop(() => {
@@ -601,6 +620,7 @@ export default {
           py: -180,
           rx: Math.PI * 0.5
         },
+
         // run: {
         //   // ry: Math.PI * -0.25,
         //   sx: 1,
@@ -634,10 +654,15 @@ export default {
 
     this.lookup('base').onLoop(looper)
 
-    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
+    let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, ny: 0, y: 1 }, onMove: () => {} })
+    let hscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'horizontal', canRun: true, ny: -1, y: 1 }, onMove: () => {} })
 
     this.viewCameraMode = 'chase'
+    // placeholder value only, will be replaced
     this.viewSettings = {
+      adjustX: 0,
+      adjustY: 0,
+      adjustZ: 0,
       cameraExtraHeight: 45,
       farest: 900,
       defaultCloseup: 333
@@ -667,23 +692,53 @@ export default {
         camera.position.z = 1000
         camera.position.y = 50
       } else if (this.viewCameraMode === 'face') {
-        this.viewSettings = {
-          cameraExtraHeight: 0,
-          farest: 900,
-          defaultCloseup: 32.283
-        }
+        this.viewSettings.adjustX = 0
+        this.viewSettings.adjustY = 0
+        this.viewSettings.adjustZ = 70
+
+        this.viewSettings.cameraExtraHeight = 0
+        this.viewSettings.farest = 900,
+        this.viewSettings.defaultCloseup = 0
       } else if (this.viewCameraMode === 'back') {
-        this.viewSettings = {
-          cameraExtraHeight: 50,
-          farest: 900,
-          defaultCloseup: -10
-        }
+        // this.viewSettings.adjustX = 0
+        // this.viewSettings.adjustY = 1.936
+        // this.viewSettings.adjustZ = -48.562
+
+        // this.viewSettings.cameraExtraHeight = 100.774
+        // this.viewSettings.farest = 900,
+        // this.viewSettings.defaultCloseup = 31.717
+
+        this.viewSettings.adjustX = 0
+        this.viewSettings.adjustY = -14.9336
+        this.viewSettings.adjustZ = -10.3706
+
+        this.viewSettings.cameraExtraHeight = 118.363
+        this.viewSettings.farest = 900,
+        this.viewSettings.defaultCloseup = 233.912
       } else if (this.viewCameraMode === 'chase') {
-        this.viewSettings = {
-          cameraExtraHeight: 45,
-          farest: 900,
-          defaultCloseup: 333
-        }
+        this.viewSettings.adjustX = -123.7555
+        this.viewSettings.adjustY = 0
+        this.viewSettings.adjustZ = 0
+
+        this.viewSettings.cameraExtraHeight = 3.982
+        this.viewSettings.defaultCloseup = 492.46 + 24.6128
+        this.viewSettings.farest = 900
+      } else if (this.viewCameraMode === 'close') {
+        // this.viewSettings.adjustX = -92.229
+        // this.viewSettings.adjustY = -38.4403
+        // this.viewSettings.adjustZ = 146.5708
+
+        // this.viewSettings.cameraExtraHeight = 79.978
+        // this.viewSettings.defaultCloseup = 80.991
+        // this.viewSettings.farest = 900
+
+        this.viewSettings.adjustX = -147.9535
+        this.viewSettings.adjustY = 0
+        this.viewSettings.adjustZ = 162.6106
+
+        this.viewSettings.cameraExtraHeight = 0
+        this.viewSettings.defaultCloseup = -48.425
+        this.viewSettings.farest = 900
       }
     }
     this.$watch('viewCameraMode', () => {
@@ -692,6 +747,7 @@ export default {
     this.$on('resetCam', (v = 'chase') => {
       this.viewCameraMode = v
     })
+    resetCam()
     this.viewCameraMode = 'chase'
 
     // this.viewCameraMode = ''
@@ -713,11 +769,37 @@ export default {
       }
 
       let progress = vscroll.value
-      let extraZoom = config.defaultCloseup + config.farest * progress * (this.viewCameraMode === 'static' ? 0 : 1)
+      let scrollZoom = config.farest * progress * (this.viewCameraMode === 'static' ? 0 : 1)
+      let extraZoom = config.defaultCloseup + scrollZoom
 
       if (this.guy && this.guyHead && this.guyFace && this.guyBack) {
         // getting position
+        // this.guy.rotation.y = Math.PI * -0.25
         this.guy.getWorldPosition(centerPosition)
+
+        if (this.viewCameraMode === 'face') {
+          this.guyFace.position.x = config.adjustX
+          this.guyFace.position.y = config.adjustY
+          this.guyFace.position.z = config.adjustZ
+        }
+
+        if (this.viewCameraMode === 'back') {
+          this.guyBack.position.x = config.adjustX
+          this.guyBack.position.y = config.adjustY
+          this.guyBack.position.z = config.adjustZ
+        }
+
+        if (this.viewCameraMode === 'chase') {
+          centerPosition.x += config.adjustX
+          centerPosition.y += config.adjustY
+          centerPosition.z += config.adjustZ
+        }
+
+        if (this.viewCameraMode === 'close') {
+          centerPosition.x += config.adjustX
+          centerPosition.y += config.adjustY
+          centerPosition.z += config.adjustZ
+        }
 
         // looker (guyFace)
         headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
@@ -753,6 +835,15 @@ export default {
           targetLookAt.x = guyBodyPos.x
           targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
           targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'close') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z + extraZoom
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
         }
 
         if (this.viewCameraMode === 'face') {
@@ -762,8 +853,11 @@ export default {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'chase') {
-          lerperLookAt.lerp(targetLookAt, 1)
-          lerperCamPos.lerp(targetCamPos, 1)
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
+        } else if (this.viewCameraMode === 'close') {
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
         }
 
         if (this.viewCameraMode === 'static') {
@@ -771,16 +865,16 @@ export default {
           this.controls.update()
         } else {
           this.controls.enabled = false
-          camera.lookAt(targetLookAt)
+          camera.lookAt(lerperLookAt)
           camera.position.copy(lerperCamPos)
         }
       }
     })
 
     this.$on('move-end', (move) => {
-      if (move.displayName === 'Warming Up') {
-        this.chooseMove(this.moves.find(e => e.displayName === 'Taunt'), true)
-      }
+      // if (move.displayName === 'Warming Up') {
+      //   this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Taunt'), autoFocusDIV: true })
+      // }
     })
 
     // if (window.innerWidth < 500) {
@@ -798,6 +892,18 @@ export default {
     // }
 
     await this.chooseDefaultDanceMove()
+
+    let clock = new Clock()
+    let counter = 0
+    this.lookup('base').onLoop(() => {
+      let delta = clock.getDelta()
+      if (delta > 0.001 * 16.6667 * 5) {
+        counter++
+      }
+      if (counter >= 60) {
+        this.useBloom = false
+      }
+    })
   }
 }
 </script>

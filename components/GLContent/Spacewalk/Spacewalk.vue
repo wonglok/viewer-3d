@@ -31,28 +31,28 @@ export default {
         if (item.isMesh) {
           // console.log(item)
           item.material = mats.shaderCubeMat
-          // 20 , 15, 10
-          // foot walker
-          if (item.name === 'Mesh020') {
-            item.material = mats.shaderCubeMat
-          }
-          if (item.name === 'Mesh015') {
-            item.material = mats.shaderCubeMat
-          }
-          if (item.name === 'Mesh010') {
-            item.material = mats.shaderCubeMat
-          }
+          // // 20 , 15, 10
+          // // foot walker
+          // if (item.name === 'Mesh020') {
+          //   item.material = mats.shaderCubeMat
+          // }
+          // if (item.name === 'Mesh015') {
+          //   item.material = mats.shaderCubeMat
+          // }
+          // if (item.name === 'Mesh010') {
+          //   item.material = mats.shaderCubeMat
+          // }
 
-          // pipes
-          if (item.name === 'Mesh019') {
-            item.material = mats.shaderCubeMat
-          }
-          if (item.name === 'Mesh016') {
-            item.material = mats.shaderCubeMat
-          }
-          if (item.name === 'Mesh003') {
-            item.material = mats.shaderCubeMat
-          }
+          // // pipes
+          // if (item.name === 'Mesh019') {
+          //   item.material = mats.shaderCubeMat
+          // }
+          // if (item.name === 'Mesh016') {
+          //   item.material = mats.shaderCubeMat
+          // }
+          // if (item.name === 'Mesh003') {
+          //   item.material = mats.shaderCubeMat
+          // }
 
           // walls
           if (item.name === 'Mesh018') {
