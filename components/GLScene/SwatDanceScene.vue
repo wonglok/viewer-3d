@@ -305,7 +305,6 @@ export default {
       // addToArr(capoeiraMapper)
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
-
       await this.chooseMove(movesOrig.find(e => e.displayName === 'Warming Up'), true)
         .then(() => {
           setTimeout(() => {
@@ -333,18 +332,19 @@ export default {
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
       // this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'))
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'), true)
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Hip Hop Dancing (3) copy'), true)
-        .then(() => {
-          setTimeout(() => {
-            this.$emit('resetCam', 'face')
-          }, 0)
-          this.$once('changeToChase', () => {
-            this.viewCameraMode = 'chase'
-          })
-          this.$watch('move', () => {
-            this.$emit('changeToChase')
-          })
-        })
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Hokey Pokey'))
+      // await this.chooseMove(movesOrig.find(e => e.displayName === 'Hip Hop Dancing (3) copy'), true)
+      //   .then(() => {
+      //     setTimeout(() => {
+      //       this.$emit('resetCam', 'face')
+      //     }, 0)
+      //     this.$once('changeToChase', () => {
+      //       this.viewCameraMode = 'chase'
+      //     })
+      //     this.$watch('move', () => {
+      //       this.$emit('changeToChase')
+      //     })
+      //   })
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'), true)
     }
     this.moves = movesOrig
