@@ -65,7 +65,7 @@ export default {
 
         let clock = new Clock()
         // let camera = this.camera
-        let map = new WeakMap()
+        // let map = new WeakMap()
         this.lookup('base').onLoop(() => {
           if (mixer.run) {
             mixer.update(clock.getDelta())
@@ -174,10 +174,28 @@ export default {
             item.add(guyCenter)
             this.$emit('guy', guyCenter)
           }
+
+          if (item && item.name === 'mixamorigSpine1') {
+            let guyBack = new Object3D()
+            guyBack.position.y = 0
+            guyBack.position.z = -100
+            item.add(guyBack)
+            this.$emit('guyBack', guyBack)
+          }
+
+          if (item && item.name === 'mixamorigHead') {
+            let guyCamera = new Object3D()
+            guyCamera.position.x = 0
+            guyCamera.position.y = 0
+            guyCamera.position.z = 100
+            item.add(guyCamera)
+            this.$emit('guyCamera', guyCamera)
+          }
+
           if (item && item.name === 'mixamorigHead') {
             let guyHead = new Object3D()
             guyHead.position.y = 0
-            guyHead.position.z = 10
+            guyHead.position.z = 0
             item.add(guyHead)
             this.$emit('guyHead', guyHead)
           }

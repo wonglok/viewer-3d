@@ -16,7 +16,7 @@
 
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correctAxis">
-            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
+            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyCamera="guyCamera = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
@@ -30,7 +30,10 @@
     <div class="absolute z-10 top-0 right-0 p-3" v-if="guyMounted">
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div>
       <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': gyroCam, 'border-green-200': gyroCam }" v-if="gyroPresent" @click="gyroCam = !gyroCam">Gyro Cam</div> -->
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useAutoChase, 'border-green-200': useAutoChase }" @click="useAutoChase = !useAutoChase">Chase Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Scene Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
 
       <div v-if="isDev">
         <div>
@@ -66,8 +69,8 @@
       </div>
     </div>
 
-    <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 h-40 lg:h-64 overflow-y-auto">
-      <a v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :class="{ 'bg-blue-500': move === moveItem }">{{ moveItem.displayName }}</a>
+    <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 overflow-y-auto moves-box">
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :class="{ 'bg-blue-500': move === moveItem }">{{ moveItem.displayName }}</a>
     </div>
 
     <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
@@ -131,7 +134,9 @@ export default {
       socket: false,
       gyroCam: false,
       gyroPresent: false,
-      useAutoChase: true,
+      viewCameraMode: true,
+      guyCamera: false,
+      guyBack: false,
 
       viewSettings: false,
       isDev: process.env.NODE_ENV === 'development',
@@ -144,31 +149,31 @@ export default {
     }
   },
   methods: {
-    async onNext () {
-      this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
-      this.moveCursor++
-      this.moveCursor = this.moveCursor % this.moves.length
-      let chosen = this.moves[this.moveCursor]
-      await this.chooseMove(chosen)
-    },
-    async onPrev () {
-      this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
-      this.moveCursor--
-      this.moveCursor = this.moveCursor % this.moves.length
-      let chosen = this.moves[this.moveCursor]
-      await this.chooseMove(chosen)
-    },
-    async startGame () {
-      sound.play()
-      this.displayStartMenu = false
-    },
     onReady () {
       // this.ready = true
       // setTimeout(() => {
       //   this.scene.background = new Color('#fafafa')
       // }, 1000)
     },
-    async chooseMove (item) {
+    async onNext () {
+      this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
+      this.moveCursor++
+      this.moveCursor = this.moveCursor % this.moves.length
+      let chosen = this.moves[this.moveCursor]
+      await this.chooseMove(chosen, true)
+    },
+    async onPrev () {
+      this.moveCursor = this.moves.findIndex(mm => mm === this.move) || 0
+      this.moveCursor--
+      this.moveCursor = this.moveCursor % this.moves.length
+      let chosen = this.moves[this.moveCursor]
+      await this.chooseMove(chosen, true)
+    },
+    async startGame () {
+      sound.play()
+      this.displayStartMenu = false
+    },
+    async chooseMove (item, autoFocus) {
       this.isLoadingMotion = true
       let loaderFBX = new FBXLoader(this.loadingManager)
       let move = await new Promise(async (resolve) => {
@@ -186,6 +191,20 @@ export default {
         })
       }, console.log)
       this.move = move
+
+      if (autoFocus) {
+        this.$nextTick(() => {
+          let list = this.$refs[`item-${move._id}`]
+          if (list) {
+            let dom = list[0]
+            try {
+              dom.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' })
+            } catch (e) {
+
+            }
+          }
+        })
+      }
     }
   },
   created () {
@@ -193,12 +212,16 @@ export default {
   },
   async mounted () {
     await this.lookupWait('ready')
+    let tout = 0
     window.addEventListener('keydown', (ev) => {
-      if (ev.keyCode === 39) {
-        this.onNext()
-      } else if (ev.keyCode === 37) {
-        this.onPrev()
-      }
+      clearTimeout(tout)
+      setTimeout(() => {
+        if (ev.keyCode === 39 || ev.keyCode === 40) {
+          this.onNext()
+        } else if (ev.keyCode === 37 || ev.keyCode === 38) {
+          this.onPrev()
+        }
+      }, 0)
     })
 
     /* Loader START */
@@ -278,7 +301,7 @@ export default {
       // addToArr(capoeiraMapper)
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Flying Kick'))
       // await this.chooseMove(movesOrig.find(e => e.displayName === 'Mma Idle'))
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Goalkeeper Drop Kick'))
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Goalkeeper Drop Kick'), true)
     } else {
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
@@ -293,7 +316,7 @@ export default {
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance footwork to idle (2)'))
       // this.chooseMove(this.moves.find(e => e.displayName === 'breakdance ending 3'))
       // this.chooseMove(movesOrig.find(e => e.displayName === 'Thriller Part 3'))
-      await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'))
+      await this.chooseMove(movesOrig.find(e => e.displayName === 'Northern Soul Spin Combo'), true)
     }
     this.moves = movesOrig
     /* Moves End */
@@ -401,7 +424,7 @@ export default {
 
     let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, y: 1 }, onMove: () => {} })
 
-    this.useAutoChase = undefined
+    this.viewCameraMode = 'chase'
     this.viewSettings = {
       cameraExtraHeight: 45,
       farest: 900,
@@ -416,28 +439,44 @@ export default {
     let targetLookAt = new Vector3()
     let targetCamPos = new Vector3()
     let centerRelPos = new Vector3()
+    let guyCameraPos = new Vector3()
+    let infrontOFhead = new Vector3()
+    let guyBackPos = new Vector3()
 
     this.controls = new ChaseControls(camera, this.$refs['domlayer'])
     this.controls.enablePan = true
     this.controls.enableDamping = true
     this.controls.enableKeys = false
 
-    this.$watch('useAutoChase', () => {
+    this.$watch('viewCameraMode', () => {
       this.controls.reset()
-      if (!this.useAutoChase) {
-        camera.position.z = 500
+      if (this.viewCameraMode === 'static') {
+        camera.position.z = 1000
         camera.position.y = 50
+      } else if (this.viewCameraMode === 'face') {
+        this.viewSettings = {
+          cameraExtraHeight: 30,
+          farest: 900,
+          defaultCloseup: 50
+        }
+      } else if (this.viewCameraMode === 'back') {
+        this.viewSettings = {
+          cameraExtraHeight: 30,
+          farest: 900,
+          defaultCloseup: -10
+        }
+      } else if (this.viewCameraMode === 'chase') {
+        this.viewSettings = {
+          cameraExtraHeight: 45,
+          farest: 900,
+          defaultCloseup: 333
+        }
       }
     })
+    this.viewCameraMode = ''
     this.$nextTick(() => {
-      this.useAutoChase = window.innerWidth < 500
-      if (process.env.NODE_ENV === 'development') {
-        this.useAutoChase = true
-      }
+      this.viewCameraMode = 'back'
     })
-    // this.lookup('base').onResize(() => {
-    //   this.useAutoChase = window.innerWidth < 500
-    // })
 
     this.lookup('base').onLoop(() => {
       let config = this.viewSettings
@@ -449,29 +488,63 @@ export default {
       }
 
       let progress = vscroll.value
-      if (this.guy && this.guyHead) {
+      let extraZoom = config.defaultCloseup + config.farest * progress * (this.viewCameraMode === 'chase' || this.viewCameraMode === 'face' ? 1 : 0)
+
+      if (this.guy && this.guyHead && this.guyCamera) {
         // getting position
         headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-        centerRelPos.copy(this.guy.position)
+        // centerRelPos.copy(this.guy.position)
         this.guy.getWorldPosition(centerPosition)
 
-        // make use of position
-        targetCamPos.x = centerPosition.x
-        targetCamPos.y = centerPosition.y + config.cameraExtraHeight
-        targetCamPos.z = centerPosition.z + config.defaultCloseup + config.farest * progress * (this.useAutoChase ? 1 : 0)
+        // this.guyCamera.getWorldPosition(guyCameraPos)
+        guyCameraPos.setFromMatrixPosition(this.guyCamera.matrixWorld)
+        guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
+        // infrontOFhead.(headPosition)
 
-        targetLookAt.x = headPosition.x
-        targetLookAt.y = headPosition.y - config.cameraExtraHeight
-        targetLookAt.z = headPosition.z
+        if (this.viewCameraMode === 'face') {
+          // make use of position
+          targetCamPos.x = guyCameraPos.x
+          targetCamPos.y = guyCameraPos.y + config.cameraExtraHeight
+          targetCamPos.z = guyCameraPos.z + extraZoom
 
-        lerperLookAt.lerp(targetLookAt, 0.05)
-        lerperCamPos.lerp(targetCamPos, 0.05)
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'back') {
+          // make use of position
+          targetCamPos.x = guyBackPos.x
+          targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
+          targetCamPos.z = guyBackPos.z + extraZoom
 
-        if (this.useAutoChase) {
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'chase') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z + extraZoom
+
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        }
+
+
+
+        if (this.viewCameraMode === 'face') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else {
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
+        }
+
+        if (this.viewCameraMode === 'chase' || this.viewCameraMode === 'face' || this.viewCameraMode === 'back') {
           this.controls.enabled = false
           camera.lookAt(targetLookAt)
           camera.position.copy(lerperCamPos)
-        } else {
+        } else if (this.viewCameraMode === 'static') {
           this.controls.enabled = true
           this.controls.update()
         }
@@ -495,6 +568,14 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="postcss">
+.moves-box{
+  height: 35%;
+}
+@screen lg {
+  .moves-box{
+    height: 100%;
+    padding-bottom: 80px;
+  }
+}
 </style>
