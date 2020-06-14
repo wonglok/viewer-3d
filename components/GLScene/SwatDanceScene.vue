@@ -70,7 +70,7 @@
     </div>
 
     <div v-if="guyMounted && showTool" :class="{ 'ddopacity-25': isLoadingMotion }" class="absolute z-20 top-0 left-0 text-white w-64 overflow-y-auto moves-box">
-      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :class="{ 'bg-blue-500': move === moveItem }">{{ moveItem.displayName }}</a>
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click.prevent="chooseMove(moveItem)" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: move === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
     </div>
 
     <div v-show="isLoadingMotion || !guyMounted" class="absolute z-30 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="ddbackground-color: rgb(0,0,0,0.5);" ref="loading">
@@ -260,6 +260,7 @@ export default {
     let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
     let idleMapper = require('../GLContent/Swat/idle/fbx').default
     let kneeMapper = require('../GLContent/Swat/knee/fbx').default
+    let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
 
     // kneeMapper
 
@@ -295,6 +296,7 @@ export default {
       addToArr(kickMapper)
       addToArr(boxingMapper)
       addToArr(mmaMapper)
+      addToArr(superheroMapper)
       addToArr(boxinghitMapper)
       addToArr(hurtMapper)
 
@@ -498,7 +500,7 @@ export default {
       }
 
       let progress = vscroll.value
-      let extraZoom = config.defaultCloseup + config.farest * progress * (this.viewCameraMode === 'chase' || this.viewCameraMode === 'face' ? 1 : 0)
+      let extraZoom = config.defaultCloseup + config.farest * progress * (this.viewCameraMode === 'static' ? 0 : 1)
 
       if (this.guy && this.guyHead && this.guyFace && this.guyBack) {
         // getting position
@@ -523,7 +525,7 @@ export default {
           // make use of position
           targetCamPos.x = guyBackPos.x
           targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
-          targetCamPos.z = guyBackPos.z + extraZoom
+          targetCamPos.z = guyBackPos.z - extraZoom
 
           targetLookAt.x = headPosition.x
           targetLookAt.y = headPosition.y - config.cameraExtraHeight
@@ -539,23 +541,24 @@ export default {
           targetLookAt.z = headPosition.z
         }
 
-
-
         if (this.viewCameraMode === 'face') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-        } else {
+        } else if (this.viewCameraMode === 'back') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'chase') {
           lerperLookAt.lerp(targetLookAt, 0.05)
           lerperCamPos.lerp(targetCamPos, 0.05)
         }
 
-        if (this.viewCameraMode === 'chase' || this.viewCameraMode === 'face' || this.viewCameraMode === 'back') {
+        if (this.viewCameraMode === 'static') {
+          this.controls.enabled = true
+          this.controls.update()
+        } else {
           this.controls.enabled = false
           camera.lookAt(targetLookAt)
           camera.position.copy(lerperCamPos)
-        } else if (this.viewCameraMode === 'static') {
-          this.controls.enabled = true
-          this.controls.update()
         }
       }
     })
