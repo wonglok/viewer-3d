@@ -16,7 +16,7 @@
 
         <O3D :animated="true" layout="center">
           <O3D :animated="true" layout="correctAxis">
-            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyCamera="guyCamera = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
+            <SwatRiggedModel @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyFace="guyFace = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
           </O3D>
         </O3D>
 
@@ -135,7 +135,7 @@ export default {
       gyroCam: false,
       gyroPresent: false,
       viewCameraMode: true,
-      guyCamera: false,
+      guyFace: false,
       guyBack: false,
 
       viewSettings: false,
@@ -439,7 +439,7 @@ export default {
     let targetLookAt = new Vector3()
     let targetCamPos = new Vector3()
     let centerRelPos = new Vector3()
-    let guyCameraPos = new Vector3()
+    let guyEyePos = new Vector3()
     let infrontOFhead = new Vector3()
     let guyBackPos = new Vector3()
 
@@ -461,7 +461,7 @@ export default {
         }
       } else if (this.viewCameraMode === 'back') {
         this.viewSettings = {
-          cameraExtraHeight: 30,
+          cameraExtraHeight: 50,
           farest: 900,
           defaultCloseup: -10
         }
@@ -473,9 +473,10 @@ export default {
         }
       }
     })
+
     this.viewCameraMode = ''
     this.$nextTick(() => {
-      this.viewCameraMode = 'back'
+      this.viewCameraMode = 'chase'
     })
 
     this.lookup('base').onLoop(() => {
@@ -490,22 +491,22 @@ export default {
       let progress = vscroll.value
       let extraZoom = config.defaultCloseup + config.farest * progress * (this.viewCameraMode === 'chase' || this.viewCameraMode === 'face' ? 1 : 0)
 
-      if (this.guy && this.guyHead && this.guyCamera) {
+      if (this.guy && this.guyHead && this.guyFace && this.guyBack) {
         // getting position
         headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
         // centerRelPos.copy(this.guy.position)
         this.guy.getWorldPosition(centerPosition)
 
-        // this.guyCamera.getWorldPosition(guyCameraPos)
-        guyCameraPos.setFromMatrixPosition(this.guyCamera.matrixWorld)
+        // this.guyFace.getWorldPosition(guyEyePos)
+        guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
         guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
         // infrontOFhead.(headPosition)
 
         if (this.viewCameraMode === 'face') {
           // make use of position
-          targetCamPos.x = guyCameraPos.x
-          targetCamPos.y = guyCameraPos.y + config.cameraExtraHeight
-          targetCamPos.z = guyCameraPos.z + extraZoom
+          targetCamPos.x = guyEyePos.x
+          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
+          targetCamPos.z = guyEyePos.z + extraZoom
 
           targetLookAt.x = headPosition.x
           targetLookAt.y = headPosition.y - config.cameraExtraHeight
