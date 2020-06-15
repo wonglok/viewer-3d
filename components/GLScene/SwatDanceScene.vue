@@ -276,15 +276,15 @@ export default {
             .onStart(() => {
               action.clampWhenFinished = true
               action.enabled = true
-              action.loop = LoopOnce
+              // action.loop = LoopOnce
+              // let hh = (e) => {
+              //   if (e.action === action) {
+              //     mixer.removeEventListener('loop', hh)
+              //     this.$emit('move-end', toMove)
+              //   }
+              // }
+              // mixer.addEventListener('finished', hh)
               action.play()
-              let hh = (e) => {
-                if (e.action === action) {
-                  mixer.removeEventListener('loop', hh)
-                  this.$emit('move-end', toMove)
-                }
-              }
-              mixer.addEventListener('finished', hh)
             })
             .onUpdate(() => {
               action.setEffectiveTimeScale(1)
@@ -864,10 +864,11 @@ export default {
         }
       }
     })
+    // Goalkeeper Drop Kick
 
     this.$on('move-end', (move) => {
       // console.log(move)
-      this.guy.getWorldPosition(centerPosition)
+      // this.guy.getWorldPosition(centerPosition)
       if (move.displayName === 'Warming Up') {
         this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Taunt'), autoFocusDIV: true })
       }
