@@ -4,21 +4,25 @@
       <AmbinetLight :intensity="2"></AmbinetLight>
       <DirectionalLight :intensity="1"></DirectionalLight>
       <HemisphereLight :intensity="1"></HemisphereLight>
+
       <O3D :animated="true" layout="walk">
         <Spacewalk></Spacewalk>
       </O3D>
+
+
 
       <!-- <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
       </O3D> -->
 
-      <!-- <O3D :animated="true" layout="run"> -->
-      <O3D :animated="true" layout="center">
-        <O3D :animated="true" layout="correctAxis">
-          <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyFace="guyFace = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
+      <O3D :animated="true" layout="rotateAll">
+        <HolyCross v-if="guy"></HolyCross>
+        <O3D :animated="true" layout="center">
+          <O3D :animated="true" layout="correctAxis">
+            <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event" @guyBack="guyBack = $event" @guyFace="guyFace = $event" :move="move" :shaderCube="shaderCube"></SwatRiggedModel>
+          </O3D>
         </O3D>
       </O3D>
-      <!-- </O3D> -->
     </O3D>
 
     <div class="absolute z-10 top-0 left-0 text-white w-full h-full" ref="domlayer">
@@ -539,6 +543,9 @@ export default {
     // let parentScrollBox = this.lookup('scrollBox')
     let looper = () => {
       this.layouts = {
+        rotateAll: {
+          ry: Math.PI
+        },
         walk: {
           sx: 2.5,
           sy: 2.5,
@@ -650,12 +657,12 @@ export default {
         this.viewSettings.farest = 900
         this.viewSettings.defaultCloseup = 282.903
       } else if (this.viewCameraMode === 'chase') {
-        this.viewSettings.adjustX = -123.7555
-        this.viewSettings.adjustY = 0
+        this.viewSettings.adjustX = -283.3241
+        this.viewSettings.adjustY = 23.9215
         this.viewSettings.adjustZ = 0
 
-        this.viewSettings.cameraExtraHeight = 3.982
-        this.viewSettings.defaultCloseup = 492.46 + 24.6128
+        this.viewSettings.cameraExtraHeight = -16.98
+        this.viewSettings.defaultCloseup = 266.478
         this.viewSettings.farest = 900
       } else if (this.viewCameraMode === 'close') {
         // this.viewSettings.adjustX = -92.229
@@ -682,7 +689,7 @@ export default {
       this.viewCameraMode = v
     })
     resetCam()
-    this.viewCameraMode = 'close'
+    this.viewCameraMode = 'chase'
 
     // this.viewCameraMode = ''
     // this.$nextTick(() => {
