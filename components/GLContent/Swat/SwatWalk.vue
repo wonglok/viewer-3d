@@ -75,7 +75,7 @@ export default {
         new Promise((resolve) => {
           // let link = `https://res.cloudinary.com/loklok-keystone/raw/upload/v1590477755/loklok/model/spaceship-walk.fbx`
           // eslint-disable-next-line
-          loaderFBX.load(require('file-loader!./fbx/spaceship-walk.fbx'), (v) => {
+          loaderFBX.load(require('file-loader!./spaceship/spaceship-walk.fbx'), (v) => {
             resolve(v)
           })
         }),

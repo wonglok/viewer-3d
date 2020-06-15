@@ -188,6 +188,7 @@ export default {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
 
       // let loaderFBX = new FBXLoader(this.lookup('loadingManager'))
+
       let loadArrayBuffer = async (url) => {
         return new Promise((resolve) => {
           let loaderFile = new FileLoader(this.lookup('loadingManager'))

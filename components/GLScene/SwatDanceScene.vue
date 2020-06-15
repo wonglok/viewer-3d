@@ -106,20 +106,19 @@
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20">Loading... <span v-if="!guyMounted">{{ (loadProgress * 100).toFixed(1) }}%</span> </div>
     </div>
 
-
-
-
-    <!-- <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
+    <!--
+    <div v-if="displayStartMenu" class="absolute z-40 top-0 left-0 text-white w-full h-full flex justify-center items-center" style="background-color: rgb(0,0,0,0.5);">
       <div class="block px-2 mx-1 my-1 border-gray-100 -border text-20 shadow-sm" style="-webkit-tap-highlight-color: transparent;" @click="startGame" v-if="guyMounted">Start Dancing</div>
       <div class="block px-2 mx-1 my-1 border-gray-100 border text-20" v-if="!guyMounted">Downloading 3D Assets... {{ (loadProgress * 100).toFixed(1) }}% </div>
-    </div> -->
+    </div>
+    -->
 
   </O3D>
 </template>
 
 <script>
 import { Tree, RayPlay, PCamera, TCamera, ShaderCubeChrome, ShaderCubeSea, makeScroller, ChaseControls, getID } from '../Reusable'
-import { Clock, AnimationMixer, Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera, FileLoader } from 'three'
+import { Clock, AnimationMixer, Scene, Color, Vector3, LoadingManager, Quaternion, DefaultLoadingManager, Object3D, Camera, FileLoader, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Howl, Howler } from 'howler'
@@ -236,7 +235,7 @@ export default {
     //   }
     // },
     chooseAnimation ({ fromMove, toMove, mixer }) {
-      if (fromMove && toMove !== fromMove) {
+      if (fromMove && fromMove.actionFBX && toMove !== fromMove) {
         fromMove.actionFBX.animations.forEach((clip) => {
           let action = mixer.clipAction(clip)
           let vari = { weight: 1 }
@@ -267,7 +266,7 @@ export default {
           }
         })
       }
-      if (toMove && fromMove) {
+      if (toMove && toMove.actionFBX && fromMove) {
         toMove.actionFBX.animations.forEach((clip) => {
           let action = mixer.clipAction(clip)
           let vari = { weight: 0 }
@@ -275,8 +274,17 @@ export default {
             .to({ weight: 1 }, 1000) // Move to (300, 200) in 1 second.
             .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
             .onStart(() => {
+              action.clampWhenFinished = true
               action.enabled = true
+              action.loop = LoopOnce
               action.play()
+              let hh = (e) => {
+                if (e.action === action) {
+                  mixer.removeEventListener('loop', hh)
+                  this.$emit('move-end', toMove)
+                }
+              }
+              mixer.addEventListener('finished', hh)
             })
             .onUpdate(() => {
               action.setEffectiveTimeScale(1)
@@ -298,13 +306,6 @@ export default {
           } else {
             tween.start()
           }
-          let hh = (e) => {
-            if (e.action === action) {
-              mixer.removeEventListener('loop', hh)
-              this.$emit('move-end', toMove)
-            }
-          }
-          mixer.addEventListener('loop', hh)
         })
       }
       if (!fromMove && toMove) {
@@ -475,14 +476,10 @@ export default {
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
     let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
-    let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
-    let mmaMapper = require('../GLContent/Swat/mma/fbx').default
     let kickMapper = require('../GLContent/Swat/kick/fbx').default
-    let hurtMapper = require('../GLContent/Swat/hurt/fbx').default
     let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
     let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
     let idleMapper = require('../GLContent/Swat/idle/fbx').default
-    let kneeMapper = require('../GLContent/Swat/knee/fbx').default
     let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
     // kneeMapper
 
@@ -521,14 +518,10 @@ export default {
     }
     if (this.$route.query.fight) {
       addToArr(idleMapper)
-      addToArr(kneeMapper)
       addToArr(kickMapper)
       addToArr(boxingMapper)
-      addToArr(mmaMapper)
       addToArr(superheroMapper)
       addToArr(boxinghitMapper)
-      addToArr(hurtMapper)
-      addToArr(rifleMapper)
       addToArr(locomotionMapper)
     } else {
       addToArr(thrillerMapper)
@@ -873,9 +866,11 @@ export default {
     })
 
     this.$on('move-end', (move) => {
-      // if (move.displayName === 'Warming Up') {
-      //   this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Taunt'), autoFocusDIV: true })
-      // }
+      // console.log(move)
+      this.guy.getWorldPosition(centerPosition)
+      if (move.displayName === 'Warming Up') {
+        this.pickMove({ chosenMove: this.moves.find(e => e.displayName === 'Taunt'), autoFocusDIV: true })
+      }
     })
 
     // if (window.innerWidth < 500) {
