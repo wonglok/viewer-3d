@@ -22,8 +22,8 @@
       </O3D>
     </O3D>
 
-    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" :style="{ backgroundColor: !displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" ref="startmenu">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="!displayStartMenu" @click="displayStartMenu = false">Start Game</div>
+    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" ref="startmenu">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="displayStartMenu" @click="displayStartMenu = false">Start Game</div>
     </div>
   </O3D>
 </template>
@@ -45,7 +45,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
-      displayStartMenu: false,
+      displayStartMenu: true,
 
       // guy
       guy: false,
@@ -151,11 +151,10 @@ export default {
           sy: 1,
           sz: 1
         },
-
         correctAxis: {
-          rz: this.move ? Math.PI * 0.5 : 0,
-          rx: this.move ? Math.PI * -0.5 : 0,
-          ry: !this.move ? Math.PI * -0.5 : 0,
+          rx: Math.PI * -0.5,
+          ry: Math.PI * -1.5,
+          rz: Math.PI * 0.5
         },
         center: {
           ry: Math.PI * -0.5,

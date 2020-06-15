@@ -6,7 +6,7 @@
       <DirectionalLight :intensity="1"></DirectionalLight>
       <HemisphereLight :intensity="1"></HemisphereLight>
       <O3D :animated="true" layout="walk">
-        <Spacewalk></Spacewalk>
+        <SwatWalk></SwatWalk>
       </O3D>
 
       <!-- <O3D :animated="true" layout="bg">
@@ -22,8 +22,8 @@
       </O3D>
     </O3D>
 
-    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" :style="{ backgroundColor: !displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" ref="startmenu">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="!displayStartMenu" @click="displayStartMenu = false">Start Game</div>
+    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" ref="startmenu">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="displayStartMenu" @click="displayStartMenu = false">Start Game</div>
     </div>
   </O3D>
 </template>
@@ -45,7 +45,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
-      displayStartMenu: false,
+      displayStartMenu: true,
 
       // guy
       guy: false,
@@ -153,9 +153,9 @@ export default {
         },
 
         correctAxis: {
-          rz: this.move ? Math.PI * 0.5 : 0,
           rx: this.move ? Math.PI * -0.5 : 0,
-          ry: !this.move ? Math.PI * -0.5 : 0,
+          ry: !this.move ? Math.PI * -1.5 : 0,
+          rz: this.move ? Math.PI * 0.5 : 0,
         },
         center: {
           ry: Math.PI * -0.5,
