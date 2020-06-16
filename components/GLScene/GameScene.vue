@@ -621,18 +621,33 @@ export default {
       let moves = this.moves
       let mixer = await this.prepMixer({ actor: this.guyGLTF.scene })
 
-      // let preload = async () => {
-      //   let tasks = []
-      //   tasks.push(this.loadMoveByName({ name }))
-      //   await Promise.all(tasks)
-      // }
-      // await preload()
+      let preload = async () => {
+        let arr = [
+          'Mma Idle',
+          'Northern Soul Floor Combo',
+          'jump',
+          'running',
+          'control run backwards',
+          'left strafe',
+          'right strafe',
+          'control turn left a bit',
+          'control turn right a bit'
+        ]
+        let waiters = []
+        if (preload) {
+          for (let name of arr) {
+            waiters.push(this.loadMoveByName({ name }))
+          }
+        }
+        await Promise.all(waiters)
+      }
+      await preload()
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
-      let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
-      let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
+      // let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
+      // let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
 
-      let punch = await this.getActionByDisplayName({ name: 'Punch Combo', mixer })
+      let skillAction1 = await this.getActionByDisplayName({ name: 'Northern Soul Floor Combo', mixer })
 
       let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
       let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
@@ -650,7 +665,7 @@ export default {
 
       idle.play()
 
-      await this.doOnce({ idle, to: taunt, mixer })
+      // await this.doOnce({ idle, to: taunt, mixer })
       this.charReady = true
 
       // this.$watch('displayStartMenu', () => {
@@ -663,12 +678,12 @@ export default {
       //     await this.doOnce({ idle, to: warmUp, mixer })
       //   }
       // })
-
       let moveForward = false
       let moveLeft = false
       let moveRight = false
       let moveBackward = false
       var onKeyDown = async (event) => {
+        this.isAnyKeyDown = true
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
@@ -699,7 +714,7 @@ export default {
             break;
 
           case 82: // r
-            await this.doOnce({ idle, to: punch, mixer })
+            await this.doOnce({ idle, to: skillAction1, mixer })
             break;
 
           case 81: // q
@@ -713,6 +728,7 @@ export default {
       };
 
       var onKeyUp = async (event) => {
+        this.isAnyKeyDown = false
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
