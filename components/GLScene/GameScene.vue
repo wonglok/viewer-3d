@@ -307,11 +307,11 @@ export default {
     },
     async doOnce ({ idle, to, mixer }) {
       return new Promise((resolve) => {
+        mixer.stopAllAction()
         if (to.isRunning()) {
           resolve()
           return
         }
-        mixer.stopAllAction()
         idle.reset()
         to.reset()
 
@@ -390,7 +390,7 @@ export default {
 
       this.controlTarget.position.x = 0
       this.controlTarget.position.y = 0
-      this.controlTarget.position.z = 980
+      this.controlTarget.position.z = 1980
 
       this.controlTarget.rotateY
 
