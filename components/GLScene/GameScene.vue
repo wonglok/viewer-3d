@@ -496,9 +496,9 @@ export default {
         var delta = (time - prevTime) / 1000
         prevTime = time;
 
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-        velocity.y = 0
+        // velocity.x -= velocity.x * 10.0 * delta;
+        // velocity.z -= velocity.z * 10.0 * delta;
+        // velocity.y = 0
         // velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
         if (turnLeft) {
