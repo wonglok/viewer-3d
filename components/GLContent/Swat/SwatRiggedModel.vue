@@ -144,10 +144,10 @@ export default {
       Mesh_1
       */
 
-      this.o3d.rotation.z = Math.PI * 0.5
-      this.o3d.rotation.x = Math.PI * -0.5
+      // this.o3d.rotation.z = Math.PI * 0.5
+      // this.o3d.rotation.x = Math.PI * -0.5
 
-      this.o3d.rotation.z += Math.PI * 0.5
+      // this.o3d.rotation.z += Math.PI * 0.5
 
       this.$emit('guySkeleton', this.o3d)
       model.scene.traverse((item) => {

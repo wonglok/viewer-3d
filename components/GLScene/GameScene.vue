@@ -12,11 +12,12 @@
       <!-- <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
       </O3D> -->
-
-      <O3D :animated="true" layout="overallChar" :visible="!!charReady">
-        <O3D :animated="true" layout="center">
-          <O3D :animated="true" layout="correctAxis">
-            <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event; setupHeadCam()" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+      <O3D :animated="true" layout="charmover">
+        <O3D :animated="true" layout="calibration" :visible="!!charReady">
+          <O3D :animated="true" layout="center">
+            <O3D :animated="true" layout="correctAxis">
+              <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event; setupHeadCam()" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+            </O3D>
           </O3D>
         </O3D>
       </O3D>
@@ -58,7 +59,11 @@ export default {
   mixins: [Tree],
   data () {
     return {
-      characterO3D: false,
+      charmover: new Object3D(),
+      controlTarget: new Object3D(),
+      // face vs chase
+      camMode: 'chase',
+      // characterO3D: false,
       charReady: false,
       guyGLTF: false,
       activeMixers: [],
@@ -421,7 +426,7 @@ export default {
       })
       var objects = []
 
-			var raycaster
+			// var raycaster
 
 			var moveForward = false
 			var moveBackward = false
@@ -492,18 +497,19 @@ export default {
 
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
-      raycaster = new Raycaster( new Vector3(), new Vector3( 0, - 1, 0 ), 0, 10 );
+      // raycaster = new Raycaster( new Vector3(), new Vector3( 0, - 1, 0 ), 0, 10 );
 
-      this.camera.lookAt(this.guyHead.position)
+      // this.camera.position.z = 500
+
       this.lookup('base').onLoop(() => {
         if ( controls.isLocked === true ) {
 
-          raycaster.ray.origin.copy( controls.getObject().position );
-					raycaster.ray.origin.y -= 10;
+          // raycaster.ray.origin.copy( this.controlTarget.position );
+					// raycaster.ray.origin.y -= 10;
 
-					var intersections = raycaster.intersectObjects( objects );
+					// var intersections = raycaster.intersectObjects( objects );
 
-					var onObject = intersections.length > 0;
+					// var onObject = intersections.length > 0;
 
 					var time = performance.now();
 					var delta = ( time - prevTime ) / 1000;
@@ -511,7 +517,7 @@ export default {
 					velocity.x -= velocity.x * 10.0 * delta;
 					velocity.z -= velocity.z * 10.0 * delta;
 
-					velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+					// velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
 					direction.z = Number(moveForward) - Number(moveBackward);
 					direction.x = Number(moveRight) - Number(moveLeft);
@@ -520,33 +526,32 @@ export default {
 					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
 					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
-					if ( onObject === true ) {
-						velocity.y = Math.max(0, velocity.y);
-						canJump = true;
-          }
-          let speedScale = 1.0
-          controls.moveRight( - velocity.x * delta * speedScale );
-          controls.moveForward( - velocity.z * delta * speedScale );
-					controls.getObject().position.y += ( velocity.y * delta ); // new behavior
+					// if ( onObject === true ) {
+					// 	velocity.y = Math.max(0, velocity.y);
+					// 	canJump = true;
+          // }
 
-          this.guySkeleton.position.x = (this.camera.position.x) / 180
-          this.guySkeleton.position.y = (this.camera.position.y + -100) / 180
-          this.guySkeleton.position.z = (this.camera.position.z + -300) / 180
+          // controls.moveRight( - velocity.x * delta * speedScale);
+          // controls.moveForward( - velocity.z * delta * speedScale);
+					// controls.getObject().position.y += ( velocity.y * delta); // new behavior
 
-          if ( controls.getObject().position.y < 80 ) {
-            velocity.y = 0;
-            controls.getObject().position.y = 80;
-            canJump = true;
+          if (this.camMode === 'chase') {
+            let speedScale = 1.6789
+            this.controlTarget.position.x += - velocity.x * delta * speedScale
+            this.controlTarget.position.z -= - velocity.z * delta * speedScale
+            this.controlTarget.position.y += ( velocity.y * delta);
           }
 
-          // this.guySkeleton.position.y = controls.getObject().position.y / 180
-          // this.camera.position.y = controls.getObject().position.y
+          // if ( this.controlTarget.position.y < 80 ) {
+          //   velocity.y = 0;
+          //   this.controlTarget.position.y = 80;
+          //   canJump = true;
+          // }
+
 					prevTime = time;
-
         }
-
-        // this.camera.lookAt(this.ca)
       })
+
       this.entered = true
     },
     setupControls () {
@@ -592,16 +597,12 @@ export default {
     this.scene.background = new Color('#1a1a1a')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
-    this.camera.position.z = 500
 
-    // controls.addEventListener( 'lock', function () {
-    //   menu.style.display = 'none';
-    // } );
+    this.controlTarget.position.x = 0
+    this.controlTarget.position.y = 0
+    this.controlTarget.position.z = 500
 
-    // controls.addEventListener( 'unlock', function () {
-    //   menu.style.display = 'block';
-    // } );
-    let characterO3D = this.characterO3D = new Object3D()
+    this.charmover.position.x
 
     this.scene.add(this.o3d)
 
@@ -611,6 +612,25 @@ export default {
     // let parentScrollBox = this.lookup('scrollBox')
 
     let looper = () => {
+      if (this.camMode === 'chase') {
+        this.camera.position.x = this.controlTarget.position.x
+        this.camera.position.y = this.controlTarget.position.y
+        this.camera.position.z = this.controlTarget.position.z
+
+        this.charmover.position.x = this.controlTarget.position.x
+        this.charmover.position.y = this.controlTarget.position.y
+        this.charmover.position.z = this.controlTarget.position.z - 200
+      } else if (this.camMode === 'face') {
+        this.camera.position.x = this.controlTarget.position.x
+        this.camera.position.y = this.controlTarget.position.y
+        this.camera.position.z = this.controlTarget.position.z
+
+        this.charmover.position.x = this.controlTarget.position.x
+        this.charmover.position.y = this.controlTarget.position.y
+        this.charmover.position.z = this.controlTarget.position.z - 200
+      }
+
+
       // if (!parentScrollBox) { return }
       this.layouts = {
         walk: {
@@ -618,30 +638,47 @@ export default {
           sy: 2.5,
           sz: 2.5,
           pz: 900 * 2.5,
-          py: 172 * 2.5
+          py: 170 * 2.5
         },
-        // bg: {
-        //   // pz: -400,
-        //   sx: 2,
-        //   sy: 2,
+        bg: {
+          // pz: -400,
+          sx: 2,
+          sy: 2,
+          sz: 1,
+          py: -180,
+          rx: Math.PI * 0.5
+        },
+        charmover: {
+          px: this.charmover.position.x,
+          py: this.charmover.position.y,
+          pz: this.charmover.position.z,
+          rx: this.charmover.rotation.x,
+          ry: this.charmover.rotation.y,
+          rz: this.charmover.rotation.z
+        },
+        // run: {
+        //   // ry: Math.PI * -0.25,
+        //   sx: 1,
+        //   sy: 1,
         //   sz: 1,
-        //   py: -180,
-        //   // rx: Math.PI * 0.5
+        //   // pz: -100,
+        //   // rx: Math.PI * 0.05 + Math.PI
+
+        //   // pz: -250,
+        //   // px: -2250,
+        //   // ry: Math.PI * 0.15,
         // },
 
-        overallChar: {
-          rx: characterO3D.rotation.x,
-          ry: characterO3D.rotation.y,
-          rz: characterO3D.rotation.z,
-          px: characterO3D.position.x,
-          py: characterO3D.position.y,
-          pz: characterO3D.position.z
+        calibration: {
+          ry: Math.PI
         },
         correctAxis: {
-          // rz: Math.PI * 0.5,
-          // rx: Math.PI * -0.5
+          rz: Math.PI * 0.5,
+          rx: Math.PI * -0.5
         },
         center: {
+          ry: Math.PI * -0.5,
+
           // ry: Math.PI * (progress),
           sx: 180,
           sy: 180,
