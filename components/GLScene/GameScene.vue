@@ -515,6 +515,7 @@ export default {
       // this.camera.lookAt(headPosition)
 
       this.camera.position.y = 200
+      this.camera.lookAt(this.guySkeleton.position)
       this.lookup('base').onLoop(() => {
         // syncPos()
 
