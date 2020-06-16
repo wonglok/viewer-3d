@@ -52,7 +52,7 @@ const TWEEN = require('@tweenjs/tween.js').default
 // let Cache = {}
 
 export default {
-  name: 'GospelScene',
+  name: 'ThankYouGospelGameScene',
   components: {
     ...require('../webgl').default
   },
@@ -336,6 +336,7 @@ export default {
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
       let jump = await this.getActionByDisplayName({ name: 'jump', mixer })
       let walking = await this.getActionByDisplayName({ name: 'general walking', mixer })
+      let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
       let goForward = await this.getActionByDisplayName({ inPlace: true, name: 'control go forward', mixer })
       let goBackward = await this.getActionByDisplayName({ inPlace: true, name: 'control go backward', mixer })
@@ -343,7 +344,23 @@ export default {
       let goRight = await this.getActionByDisplayName({ inPlace: true, name: 'control go right', mixer })
 
       idle.play()
+
+      this.$on('jump', async () => {
+        await this.doOnce({ idle, to: victory, mixer })
+      })
+
       this.charReady = true
+
+      this.$watch('charReady', () => {
+        if (this.entered && this.charReady) {
+          this.$emit('jump')
+        }
+      })
+      this.$watch('entered', () => {
+        if (this.entered && this.charReady) {
+          this.$emit('jump')
+        }
+      })
 
       let moveForward = false
       let moveLeft = false
@@ -600,7 +617,7 @@ export default {
 
     this.controlTarget.position.x = 0
     this.controlTarget.position.y = 0
-    this.controlTarget.position.z = 500
+    this.controlTarget.position.z = 780
 
     this.charmover.position.x
 
@@ -614,15 +631,7 @@ export default {
     let looper = () => {
       if (this.camMode === 'chase') {
         this.camera.position.x = this.controlTarget.position.x
-        this.camera.position.y = this.controlTarget.position.y
-        this.camera.position.z = this.controlTarget.position.z
-
-        this.charmover.position.x = this.controlTarget.position.x
-        this.charmover.position.y = this.controlTarget.position.y
-        this.charmover.position.z = this.controlTarget.position.z - 200
-      } else if (this.camMode === 'face') {
-        this.camera.position.x = this.controlTarget.position.x
-        this.camera.position.y = this.controlTarget.position.y
+        this.camera.position.y = this.controlTarget.position.y + 56
         this.camera.position.z = this.controlTarget.position.z
 
         this.charmover.position.x = this.controlTarget.position.x
