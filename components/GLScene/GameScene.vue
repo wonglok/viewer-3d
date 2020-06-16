@@ -58,6 +58,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      characterO3D: false,
       charReady: false,
       guyGLTF: false,
       activeMixers: [],
@@ -493,32 +494,8 @@ export default {
       document.addEventListener( 'keyup', onKeyUp, false );
       raycaster = new Raycaster( new Vector3(), new Vector3( 0, - 1, 0 ), 0, 10 );
 
-      // let camPlaceholder = new Object3D()
-      // let headPosition = new Vector3()
-      // let backPosition = new Vector3()
-      // let centerPosition = new Vector3()
-      // let syncPos = () => {
-      //   if (this.guy) {
-      //     this.guy.getWorldPosition(centerPosition)
-      //   }
-      //   if (this.guyBack) {
-      //     this.guyBack.position.z = -50
-      //     this.guyBack.position.y = -30
-      //     backPosition.setFromMatrixPosition(this.guyBack.matrixWorld)
-      //   }
-      //   if (this.guyHead) {
-      //     headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-      //     headPosition.y -= 50
-      //   }
-      // }
-      // syncPos()
-      // this.camera.lookAt(headPosition)
-
-      this.camera.position.y = 200
-      this.camera.lookAt(this.guySkeleton.position)
+      this.camera.lookAt(this.guyHead.position)
       this.lookup('base').onLoop(() => {
-        // syncPos()
-
         if ( controls.isLocked === true ) {
 
           raycaster.ray.origin.copy( controls.getObject().position );
@@ -552,10 +529,9 @@ export default {
           controls.moveForward( - velocity.z * delta * speedScale );
 					controls.getObject().position.y += ( velocity.y * delta ); // new behavior
 
-          // left right
-          this.guySkeleton.position.x = -controls.getObject().position.x / 180
-          // front back
-          this.guySkeleton.position.y = (controls.getObject().position.z - 200) / 180
+          this.guySkeleton.position.x = (this.camera.position.x) / 180
+          this.guySkeleton.position.y = (this.camera.position.y + -100) / 180
+          this.guySkeleton.position.z = (this.camera.position.z + -300) / 180
 
           if ( controls.getObject().position.y < 80 ) {
             velocity.y = 0;
@@ -625,6 +601,7 @@ export default {
     // controls.addEventListener( 'unlock', function () {
     //   menu.style.display = 'block';
     // } );
+    let characterO3D = this.characterO3D = new Object3D()
 
     this.scene.add(this.o3d)
 
@@ -643,31 +620,28 @@ export default {
           pz: 900 * 2.5,
           py: 172 * 2.5
         },
-        bg: {
-          // pz: -400,
-          sx: 2,
-          sy: 2,
-          sz: 1,
-          py: -180,
-          rx: Math.PI * 0.5
-        },
+        // bg: {
+        //   // pz: -400,
+        //   sx: 2,
+        //   sy: 2,
+        //   sz: 1,
+        //   py: -180,
+        //   // rx: Math.PI * 0.5
+        // },
 
         overallChar: {
-          sx: 1,
-          sy: 1,
-          sz: 1,
-          ry: Math.PI
+          rx: characterO3D.rotation.x,
+          ry: characterO3D.rotation.y,
+          rz: characterO3D.rotation.z,
+          px: characterO3D.position.x,
+          py: characterO3D.position.y,
+          pz: characterO3D.position.z
         },
-        correctAxis: !this.moves ? {
-          // rx: Math.PI * -0.5,
-          // ry: Math.PI * -1.5,
-          // rz: Math.PI * 0.5
-        } : {
-          // rx: Math.PI * -0.5,
+        correctAxis: {
+          // rz: Math.PI * 0.5,
+          // rx: Math.PI * -0.5
         },
         center: {
-          ry: Math.PI * -0.5,
-
           // ry: Math.PI * (progress),
           sx: 180,
           sy: 180,
