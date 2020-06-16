@@ -143,10 +143,17 @@ export default {
       Mesh_0
       Mesh_1
       */
+      this.o3d.rotation.x = Math.PI * -0.5
+      this.o3d.rotation.z = Math.PI * -1.5
+
       model.scene.traverse((item) => {
 
         // console.log(item.name)
         // console.log(item)
+
+        if (item && item.name === 'Armature') {
+          this.$emit('guySkeleton', item)
+        }
 
         if (item && item.name === 'mixamorigSpine2') {
           let guyCenter = new Object3D()

@@ -54,9 +54,9 @@ export default {
         })
       }
 
-      let shaderCube = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
-      Matcap.brown = new MeshMatcapMaterial({ color: 0xbababa, side: DoubleSide, matcap: texLoader.load(require('./matcap/white.png')) })
-      Matcap.silver = new MeshMatcapMaterial({ color: 0xffffff, side: DoubleSide, matcap: texLoader.load(require('./matcap/silver.png')) })
+      let shaderCube = new ShaderCube({ res: 128, renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
+      // Matcap.brown = new MeshMatcapMaterial({ color: 0xbababa, side: DoubleSide, matcap: texLoader.load(require('./matcap/white.png')) })
+      // Matcap.silver = new MeshMatcapMaterial({ color: 0xffffff, side: DoubleSide, matcap: texLoader.load(require('./matcap/silver.png')) })
       // Matcap.pedals = new MeshMatcapMaterial({ color: 0xffffff, side: DoubleSide, matcap: texLoader.load(require('./matcap/pink.jpg')) })
 
       this.lookup('base').onLoop(() => {
@@ -84,21 +84,26 @@ export default {
         console.log('holy', holyCross)
         holyCross.traverse((item) => {
           if (item.isMesh) {
+            item.frustumCulled = false
             // console.log(item.name)
-            if (item.name.indexOf('Cube') !== -1) {
-              item.material = Matcap.silver
+            // if (item.name.indexOf('Cube') !== -1) {
+            //   item.material = Matcap.silver
 
-              if (shaderCube) {
-                console.log(shaderCube)
-                item.material = shaderCube.out.material
-              }
+            //   if (shaderCube) {
+            //     console.log(shaderCube)
+            //     item.material = shaderCube.out.material
+            //   }
+            // }
+            if (shaderCube) {
+              console.log(shaderCube)
+              item.material = shaderCube.out.material
             }
             // if (item.name.indexOf('Sphere') !== -1) {
             //   item.material = Matcap.silver
             // }
-            if (item.name.indexOf('BezierCurve') !== -1) {
-              item.material = Matcap.brown
-            }
+            // if (item.name.indexOf('BezierCurve') !== -1) {
+            //   item.material = Matcap.brown
+            // }
           }
         })
 
