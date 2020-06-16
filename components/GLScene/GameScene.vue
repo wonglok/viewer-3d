@@ -307,11 +307,11 @@ export default {
     },
     async doOnce ({ idle, to, mixer }) {
       return new Promise((resolve) => {
-        mixer.stopAllAction()
         if (to.isRunning()) {
           resolve()
           return
         }
+        mixer.stopAllAction()
         idle.reset()
         to.reset()
 
