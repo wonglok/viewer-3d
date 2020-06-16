@@ -151,11 +151,10 @@ export default {
           sy: 1,
           sz: 1
         },
-
         correctAxis: {
-          rx: this.move ? Math.PI * -0.5 : 0,
-          ry: !this.move ? Math.PI * -1.5 : 0,
-          rz: this.move ? Math.PI * 0.5 : 0,
+          rx: Math.PI * -0.5,
+          ry: Math.PI * -1.5,
+          rz: Math.PI * 0.5
         },
         center: {
           ry: Math.PI * -0.5,
