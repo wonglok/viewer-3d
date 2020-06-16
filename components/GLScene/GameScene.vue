@@ -23,12 +23,14 @@
       </O3D>
     </O3D>
 
+    <div class="absolute top-0 left-0 w-full h-full" ref="domlayer">
+    </div>
+
     <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
         <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
       </div>
     </div>
-
     <!-- <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="displayStartMenu" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="!!charReady && !entered" @click="setupControls();">
         Start Game
@@ -47,7 +49,7 @@
 </template>
 
 <script>
-import { Tree, PCamera, ShaderCubeChrome, getID } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID } from '../Reusable'
 import { Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -309,7 +311,7 @@ export default {
           resolve()
           return
         }
-        // mixer.stopAllAction()
+        mixer.stopAllAction()
         idle.reset()
         to.reset()
 
@@ -341,6 +343,7 @@ export default {
           resolve(false)
           return
         }
+        mixer.stopAllAction()
         idle.reset()
         to.reset()
 
@@ -393,8 +396,7 @@ export default {
 
       let camPlacer = new Object3D()
       let camPlacerVec3 = new Vector3()
-      camPlacer.position.y = 130
-      camPlacer.position.z = 200
+
 
       let charPlacer = new Object3D()
       let charPlacerVec3 = new Vector3()
@@ -403,6 +405,8 @@ export default {
 
       this.controlTarget.add(camPlacer)
       this.controlTarget.add(charPlacer)
+
+      let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, ny: 0, y: 1 }, onMove: () => {} })
 
       var onKeyDown = (event) => {
 
@@ -523,8 +527,10 @@ export default {
         // if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
         // this.controlTarget.position.x += -velocity.x * delta * speedScale
         // this.controlTarget.position.z -= -velocity.z * delta * speedScale
-
         // this.controlTarget.position.y += ( velocity.y * delta);
+
+        camPlacer.position.y = 80
+        camPlacer.position.z = 130 + vscroll.value * (150 + 200)
 
         this.controlTarget.updateMatrix()
         this.controlTarget.updateMatrixWorld()
@@ -547,7 +553,7 @@ export default {
         this.camera.position.z = camPlacerVec3.z
 
         if (this.guyFace && this.charReady) {
-          lookAtVec3.setFromMatrixPosition(this.guyFace.matrixWorld)
+          lookAtVec3.setFromMatrixPosition(this.guy.matrixWorld)
           this.camera.lookAt(lookAtVec3)
         }
 
@@ -626,7 +632,7 @@ export default {
       let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
       let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
 
-      let punch = await this.getActionByDisplayName({ name: 'knee jab to upper cut', mixer })
+      let punch = await this.getActionByDisplayName({ name: 'Punch Combo', mixer })
 
       let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
       let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
