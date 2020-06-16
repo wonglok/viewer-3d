@@ -482,6 +482,7 @@ export default {
     // let idleMapper = require('../GLContent/Swat/idle/fbx').default
     // let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
 
+    let controlMapper = require('../GLContent/Swat/controls/fbx').default
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
@@ -549,6 +550,7 @@ export default {
       addToArr(danceingMapper)
       addToArr(rifleMapper)
       addToArr(gestureMapper)
+      addToArr(controlMapper)
 
       // addToArr(thrillerMapper)
       // addToArr(breakdancesMapper)

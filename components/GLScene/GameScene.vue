@@ -216,26 +216,44 @@ export default {
           ...movesOrig,
           ...arr
         ]
-
+        let waiters = []
         if (preload) {
           for (let mymove of arr) {
-            this.loadMove(mymove)
+            waiters.push(this.loadMove(mymove))
           }
         }
+        await Promise.all(waiters)
         return arr
       }
 
-      addToArr(idleMapper)
+      // addToArr(idleMapper)
+      // await addToArr(controlMapper, true)
+      // addToArr(kickMapper)
+      // addToArr(boxingMapper)
+      // addToArr(superheroMapper)
+      // addToArr(boxinghitMapper)
+      // addToArr(locomotionMapper)
+      // addToArr(gestureMapper)
+      // addToArr(thrillerMapper)
+      // addToArr(breakdancesMapper)
+      // addToArr(danceingMapper)
+
       addToArr(controlMapper)
+      addToArr(idleMapper)
+      addToArr(kneeMapper)
       addToArr(kickMapper)
       addToArr(boxingMapper)
+      addToArr(mmaMapper)
       addToArr(superheroMapper)
       addToArr(boxinghitMapper)
+      addToArr(hurtMapper)
       addToArr(locomotionMapper)
-      addToArr(gestureMapper)
+      addToArr(capoeiraMapper)
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
       addToArr(danceingMapper)
+      addToArr(rifleMapper)
+      addToArr(gestureMapper)
 
       this.moves = movesOrig
       /* Moves End */
@@ -273,7 +291,11 @@ export default {
       })
     },
     async loadMoveByName ({ name }) {
-      let moveObj = await this.loadMove(this.moves.find(e => e.displayName === name))
+      let move = this.moves.find(e => e.displayName === name)
+      if (!move) {
+        console.log('cannot find ... ' + name)
+      }
+      let moveObj = await this.loadMove(move)
       return moveObj
     },
     async getActionByDisplayName ({ inPlace, name, mixer }) {
@@ -371,13 +393,13 @@ export default {
 
       let camPlacer = new Object3D()
       let camPlacerVec3 = new Vector3()
-      camPlacer.position.y = 80
-      camPlacer.position.z = 140
+      camPlacer.position.y = 130
+      camPlacer.position.z = 200
 
       let charPlacer = new Object3D()
       let charPlacerVec3 = new Vector3()
       charPlacer.position.y = 0
-      charPlacer.position.z = -140
+      charPlacer.position.z = 0
 
       this.controlTarget.add(camPlacer)
       this.controlTarget.add(charPlacer)
@@ -385,7 +407,6 @@ export default {
       var onKeyDown = (event) => {
 
         switch ( event.keyCode ) {
-
           case 38: // up
           case 87: // w
             moveForward = true;
@@ -464,9 +485,7 @@ export default {
 
       // this.camera.position.z = 500
 
-      var axisX = new Vector3(1, 0, 0)
-      var axisY = new Vector3(0, 1, 0)
-      var axisZ = new Vector3(0, 0, 1)
+      let lookAtVec3 = new Vector3()
 
       this.lookup('base').onLoop(() => {
         var time = performance.now()
@@ -479,22 +498,22 @@ export default {
         // velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
         if (turnLeft) {
-          this.controlTarget.rotation.y += delta
+          this.controlTarget.rotation.y += delta * 1.75
         }
         if (turnRight) {
-          this.controlTarget.rotation.y -= delta
+          this.controlTarget.rotation.y -= delta * 1.75
         }
         if (moveForward) {
-          this.controlTarget.translateZ(-delta * 150)
+          this.controlTarget.translateZ(-delta * 700)
         }
         if (moveBackward) {
-          this.controlTarget.translateZ(delta * 150)
+          this.controlTarget.translateZ(delta * 700)
         }
         if (moveLeft) {
-          this.controlTarget.translateX(-delta * 150)
+          this.controlTarget.translateX(-delta * 700)
         }
         if (moveRight) {
-          this.controlTarget.translateX(delta * 150)
+          this.controlTarget.translateX(delta * 700)
         }
 
         // direction.z = Number(moveForward) - Number(moveBackward)
@@ -527,7 +546,10 @@ export default {
         this.camera.position.y = camPlacerVec3.y
         this.camera.position.z = camPlacerVec3.z
 
-        this.camera.lookAt(charPlacerVec3)
+        if (this.guyFace && this.charReady) {
+          lookAtVec3.setFromMatrixPosition(this.guyFace.matrixWorld)
+          this.camera.lookAt(lookAtVec3)
+        }
 
         // if (!parentScrollBox) { return }
 
@@ -601,16 +623,21 @@ export default {
       // await preload()
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
-      let jump = await this.getActionByDisplayName({ name: 'jump', mixer })
       let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
       let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
 
-      let punch = await this.getActionByDisplayName({ name: 'Punching', mixer })
+      let punch = await this.getActionByDisplayName({ name: 'knee jab to upper cut', mixer })
 
-      let goForward = await this.getActionByDisplayName({ inPlace: true, name: 'control go forward', mixer })
-      let goBackward = await this.getActionByDisplayName({ inPlace: true, name: 'control go backward', mixer })
-      let goLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control go left', mixer })
-      let goRight = await this.getActionByDisplayName({ inPlace: true, name: 'control go right', mixer })
+      let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
+      let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
+      let runningBack = await this.getActionByDisplayName({ inPlace: true, name: 'control run backwards', mixer })
+
+      let leftStrafe = await this.getActionByDisplayName({ inPlace: true, name: 'left strafe', mixer })
+      let rightStrafe = await this.getActionByDisplayName({ inPlace: true, name: 'right strafe', mixer })
+      // let goForward = await this.getActionByDisplayName({ inPlace: true, name: 'control go forward', mixer })
+      // let goBackward = await this.getActionByDisplayName({ inPlace: true, name: 'control go backward', mixer })
+      // let goLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control go left', mixer })
+      // let goRight = await this.getActionByDisplayName({ inPlace: true, name: 'control go right', mixer })
 
       let turnLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control turn left a bit', mixer })
       let turnRight = await this.getActionByDisplayName({ inPlace: true, name: 'control turn right a bit', mixer })
@@ -640,24 +667,24 @@ export default {
           case 38: // up
           case 87: // w
             moveForward = true;
-            await this.doStart({ idle, to: goForward, mixer })
+            await this.doStart({ idle, to: running, mixer })
             break;
 
           case 37: // left
           case 65: // a
-            await this.doStart({ idle, to: goLeft, mixer })
+            await this.doStart({ idle, to: leftStrafe, mixer })
             moveLeft = true;
             break;
 
           case 40: // down
           case 83: // s
-            await this.doStart({ idle, to: goBackward, mixer })
+            await this.doStart({ idle, to: runningBack, mixer })
             moveBackward = true;
             break;
 
           case 39: // right
           case 68: // d
-            await this.doStart({ idle, to: goRight, mixer })
+            await this.doStart({ idle, to: rightStrafe, mixer })
             moveRight = true;
             break;
 
@@ -683,25 +710,25 @@ export default {
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
-            await this.doEnd({ idle, to: goForward, mixer })
+            await this.doEnd({ idle, to: running, mixer })
             moveForward = false;
             break;
 
           case 37: // left
           case 65: // a
-            await this.doEnd({ idle, to: goLeft, mixer })
+            await this.doEnd({ idle, to: leftStrafe, mixer })
             moveLeft = false;
             break;
 
           case 40: // down
           case 83: // s
-            await this.doEnd({ idle, to: goBackward, mixer })
+            await this.doEnd({ idle, to: runningBack, mixer })
             moveBackward = false;
             break;
 
           case 39: // right
           case 68: // d
-            await this.doEnd({ idle, to: goRight, mixer })
+            await this.doEnd({ idle, to: rightStrafe, mixer })
             moveRight = false;
             break;
 
@@ -713,7 +740,6 @@ export default {
           case 69: // e
             await this.doEnd({ idle, to: turnRight, mixer })
             break;
-
         }
       };
 
