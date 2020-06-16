@@ -12,31 +12,37 @@
       <!-- <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
       </O3D> -->
-      <O3D :animated="true" layout="charmover">
-        <O3D :animated="true" layout="calibration" :visible="!!charReady">
+      <O3D :animated="true" layout="charmover" :visible="charReady">
+        <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event; setupHeadCam()" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+              <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
       </O3D>
     </O3D>
 
-    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" ref="toucher" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" >
-      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-show="displayStartMenu" @click="setupControls()" ref="startmenu">
-        <span v-if="!!charReady">
-          <span v-if="!entered">Start Game</span>
-          <span v-if="entered">Resume Game</span>
-        </span>
-        <span v-if="!charReady">
-          <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
-        </span>
+    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
+        <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
+      </div>
+    </div>
+
+    <!-- <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="displayStartMenu" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" >
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="!!charReady && !entered" @click="setupControls();">
+        Start Game
+      </div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" v-if="!!charReady && entered" @click="controls.lock()">
+        Resume Game
+      </div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" v-if="!charReady">
+        <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
       </div>
     </div>
     <div class="absolute top-0 left-0 p-3" v-if="!displayStartMenu">
-      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer">ESC to Close</div>
-    </div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">ESC to Exit</div>
+    </div> -->
   </O3D>
 </template>
 
@@ -59,6 +65,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      controls: false,
       charmover: new Object3D(),
       controlTarget: new Object3D(),
       // face vs chase
@@ -88,9 +95,9 @@ export default {
       scene: new Scene(),
       tCube: false,
       layouts: false,
-      blur: 0,
-      socket: false,
-      entered: false
+      // blur: 0,
+      // socket: false,
+      // entered: false
     }
   },
   methods: {
@@ -105,19 +112,10 @@ export default {
       await this.setupChar()
     },
     async setupChar () {
+      console.log('here____')
       await this.setupMovesDB()
       await this.setupAnimationSystem()
     },
-    setupHeadCam () {
-      // let headPosition = new Vector3()
-
-      // if (this.guyHead) {
-      //   headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-      //   headPosition.y += 10
-      // }
-      // this.camera.position.y = headPosition.y
-    },
-
     async loadMove (chosenMove) {
       let loaderFBX = this.loaderFBX = this.loaderFBX || new FBXLoader(this.loadingManager)
       return await new Promise(async (resolve) => {
@@ -163,6 +161,18 @@ export default {
       /* Loader End */
 
       /* Dance Moves */
+      // let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
+      // let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
+      // let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
+      // let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
+      // let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
+      // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+      // let kickMapper = require('../GLContent/Swat/kick/fbx').default
+      // let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
+      // let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
+      // let idleMapper = require('../GLContent/Swat/idle/fbx').default
+      // let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
+
       let controlMapper = require('../GLContent/Swat/controls/fbx').default
       let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
       let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
@@ -170,10 +180,14 @@ export default {
       let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
       let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
       let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+      let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
+      let mmaMapper = require('../GLContent/Swat/mma/fbx').default
       let kickMapper = require('../GLContent/Swat/kick/fbx').default
+      let hurtMapper = require('../GLContent/Swat/hurt/fbx').default
       let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
       let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
       let idleMapper = require('../GLContent/Swat/idle/fbx').default
+      let kneeMapper = require('../GLContent/Swat/knee/fbx').default
       let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
       // kneeMapper
 
@@ -210,9 +224,9 @@ export default {
         }
         return arr
       }
+
       addToArr(idleMapper)
       addToArr(controlMapper)
-
       addToArr(kickMapper)
       addToArr(boxingMapper)
       addToArr(superheroMapper)
@@ -241,7 +255,7 @@ export default {
         let action = false
         pose.animations.forEach((clip) => {
           if (inPlace) {
-            console.log(clip)
+            // console.log(clip)
             if (clip.tracks[0] && clip.tracks[0].name === 'mixamorigHips.position') {
               let values = clip.tracks[0].values
               for (var i = 0; i < values.length; i += 3) {
@@ -258,8 +272,12 @@ export default {
         });
       })
     },
-    async getActionByDisplayName ({ inPlace, name, mixer }) {
+    async loadMoveByName ({ name }) {
       let moveObj = await this.loadMove(this.moves.find(e => e.displayName === name))
+      return moveObj
+    },
+    async getActionByDisplayName ({ inPlace, name, mixer }) {
+      let moveObj = await this.loadMoveByName({ name })
       let actionObj = await this.prepAnimation({ inPlace, pose: moveObj.actionFBX, mixer })
       return actionObj
     },
@@ -269,7 +287,7 @@ export default {
           resolve()
           return
         }
-
+        // mixer.stopAllAction()
         idle.reset()
         to.reset()
 
@@ -296,9 +314,9 @@ export default {
       })
     },
     async doStart ({ idle, to, mixer }) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         if (to.isRunning()) {
-          resolve()
+          resolve(false)
           return
         }
         idle.reset()
@@ -314,7 +332,7 @@ export default {
         to.reset().play()
 
         idle.crossFadeTo(to, fade * to.duration, false)
-        resolve()
+        resolve(true)
       })
     },
     async doEnd ({ idle, to, mixer }) {
@@ -330,37 +348,288 @@ export default {
       action.setEffectiveTimeScale(1)
       action.setEffectiveWeight(weight)
     },
+    async setupCameraSystem () {
+      var moveForward = false
+			var moveBackward = false
+			var moveLeft = false
+			var moveRight = false
+			var canJump = false
+			var turnLeft = false
+      var turnRight = false
+
+      let speedScale = 4
+
+			var prevTime = performance.now()
+			var velocity = new Vector3()
+      var direction = new Vector3()
+
+      this.controlTarget.position.x = 0
+      this.controlTarget.position.y = 0
+      this.controlTarget.position.z = 980
+
+      this.controlTarget.rotateY
+
+      let camPlacer = new Object3D()
+      let camPlacerVec3 = new Vector3()
+      camPlacer.position.y = 80
+      camPlacer.position.z = 140
+
+      let charPlacer = new Object3D()
+      let charPlacerVec3 = new Vector3()
+      charPlacer.position.y = 0
+      charPlacer.position.z = -140
+
+      this.controlTarget.add(camPlacer)
+      this.controlTarget.add(charPlacer)
+
+      var onKeyDown = (event) => {
+
+        switch ( event.keyCode ) {
+
+          case 38: // up
+          case 87: // w
+            moveForward = true;
+            break;
+
+          case 37: // left
+          case 65: // a
+            moveLeft = true;
+            break;
+
+          case 40: // down
+          case 83: // s
+            moveBackward = true;
+            break;
+
+          case 39: // right
+          case 68: // d
+            moveRight = true;
+            break;
+
+          case 32: // space
+            if ( canJump === true ) velocity.y += 0;
+            canJump = false;
+            break;
+
+          case 81: // q
+            turnLeft = true
+            break;
+
+
+          case 69: // e
+            turnRight = true
+            break;
+        }
+
+      };
+
+      var onKeyUp = (event) => {
+
+        switch ( event.keyCode ) {
+
+          case 38: // up
+          case 87: // w
+            moveForward = false;
+            break;
+
+          case 37: // left
+          case 65: // a
+            moveLeft = false;
+            break;
+
+          case 40: // down
+          case 83: // s
+            moveBackward = false;
+            break;
+
+          case 39: // right
+          case 68: // d
+            moveRight = false;
+            break;
+
+          case 81: // q
+            turnLeft = false
+            break;
+
+
+          case 69: // e
+            turnRight = false
+            break;
+        }
+      };
+
+      document.addEventListener( 'keydown', onKeyDown, false );
+      document.addEventListener( 'keyup', onKeyUp, false );
+      // raycaster = new Raycaster( new Vector3(), new Vector3( 0, - 1, 0 ), 0, 10 );
+
+      // this.camera.position.z = 500
+
+      var axisX = new Vector3(1, 0, 0)
+      var axisY = new Vector3(0, 1, 0)
+      var axisZ = new Vector3(0, 0, 1)
+
+      this.lookup('base').onLoop(() => {
+        var time = performance.now()
+        var delta = (time - prevTime) / 1000
+        prevTime = time;
+
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y = 0
+        // velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+        if (turnLeft) {
+          this.controlTarget.rotation.y += delta
+        }
+        if (turnRight) {
+          this.controlTarget.rotation.y -= delta
+        }
+        if (moveForward) {
+          this.controlTarget.translateZ(-delta * 150)
+        }
+        if (moveBackward) {
+          this.controlTarget.translateZ(delta * 150)
+        }
+        if (moveLeft) {
+          this.controlTarget.translateX(-delta * 150)
+        }
+        if (moveRight) {
+          this.controlTarget.translateX(delta * 150)
+        }
+
+        // direction.z = Number(moveForward) - Number(moveBackward)
+        // direction.x = Number(moveRight) - Number(moveLeft)
+        // direction.normalize(); // this ensures consistent movements in all directions
+        // if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
+        // if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+        // this.controlTarget.position.x += -velocity.x * delta * speedScale
+        // this.controlTarget.position.z -= -velocity.z * delta * speedScale
+
+        // this.controlTarget.position.y += ( velocity.y * delta);
+
+        this.controlTarget.updateMatrix()
+        this.controlTarget.updateMatrixWorld()
+        this.controlTarget.updateWorldMatrix()
+
+        camPlacerVec3.setFromMatrixPosition(camPlacer.matrixWorld)
+        charPlacerVec3.setFromMatrixPosition(charPlacer.matrixWorld)
+
+        this.charmover.rotation.x = this.controlTarget.rotation.x
+        this.charmover.rotation.y = this.controlTarget.rotation.y
+        this.charmover.rotation.z = this.controlTarget.rotation.z
+
+        this.charmover.position.x = charPlacerVec3.x
+        this.charmover.position.y = charPlacerVec3.y
+        this.charmover.position.z = charPlacerVec3.z
+        // this.charmover.rotation.y = Math.PI
+
+        this.camera.position.x = camPlacerVec3.x
+        this.camera.position.y = camPlacerVec3.y
+        this.camera.position.z = camPlacerVec3.z
+
+        this.camera.lookAt(charPlacerVec3)
+
+        // if (!parentScrollBox) { return }
+
+        this.layouts = {
+          walk: {
+            sx: 2.5,
+            sy: 2.5,
+            sz: 2.5,
+            pz: 900 * 2.5,
+            py: 170 * 2.5
+          },
+          bg: {
+            // pz: -400,
+            sx: 2,
+            sy: 2,
+            sz: 1,
+            py: -180,
+            rx: Math.PI * 0.5
+          },
+          charmover: {
+            px: this.charmover.position.x,
+            py: this.charmover.position.y,
+            pz: this.charmover.position.z,
+            rx: this.charmover.rotation.x,
+            ry: this.charmover.rotation.y,
+            rz: this.charmover.rotation.z
+          },
+          // run: {
+          //   // ry: Math.PI * -0.25,
+          //   sx: 1,
+          //   sy: 1,
+          //   sz: 1,
+          //   // pz: -100,
+          //   // rx: Math.PI * 0.05 + Math.PI
+
+          //   // pz: -250,
+          //   // px: -2250,
+          //   // ry: Math.PI * 0.15,
+          // },
+
+          calibration: {
+            ry: Math.PI
+          },
+          correctAxis: {
+            rz: Math.PI * 0.5,
+            rx: Math.PI * -0.5
+          },
+          center: {
+            ry: Math.PI * -0.5,
+
+            // ry: Math.PI * (progress),
+            sx: 180,
+            sy: 180,
+            sz: 180,
+
+            py: -180,
+            // pz: 100
+          }
+        }
+      })
+    },
     async setupAnimationSystem () {
       let moves = this.moves
       let mixer = await this.prepMixer({ actor: this.guyGLTF.scene })
+
+      // let preload = async () => {
+      //   let tasks = []
+      //   tasks.push(this.loadMoveByName({ name }))
+      //   await Promise.all(tasks)
+      // }
+      // await preload()
+
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
       let jump = await this.getActionByDisplayName({ name: 'jump', mixer })
-      let walking = await this.getActionByDisplayName({ name: 'general walking', mixer })
-      let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
+      let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
+      let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
+
+      let punch = await this.getActionByDisplayName({ name: 'Punching', mixer })
 
       let goForward = await this.getActionByDisplayName({ inPlace: true, name: 'control go forward', mixer })
       let goBackward = await this.getActionByDisplayName({ inPlace: true, name: 'control go backward', mixer })
       let goLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control go left', mixer })
       let goRight = await this.getActionByDisplayName({ inPlace: true, name: 'control go right', mixer })
 
+      let turnLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control turn left a bit', mixer })
+      let turnRight = await this.getActionByDisplayName({ inPlace: true, name: 'control turn right a bit', mixer })
+
       idle.play()
 
-      this.$on('jump', async () => {
-        await this.doOnce({ idle, to: victory, mixer })
-      })
-
+      await this.doOnce({ idle, to: taunt, mixer })
       this.charReady = true
 
-      this.$watch('charReady', () => {
-        if (this.entered && this.charReady) {
-          this.$emit('jump')
-        }
-      })
-      this.$watch('entered', () => {
-        if (this.entered && this.charReady) {
-          this.$emit('jump')
-        }
-      })
+      // this.$watch('displayStartMenu', () => {
+      //   if (!this.entered && !this.displayStartMenu && this.charReady) {
+      //     this.$emit('taunt')
+      //   }
+      // })
+      // this.$watch('entered', async () => {
+      //   if (this.entered && this.charReady) {
+      //     await this.doOnce({ idle, to: warmUp, mixer })
+      //   }
+      // })
 
       let moveForward = false
       let moveLeft = false
@@ -395,6 +664,17 @@ export default {
           case 32: // space
             await this.doOnce({ idle, to: jump, mixer })
             break;
+
+          case 82: // r
+            await this.doOnce({ idle, to: punch, mixer })
+            break;
+
+          case 81: // q
+            await this.doStart({ idle, to: turnLeft, mixer })
+            break;
+          case 69: // e
+            await this.doStart({ idle, to: turnRight, mixer })
+            break;
         }
 
       };
@@ -424,162 +704,21 @@ export default {
             await this.doEnd({ idle, to: goRight, mixer })
             moveRight = false;
             break;
+
+          case 81: // q
+            await this.doEnd({ idle, to: turnLeft, mixer })
+            break;
+
+
+          case 69: // e
+            await this.doEnd({ idle, to: turnRight, mixer })
+            break;
+
         }
       };
 
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
-
-    },
-    setupDesktopControls () {
-      let PointerLockControls = require('three/examples/jsm/controls/PointerLockControls.js').PointerLockControls
-      let controls = new PointerLockControls(this.camera, this.lookup('element'))
-      controls.lock()
-      controls.addEventListener('lock', () => {
-        this.displayStartMenu = false
-      })
-      controls.addEventListener('unlock', () => {
-        this.displayStartMenu = true
-      })
-      var objects = []
-
-			// var raycaster
-
-			var moveForward = false
-			var moveBackward = false
-			var moveLeft = false
-			var moveRight = false
-			var canJump = false
-
-			var prevTime = performance.now()
-			var velocity = new Vector3()
-			var direction = new Vector3()
-      var onKeyDown = (event) => {
-
-        switch ( event.keyCode ) {
-
-          case 38: // up
-          case 87: // w
-            moveForward = true;
-            break;
-
-          case 37: // left
-          case 65: // a
-            moveLeft = true;
-            break;
-
-          case 40: // down
-          case 83: // s
-            moveBackward = true;
-            break;
-
-          case 39: // right
-          case 68: // d
-            moveRight = true;
-            break;
-
-          case 32: // space
-            if ( canJump === true ) velocity.y += 0;
-            canJump = false;
-            break;
-        }
-
-      };
-
-      var onKeyUp = (event) => {
-
-        switch ( event.keyCode ) {
-
-          case 38: // up
-          case 87: // w
-            moveForward = false;
-            break;
-
-          case 37: // left
-          case 65: // a
-            moveLeft = false;
-            break;
-
-          case 40: // down
-          case 83: // s
-            moveBackward = false;
-            break;
-
-          case 39: // right
-          case 68: // d
-            moveRight = false;
-            break;
-        }
-      };
-
-      document.addEventListener( 'keydown', onKeyDown, false );
-      document.addEventListener( 'keyup', onKeyUp, false );
-      // raycaster = new Raycaster( new Vector3(), new Vector3( 0, - 1, 0 ), 0, 10 );
-
-      // this.camera.position.z = 500
-
-      this.lookup('base').onLoop(() => {
-        if ( controls.isLocked === true ) {
-
-          // raycaster.ray.origin.copy( this.controlTarget.position );
-					// raycaster.ray.origin.y -= 10;
-
-					// var intersections = raycaster.intersectObjects( objects );
-
-					// var onObject = intersections.length > 0;
-
-					var time = performance.now();
-					var delta = ( time - prevTime ) / 1000;
-
-					velocity.x -= velocity.x * 10.0 * delta;
-					velocity.z -= velocity.z * 10.0 * delta;
-
-					// velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-
-					direction.z = Number(moveForward) - Number(moveBackward);
-					direction.x = Number(moveRight) - Number(moveLeft);
-					direction.normalize(); // this ensures consistent movements in all directions
-
-					if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-					if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
-
-					// if ( onObject === true ) {
-					// 	velocity.y = Math.max(0, velocity.y);
-					// 	canJump = true;
-          // }
-
-          // controls.moveRight( - velocity.x * delta * speedScale);
-          // controls.moveForward( - velocity.z * delta * speedScale);
-					// controls.getObject().position.y += ( velocity.y * delta); // new behavior
-
-          if (this.camMode === 'chase') {
-            let speedScale = 1.6789
-            this.controlTarget.position.x += - velocity.x * delta * speedScale
-            this.controlTarget.position.z -= - velocity.z * delta * speedScale
-            this.controlTarget.position.y += ( velocity.y * delta);
-          }
-
-          // if ( this.controlTarget.position.y < 80 ) {
-          //   velocity.y = 0;
-          //   this.controlTarget.position.y = 80;
-          //   canJump = true;
-          // }
-
-					prevTime = time;
-        }
-      })
-
-      this.entered = true
-    },
-    setupControls () {
-      if (window.innerWidth > 500) {
-        this.setupDesktopControls()
-      } else {
-        this.setupMobileControls()
-      }
-    },
-    setupMobileControls () {
-
     }
   },
   beforeDestroy () {
@@ -615,102 +754,17 @@ export default {
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
 
-    this.controlTarget.position.x = 0
-    this.controlTarget.position.y = 0
-    this.controlTarget.position.z = 780
-
-    this.charmover.position.x
-
     this.scene.add(this.o3d)
 
     this.$parent.$emit('scene', this.scene)
     this.$parent.$emit('camera', this.camera)
-
-    // let parentScrollBox = this.lookup('scrollBox')
-
-    let looper = () => {
-      if (this.camMode === 'chase') {
-        this.camera.position.x = this.controlTarget.position.x
-        this.camera.position.y = this.controlTarget.position.y + 56
-        this.camera.position.z = this.controlTarget.position.z
-
-        this.charmover.position.x = this.controlTarget.position.x
-        this.charmover.position.y = this.controlTarget.position.y
-        this.charmover.position.z = this.controlTarget.position.z - 200
-      }
-
-
-      // if (!parentScrollBox) { return }
-      this.layouts = {
-        walk: {
-          sx: 2.5,
-          sy: 2.5,
-          sz: 2.5,
-          pz: 900 * 2.5,
-          py: 170 * 2.5
-        },
-        bg: {
-          // pz: -400,
-          sx: 2,
-          sy: 2,
-          sz: 1,
-          py: -180,
-          rx: Math.PI * 0.5
-        },
-        charmover: {
-          px: this.charmover.position.x,
-          py: this.charmover.position.y,
-          pz: this.charmover.position.z,
-          rx: this.charmover.rotation.x,
-          ry: this.charmover.rotation.y,
-          rz: this.charmover.rotation.z
-        },
-        // run: {
-        //   // ry: Math.PI * -0.25,
-        //   sx: 1,
-        //   sy: 1,
-        //   sz: 1,
-        //   // pz: -100,
-        //   // rx: Math.PI * 0.05 + Math.PI
-
-        //   // pz: -250,
-        //   // px: -2250,
-        //   // ry: Math.PI * 0.15,
-        // },
-
-        calibration: {
-          ry: Math.PI
-        },
-        correctAxis: {
-          rz: Math.PI * 0.5,
-          rx: Math.PI * -0.5
-        },
-        center: {
-          ry: Math.PI * -0.5,
-
-          // ry: Math.PI * (progress),
-          sx: 180,
-          sy: 180,
-          sz: 180,
-
-          py: -180,
-          pz: 100
-        }
-      }
-    }
-
-    this.lookup('base').onLoop(looper)
 
     // let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
     // let controls = new OrbitControls(this.camera, this.lookup('element'))
     // this.lookup('base').onLoop(() => {
     //   controls.update()
     // })
-
-
-
-
-
+    await this.setupCameraSystem()
   }
 }
 </script>

@@ -470,16 +470,32 @@ export default {
     /* Loader End */
 
     /* Dance Moves */
+    // let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
+    // let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
+    // let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
+    // let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
+    // let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
+    // let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    // let kickMapper = require('../GLContent/Swat/kick/fbx').default
+    // let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
+    // let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
+    // let idleMapper = require('../GLContent/Swat/idle/fbx').default
+    // let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
+
     let gestureMapper = require('../GLContent/Swat/gesture/fbx').default
     let locomotionMapper = require('../GLContent/Swat/locomotion/fbx').default
     let thrillerMapper = require('../GLContent/Swat/thriller/fbx').default
     let breakdancesMapper = require('../GLContent/Swat/breakdance/fbx').default
     let danceingMapper = require('../GLContent/Swat/dancing/fbx').default
     let capoeiraMapper = require('../GLContent/Swat/capoeira/fbx').default
+    let rifleMapper = require('../GLContent/Swat/rifle/fbx').default
+    let mmaMapper = require('../GLContent/Swat/mma/fbx').default
     let kickMapper = require('../GLContent/Swat/kick/fbx').default
+    let hurtMapper = require('../GLContent/Swat/hurt/fbx').default
     let boxingMapper = require('../GLContent/Swat/boxing/fbx').default
     let boxinghitMapper = require('../GLContent/Swat/boxinghit/fbx').default
     let idleMapper = require('../GLContent/Swat/idle/fbx').default
+    let kneeMapper = require('../GLContent/Swat/knee/fbx').default
     let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
     // kneeMapper
 
@@ -518,16 +534,26 @@ export default {
     }
     if (this.$route.query.fight) {
       addToArr(idleMapper)
+      addToArr(kneeMapper)
       addToArr(kickMapper)
       addToArr(boxingMapper)
+      addToArr(mmaMapper)
       addToArr(superheroMapper)
       addToArr(boxinghitMapper)
+      addToArr(hurtMapper)
       addToArr(locomotionMapper)
+      addToArr(capoeiraMapper)
     } else {
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
       addToArr(danceingMapper)
+      addToArr(rifleMapper)
       addToArr(gestureMapper)
+
+      // addToArr(thrillerMapper)
+      // addToArr(breakdancesMapper)
+      // addToArr(danceingMapper)
+      // addToArr(gestureMapper)
     }
     this.moves = movesOrig
 
