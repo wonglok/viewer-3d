@@ -151,14 +151,11 @@ export default {
 
       charReady: false,
       guyGLTF: false,
-      activeMixers: [],
       displayStartMenu: true,
-
 
       loadingManager: false,
       loadProgress: 0,
 
-      activeActions: [],
       isTakingComplexAction: false,
 
       // guy
@@ -399,7 +396,7 @@ export default {
         idle.reset()
         to.reset()
 
-        let fade = 0.1
+        let fade = 0.3
 
         to.enabled = true
         idle.enabled = true
@@ -408,18 +405,11 @@ export default {
         to.clampWhenFinished = true
         to.reset().play()
 
-        this.activeActions.push(to)
 
         idle.crossFadeTo(to, fade * to.duration, false)
 
         clearTimeout(this.doOnceTimeout)
         this.doOnceTimeout = setTimeout(() => {
-          this.activeActions.splice(this.activeActions.indexOf(to), 1)
-          let firstRemainActive = this.activeActions[0]
-          if (firstRemainActive) {
-            idle = firstRemainActive
-          }
-
           idle.crossFadeFrom(to, fade * to.duration, false)
           idle.enabled = true
           idle.play()
@@ -450,21 +440,13 @@ export default {
         to.clampWhenFinished = true
         to.reset().play()
 
-        this.activeActions.push(to)
-
-
         idle.crossFadeTo(to, fade * to.duration, false)
         resolve(true)
       })
     },
     async doEnd ({ restore, to, mixer }) {
       return new Promise((resolve) => {
-        this.activeActions.splice(this.activeActions.indexOf(to), 1)
-        let firstRemainActive = this.activeActions[0]
         let fade = 0.3
-        if (firstRemainActive) {
-          restore = firstRemainActive
-        }
         restore.crossFadeFrom(to, fade * to.duration, false)
         restore.enabled = true
         restore.play()
@@ -927,7 +909,7 @@ export default {
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
       // let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
-      // let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
+      let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
 
       let skillAction1 = await this.getActionByDisplayName({ name: 'Northern Soul Floor Combo', mixer })
 
@@ -947,7 +929,12 @@ export default {
 
       idle.play()
 
-      // await this.doOnce({ idle, to: taunt, mixer })
+      setTimeout(async () => {
+        this.viewCameraMode = 'close'
+        await this.doOnce({ idle, to: warmUp, mixer }).catch(e => console.log(e))
+        this.viewCameraMode = 'firstperson'
+      })
+
       this.charReady = true
 
       // this.$watch('displayStartMenu', () => {
