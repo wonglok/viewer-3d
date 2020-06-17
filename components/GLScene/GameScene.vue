@@ -620,7 +620,7 @@ export default {
 
           this.viewSettings.cameraExtraHeight = 42.754
           this.viewSettings.farest = 900
-          this.viewSettings.defaultCloseup = -215.504
+          this.viewSettings.defaultCloseup = 121.77
         } else if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
           this.viewSettings.adjustY = 0
@@ -776,7 +776,7 @@ export default {
           // make use of position
           targetCamPos.x = guyBackPos.x
           targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
-          targetCamPos.z = guyBackPos.z - extraZoom
+          targetCamPos.z = guyBackPos.z + extraZoom
 
           targetLookAt.x = headPosition.x
           targetLookAt.y = headPosition.y - config.cameraExtraHeight
