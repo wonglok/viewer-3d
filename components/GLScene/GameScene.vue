@@ -33,8 +33,18 @@
 
     <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
-        <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
+        <span>Loading... {{ (loadProgress * 100).toFixed(1) }}%</span>
       </div>
+    </div>
+    <div class="absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
+      <div class="block px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
+        Go forward
+      </div>
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
+        Go backward
+      </div>
+    </div>
+    <div class="absolute z-10 bottom-0 right-0 p-3 pb-12" v-if="charReady">
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
@@ -372,6 +382,7 @@ export default {
               }
             }
           }
+
           action = mixer.clipAction(clip)
           action.duration = clip.duration
           action.mixer = mixer
@@ -503,6 +514,13 @@ export default {
             break;
         }
       };
+
+      this.$on('go-forward', (v) => {
+        moveForward = v
+      })
+      this.$on('go-backward', (v) => {
+        moveBackward = v
+      })
 
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
@@ -1050,8 +1068,7 @@ export default {
             await this.doStart({ idle, to: turnRight, mixer, stopAll: false })
             break;
         }
-
-      };
+      }
 
       var onKeyUp = async (event) => {
         switch ( event.keyCode ) {
@@ -1083,15 +1100,47 @@ export default {
             await this.doEnd({ idle: idle, to: turnRight, mixer })
             break;
         }
-      };
+      }
+
+      this.$on('go-forward', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 87 })
+        } else {
+          onKeyUp({ keyCode: 87 })
+        }
+      })
+
+      this.$on('go-backward', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 83 })
+        } else {
+          onKeyUp({ keyCode: 83 })
+        }
+      })
 
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
-    }
+    },
+    setupGyroCam () {
+      if (window.innerWidth < 500) {
+        let proxyCam = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
+        let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
+        let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
+        controls.dampping = true
+
+        this.lookup('base').onLoop(() => {
+          controls.enabled = true
+          controls.update()
+          // console.log(proxyCam.position.x, proxyCam.rotation.y)
+          if (typeof proxyCam.rotation.y !== 'undefined') {
+            this.controlTarget.rotation.y = proxyCam.rotation.y
+          }
+        })
+      }
+    },
   },
   beforeDestroy () {
   },
-
   async mounted () {
     await this.lookupWait('ready')
 
@@ -1132,7 +1181,10 @@ export default {
     // this.lookup('base').onLoop(() => {
     //   controls.update()
     // })
+
     await this.setupCameraSystem()
+
+    this.setupGyroCam()
 
     /* BLOOM START */
     let { Vector2 } = require('three/src/math/Vector2')
