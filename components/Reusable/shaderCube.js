@@ -99,7 +99,8 @@ export class ShaderCube {
       transparent: true,
       uniforms,
       vertexShader: `
-        void main (void) {
+      precision highp float;
+      void main (void) {
           gl_Position = vec4( position, 1.0 );
         }
       `,

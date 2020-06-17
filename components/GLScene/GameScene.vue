@@ -74,7 +74,11 @@
 
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">Try AR/XR Mode</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
+        <span v-if="!useGyro">Try AR/XR Mode</span>
+        <span v-if="useGyro">Using AR/XR Mode</span>
+      </div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
 
       <div class="h-3"></div>
@@ -517,7 +521,6 @@ export default {
             break;
 
           case 32: // space
-            if ( canJump === true ) velocity.y += 0;
             canJump = false;
             break;
 
@@ -570,36 +573,6 @@ export default {
       this.$on('go-backward', (v) => {
         moveBackward = v
       })
-      this.$on('turn-left', (v) => {
-        if (v) {
-          onKeyDown({ keyCode: 81 })
-        } else {
-          onKeyUp({ keyCode: 81 })
-        }
-      })
-      this.$on('turn-right', (v) => {
-        if (v) {
-          onKeyDown({ keyCode: 69 })
-        } else {
-          onKeyUp({ keyCode: 69 })
-        }
-      })
-
-      this.$on('turn-left', (v) => {
-        if (v) {
-          onKeyDown({ keyCode: 81 })
-        } else {
-          onKeyUp({ keyCode: 81 })
-        }
-      })
-
-      this.$on('turn-right', (v) => {
-        if (v) {
-          onKeyDown({ keyCode: 69 })
-        } else {
-          onKeyUp({ keyCode: 69 })
-        }
-      })
 
       this.$on('go-left', (v) => {
         if (v) {
@@ -616,6 +589,22 @@ export default {
           onKeyUp({ keyCode: 68 })
         }
       })
+
+      this.$on('turn-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 81 })
+        } else {
+          onKeyUp({ keyCode: 81 })
+        }
+      })
+      this.$on('turn-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 69 })
+        } else {
+          onKeyUp({ keyCode: 69 })
+        }
+      })
+
 
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
@@ -680,6 +669,14 @@ export default {
           this.viewSettings.cameraExtraHeight = 0.00000
           this.viewSettings.farest = 900.00000
           this.viewSettings.defaultCloseup = -153.77
+        } else if (this.viewCameraMode === 'eye') {
+          this.viewSettings.adjustX = 0.00000
+          this.viewSettings.adjustY = 70.51990
+          this.viewSettings.adjustZ = 0.00000
+
+          this.viewSettings.cameraExtraHeight = 0.00000
+          this.viewSettings.farest = 900.00000
+          this.viewSettings.defaultCloseup = 86.93800
         }
       }
 
@@ -761,6 +758,12 @@ export default {
           centerPosition.z += config.adjustZ
         }
 
+        if (this.viewCameraMode === 'eye') {
+          centerPosition.x += config.adjustX
+          centerPosition.y += config.adjustY
+          centerPosition.z += config.adjustZ
+        }
+
         if (this.viewCameraMode === 'firstperson') {
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
@@ -798,7 +801,16 @@ export default {
         let scrollZoom = config.farest * progress * 1
         let extraZoom = config.defaultCloseup + scrollZoom
 
-        if (this.viewCameraMode === 'chase') {
+        if (this.viewCameraMode === 'eye') {
+          // make use of position
+          targetCamPos.x = guyEyePos.x
+          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
+          targetCamPos.z = guyEyePos.z - extraZoom
+
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'chase') {
           // make use of position
           targetCamPos.x = centerPosition.x
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
@@ -845,7 +857,10 @@ export default {
           targetLookAt.z = lookAtVec3.z
         }
 
-        if (this.viewCameraMode === 'chase') {
+        if (this.viewCameraMode === 'eye') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'chase') {
           lerperLookAt.lerp(targetLookAt, 0.05)
           lerperCamPos.lerp(targetCamPos, 0.05)
         } else if (this.viewCameraMode === 'close') {
@@ -869,11 +884,11 @@ export default {
       this.lookup('base').onLoop(() => {
         this.layouts = {
           walk: {
-            sx: 2.5,
-            sy: 2.5,
-            sz: 2.5,
-            pz: 800 * 2.5,
-            py: 170 * 2.5
+            sx: 5.5,
+            sy: 5.5,
+            sz: 5.5,
+            pz: 800 * 5.5,
+            py: 1157
           },
           // bg: {
           //   // pz: -400,
@@ -1035,28 +1050,33 @@ export default {
       let moves = this.moves
       let mixer = await this.prepMixer({ actor: this.guyGLTF.scene })
 
-      let preload = async () => {
+      let parallelPreload = async () => {
         let arr = [
           'Mma Idle',
-          'Northern Soul Floor Combo',
+          // 'Northern Soul Floor Combo',
           'jump',
+
           'running',
           'control run backwards',
+
           'left strafe',
           'right strafe',
+
           'control turn left a bit',
           'control turn right a bit',
-          'Hip Hop Dancing (3) copy'
+
+          'Warming Up',
+
+          'Speedbag'
+          // 'Hip Hop Dancing (3) copy'
         ]
         let waiters = []
-        if (preload) {
-          for (let name of arr) {
-            waiters.push(this.loadMoveByName({ name }))
-          }
+        for (let name of arr) {
+          waiters.push(this.loadMoveByName({ name }))
         }
         await Promise.all(waiters)
       }
-      await preload()
+      await parallelPreload()
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
       // let tauntTimerHand = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
@@ -1064,6 +1084,7 @@ export default {
       // let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
       let skillAction1 = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
+      let skillAction2 = await this.getActionByDisplayName({ name: 'Speedbag', mixer })
 
       let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
       let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
@@ -1134,6 +1155,18 @@ export default {
 
             break;
 
+          case 84: // t
+            setTimeout(async () => {
+              this.isTakingComplexAction = true
+              // this.viewCameraMode = 'firstperson'
+              await this.doOnce({ idle, to: skillAction2, mixer }).catch(e => console.log(e))
+              // this.viewCameraMode = 'firstperson'
+              this.isTakingComplexAction = false
+            })
+            // await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log)
+
+            break;
+
           case 81: // q
             await this.doStart({ idle, to: turnLeft, mixer, stopAll: false })
             break;
@@ -1191,22 +1224,6 @@ export default {
         }
       })
 
-      this.$on('turn-left', (v) => {
-        if (v) {
-          onKeyDown({ keyCode: 81 })
-        } else {
-          onKeyUp({ keyCode: 81 })
-        }
-      })
-
-      this.$on('turn-right', (v) => {
-        if (v) {
-          onKeyDown({ keyCode: 69 })
-        } else {
-          onKeyUp({ keyCode: 69 })
-        }
-      })
-
       this.$on('go-left', (v) => {
         if (v) {
           onKeyDown({ keyCode: 65 })
@@ -1220,6 +1237,22 @@ export default {
           onKeyDown({ keyCode: 68 })
         } else {
           onKeyUp({ keyCode: 68 })
+        }
+      })
+
+      this.$on('turn-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 81 })
+        } else {
+          onKeyUp({ keyCode: 81 })
+        }
+      })
+
+      this.$on('turn-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 69 })
+        } else {
+          onKeyUp({ keyCode: 69 })
         }
       })
 
@@ -1276,6 +1309,8 @@ export default {
     this.scene.background = new Color('#1a1a1a')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
+    this.camera.position.z = -1000
+    this.camera.position.y = 380
 
     this.scene.add(this.o3d)
 
