@@ -787,68 +787,6 @@ export default {
         // }
         // if (!parentScrollBox) { return }
       })
-      this.lookup('base').onLoop(() => {
-        this.layouts = {
-          cross: {
-            pz: -1200
-          },
-          walk: {
-            sx: 2.5,
-            sy: 2.5,
-            sz: 2.5,
-            pz: 800 * 2.5,
-            py: 170 * 2.5
-          },
-          // bg: {
-          //   // pz: -400,
-          //   sx: 2,
-          //   sy: 2,
-          //   sz: 1,
-          //   py: -180,
-          //   rx: Math.PI * 0.5
-          // },
-          charmover: {
-            px: this.charmover.position.x,
-            py: this.charmover.position.y,
-            pz: this.charmover.position.z - 1200,
-            rx: this.charmover.rotation.x,
-            ry: this.charmover.rotation.y,
-            rz: this.charmover.rotation.z
-          },
-
-          // run: {
-          //   // ry: Math.PI * -0.25,
-          //   sx: 1,
-          //   sy: 1,
-          //   sz: 1,
-          //   // pz: -100,
-          //   // rx: Math.PI * 0.05 + Math.PI
-
-          //   // pz: -250,
-          //   // px: -2250,
-          //   // ry: Math.PI * 0.15,
-          // },
-
-          calibration: {
-            ry: Math.PI
-          },
-          correctAxis: {
-            rz: Math.PI * 0.5,
-            rx: Math.PI * -0.5
-          },
-          center: {
-            ry: Math.PI * -0.5,
-
-            // ry: Math.PI * (progress),
-            sx: 180,
-            sy: 180,
-            sz: 180,
-
-            py: -180,
-            // pz: 100
-          }
-        }
-      })
     },
     async doOnce ({ idle, to, mixer, stopAll = true }) {
       return new Promise((resolve) => {
@@ -1208,6 +1146,69 @@ export default {
     })
     this.$emit('syncBloom')
     /* BLOOM END */
+
+    this.lookup('base').onLoop(() => {
+      this.layouts = {
+        cross: {
+          pz: -1200
+        },
+        walk: {
+          sx: 2.5,
+          sy: 2.5,
+          sz: 2.5,
+          pz: 800 * 2.5,
+          py: 170 * 2.5
+        },
+        // bg: {
+        //   // pz: -400,
+        //   sx: 2,
+        //   sy: 2,
+        //   sz: 1,
+        //   py: -180,
+        //   rx: Math.PI * 0.5
+        // },
+        charmover: {
+          px: this.charmover.position.x,
+          py: this.charmover.position.y,
+          pz: this.charmover.position.z - 1200,
+          rx: this.charmover.rotation.x,
+          ry: this.charmover.rotation.y,
+          rz: this.charmover.rotation.z
+        },
+
+        // run: {
+        //   // ry: Math.PI * -0.25,
+        //   sx: 1,
+        //   sy: 1,
+        //   sz: 1,
+        //   // pz: -100,
+        //   // rx: Math.PI * 0.05 + Math.PI
+
+        //   // pz: -250,
+        //   // px: -2250,
+        //   // ry: Math.PI * 0.15,
+        // },
+
+        calibration: {
+          ry: Math.PI
+        },
+        correctAxis: {
+          rz: Math.PI * 0.5,
+          rx: Math.PI * -0.5
+        },
+        center: {
+          ry: Math.PI * -0.5,
+
+          // ry: Math.PI * (progress),
+          sx: 180,
+          sy: 180,
+          sz: 180,
+
+          py: -180,
+          // pz: 100
+        }
+      }
+    })
   }
 }
 </script>
