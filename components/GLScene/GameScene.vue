@@ -74,7 +74,7 @@
 
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">Try AR/XR Mode</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">Try AR/XR Mode</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
 
       <div class="h-3"></div>
@@ -181,6 +181,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      hasGyro: true,
       isMobile: window.innerWidth < 500,
       Bloom: false,
       isDev: process.env.NODE_ENV === 'development',
@@ -227,6 +228,14 @@ export default {
     }
   },
   methods: {
+    // detectGyro () {
+    //   this.hasGyro = false
+    //   window.addEventListener('devicemotion', (event) => {
+    //     if(event.rotationRate.alpha || event.rotationRate.beta || event.rotationRate.gamma) {
+    //       this.hasGyro = true
+    //     }
+    //   })
+    // },
     click () {
       console.log('123')
     },
@@ -688,13 +697,13 @@ export default {
         prevTime = time;
 
         // update control target
+        if (turnLeft) {
+          this.controlTarget.rotation.y += delta * 1.75
+        }
+        if (turnRight) {
+          this.controlTarget.rotation.y -= delta * 1.75
+        }
         if (!this.isTakingComplexAction) {
-          if (turnLeft) {
-            this.controlTarget.rotation.y += delta * 1.75
-          }
-          if (turnRight) {
-            this.controlTarget.rotation.y -= delta * 1.75
-          }
           if (moveForward) {
             this.controlTarget.translateZ(-delta * 700)
           }
@@ -1328,6 +1337,13 @@ export default {
     })
     this.$emit('syncBloom')
     /* BLOOM END */
+
+    document.addEventListener('keydown', (e) => {
+      if (e.keyCode == 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {
+        e.preventDefault()
+        return false
+      }
+    }, false)
   }
 }
 </script>
