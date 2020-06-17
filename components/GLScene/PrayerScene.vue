@@ -41,8 +41,8 @@
     </div>
 
     <div class="absolute z-10 top-0 left-0 p-3" v-if="charReady">
-      <div class="text-white block px-2 mx-1 my-1 bg-white border-gray-100 border text-center cursor-pointer" :class="{ 'text-blue-500': useBloom === true, 'border-blue-500': useBloom === true }"  @click="$emit('ymcaDance')">YMCA Dance</div>
-      <div class="text-white block px-2 mx-1 my-1 bg-white border-gray-100 border text-center cursor-pointer" :class="{ 'text-blue-500': useBloom === true, 'border-blue-500': useBloom === true }"  @click="$emit('doPrayer')">Prayer</div>
+      <div class="text-white block px-2 mx-1 my-1 bg-white border-gray-100 border text-center cursor-pointer text-blue-500 border-blue-500" @click="$emit('ymcaDance')">YMCA Dance</div>
+      <div class="text-white block px-2 mx-1 my-1 bg-white border-gray-100 border text-center cursor-pointer text-blue-500 border-blue-500" @click="$emit('doPrayer')">Prayer</div>
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
@@ -791,8 +791,9 @@ export default {
             sx: 2.5,
             sy: 2.5,
             sz: 2.5,
-            pz: 800 * 2.5,
-            py: 170 * 2.5
+            pz: 800 * 2.5 * 0.0,
+            py: 170 * 2.5,
+            ry: Math.PI
           },
           // bg: {
           //   // pz: -400,
