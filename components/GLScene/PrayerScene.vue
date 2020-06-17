@@ -898,7 +898,7 @@ export default {
         }, to.duration * 1000)
       })
     },
-    async doStart ({ idle, to, mixer, canRestore = false, stopAll = true }) {
+    async doStart ({ idle, to, mixer, stopAll = true }) {
       return new Promise((resolve, reject) => {
         if (to.isRunning()) {
           resolve(false)
@@ -976,6 +976,8 @@ export default {
       // let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
       // let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
+      let ymca = await this.getActionByDisplayName({ name: 'Ymca Dance', mixer })
+
       let skillAction1 = await this.getActionByDisplayName({ name: 'Praying Knee Start', mixer })
       let skillAction2 = await this.getActionByDisplayName({ name: 'Praying Knee', mixer })
       let skillAction3 = await this.getActionByDisplayName({ name: 'Praying Knee LookDown', mixer })
@@ -1002,12 +1004,25 @@ export default {
 
       // setTimeout(async () => {
       //   this.viewCameraMode = 'close'
-      //   await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log(e))
-      //   this.viewCameraMode = 'firstperson'
+      //   this.controlTarget.position.z = 650
+      //   await this.doOnce({ idle, to: ymca, mixer }).catch(e => console.log(e))
+      //   this.viewCameraMode = 'back'
       // })
-      setTimeout(() => {
+
+      let prayerSet = async () => {
+        await this.doOnce({ idle: skillAction2, to: skillAction1, mixer }).catch(e => console.log(e))
+        await this.doOnce({ idle: skillAction3, to: skillAction2, mixer }).catch(e => console.log(e))
+        await this.doOnce({ idle: skillAction4, to: skillAction3, mixer }).catch(e => console.log(e))
+        await this.doOnce({ idle: skillAction5, to: skillAction4, mixer }).catch(e => console.log(e))
+        await this.doOnce({ idle: skillAction6, to: skillAction5, mixer }).catch(e => console.log(e))
+        await this.doOnce({ idle: idle, to: skillAction6, mixer }).catch(e => console.log(e))
+      }
+
+      setTimeout(async () => {
+        this.viewCameraMode = 'close'
         this.controlTarget.position.z = 650
-        onKeyDown({ keyCode: 82 })
+        await prayerSet()
+        // onKeyDown({ keyCode: 82 })
       })
 
       this.charReady = true
@@ -1018,25 +1033,25 @@ export default {
           case 38: // up
           case 87: // w
             this.isTakingComplexAction = false
-            await this.doStart({ canRestore: true, idle, to: running, mixer })
+            await this.doStart({ idle, to: running, mixer })
             break;
 
           case 37: // left
           case 65: // a
             this.isTakingComplexAction = false
-            await this.doStart({ canRestore: true, idle, to: leftStrafe, mixer })
+            await this.doStart({ idle, to: leftStrafe, mixer })
             break;
 
           case 40: // down
           case 83: // s
             this.isTakingComplexAction = false
-            await this.doStart({ canRestore: true, idle, to: runningBack, mixer })
+            await this.doStart({ idle, to: runningBack, mixer })
             break;
 
           case 39: // right
           case 68: // d
             this.isTakingComplexAction = false
-            await this.doStart({ canRestore: true, idle, to: rightStrafe, mixer })
+            await this.doStart({ idle, to: rightStrafe, mixer })
             break;
 
           case 32: // space
@@ -1045,18 +1060,15 @@ export default {
             break;
 
           case 82: // r
-            setTimeout(async () => {
-              this.isTakingComplexAction = true
-              await this.doOnce({ idle: skillAction2, to: skillAction1, mixer }).catch(e => console.log(e))
-              await this.doOnce({ idle: skillAction3, to: skillAction2, mixer }).catch(e => console.log(e))
-              await this.doOnce({ idle: skillAction4, to: skillAction3, mixer }).catch(e => console.log(e))
-              await this.doOnce({ idle: skillAction5, to: skillAction4, mixer }).catch(e => console.log(e))
-              await this.doOnce({ idle: skillAction6, to: skillAction5, mixer }).catch(e => console.log(e))
-              await this.doOnce({ idle: idle, to: skillAction6, mixer }).catch(e => console.log(e))
-              this.isTakingComplexAction = false
-            })
-            // await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log)
+            this.isTakingComplexAction = true
+            await prayerSet()
+            this.isTakingComplexAction = false
+            break;
 
+          case 84: // t
+            this.isTakingComplexAction = true
+            await this.doOnce({ idle: ymca, to: ymca, mixer }).catch(e => console.log(e))
+            this.isTakingComplexAction = false
             break;
 
           case 81: // q
