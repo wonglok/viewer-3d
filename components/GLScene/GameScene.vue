@@ -867,7 +867,7 @@ export default {
 
           let remain = this.activeLog[0]
           if (remain) {
-            idle.reset().stop()
+            idle.fadeOut(to.duration * fade)
             idle = remain
           }
 
@@ -932,7 +932,7 @@ export default {
 
         let remain = this.activeLog[0]
         if (remain) {
-          idle.reset().stop()
+          idle.fadeOut(to.duration * fade)
           idle = remain
         }
 

@@ -17,18 +17,21 @@
         <HolyCross :visible="charReady"></HolyCross>
       </O3D> -->
 
-      <O3D :animated="true" layout="cross">
-        <HolyCross></HolyCross>
-      </O3D>
-      <O3D :animated="true" layout="charmover" :visible="charReady">
-        <O3D :animated="true" layout="calibration">
-          <O3D :animated="true" layout="center">
-            <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+      <O3D :animated="true" layout="rotateAll">
+        <O3D :animated="true" layout="cross">
+          <HolyCross></HolyCross>
+        </O3D>
+        <O3D :animated="true" layout="charmover" :visible="charReady">
+          <O3D :animated="true" layout="calibration">
+            <O3D :animated="true" layout="center">
+              <O3D :animated="true" layout="correctAxis">
+                <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+              </O3D>
             </O3D>
           </O3D>
         </O3D>
       </O3D>
+
     </O3D>
 
     <div class="absolute top-0 left-0 w-full h-full" ref="domlayer">
@@ -135,7 +138,7 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeChrome, ShaderCube, getID } from '../Reusable'
 import { Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -423,7 +426,7 @@ export default {
 
       this.controlTarget.position.x = 0
       this.controlTarget.position.y = 0
-      this.controlTarget.position.z = 1980
+      this.controlTarget.position.z = 650
 
       this.controlTarget.rotateY
 
@@ -784,16 +787,17 @@ export default {
         // }
         // if (!parentScrollBox) { return }
       })
-
       this.lookup('base').onLoop(() => {
         this.layouts = {
+          cross: {
+            pz: -1200
+          },
           walk: {
             sx: 2.5,
             sy: 2.5,
             sz: 2.5,
-            pz: 800 * 2.5 * 0.0,
-            py: 170 * 2.5,
-            ry: Math.PI
+            pz: 800 * 2.5,
+            py: 170 * 2.5
           },
           // bg: {
           //   // pz: -400,
@@ -806,7 +810,7 @@ export default {
           charmover: {
             px: this.charmover.position.x,
             py: this.charmover.position.y,
-            pz: this.charmover.position.z,
+            pz: this.charmover.position.z - 1200,
             rx: this.charmover.rotation.x,
             ry: this.charmover.rotation.y,
             rz: this.charmover.rotation.z
@@ -1006,7 +1010,7 @@ export default {
 
       setTimeout(async () => {
         this.viewCameraMode = 'close'
-        this.controlTarget.position.z = 650
+        // this.controlTarget.position.z = 650
         await prayerSet()
         // onKeyDown({ keyCode: 82 })
       })
@@ -1141,8 +1145,9 @@ export default {
     /* Loader End */
 
     this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.shaderCubeBG = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 128 })
 
-    this.scene.background = new Color('#1a1a1a')
+    this.scene.background = new Color('#bababa')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
 
