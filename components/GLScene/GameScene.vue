@@ -794,7 +794,7 @@ export default {
           guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
 
           camPlacerVec3.setFromMatrixPosition(camPlacer.matrixWorld)
-          lookAtVec3.setFromMatrixPosition(this.guy.matrixWorld)
+          lookAtVec3.setFromMatrixPosition(this.guyBack.matrixWorld)
         }
 
         let progress = vscroll.value
@@ -843,18 +843,18 @@ export default {
           targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
           targetCamPos.z = camPlacerVec3.z
 
-          targetLookAt.x = lookAtVec3.x
-          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
-          targetLookAt.z = lookAtVec3.z
+          targetLookAt.x = guyEyePos.x
+          targetLookAt.y = guyEyePos.y - config.cameraExtraHeight
+          targetLookAt.z = guyEyePos.z
         } else if (this.viewCameraMode === 'firstface') {
           // make use of position
           targetCamPos.x = camPlacerVec3.x
           targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
           targetCamPos.z = camPlacerVec3.z
 
-          targetLookAt.x = lookAtVec3.x
-          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
-          targetLookAt.z = lookAtVec3.z
+          targetLookAt.x = guyEyePos.x
+          targetLookAt.y = guyEyePos.y - config.cameraExtraHeight
+          targetLookAt.z = guyEyePos.z
         }
 
         if (this.viewCameraMode === 'eye') {
