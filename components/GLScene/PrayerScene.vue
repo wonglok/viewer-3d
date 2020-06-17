@@ -17,7 +17,7 @@
         <HolyCross :visible="charReady"></HolyCross>
       </O3D> -->
 
-      <O3D :animated="true" layout="cross" >
+      <O3D :animated="true" layout="cross">
         <HolyCross></HolyCross>
       </O3D>
       <O3D :animated="true" layout="charmover" :visible="charReady">
@@ -35,21 +35,26 @@
     </div>
 
     <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
-      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
+      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-white">
         <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
       </div>
     </div>
 
+    <div class="absolute z-10 top-0 left-0 p-3" v-if="charReady">
+      <div class="text-white block px-2 mx-1 my-1 bg-white border-gray-100 border text-center cursor-pointer" :class="{ 'text-blue-500': useBloom === true, 'border-blue-500': useBloom === true }"  @click="$emit('ymcaDance')">YMCA Dance</div>
+      <div class="text-white block px-2 mx-1 my-1 bg-white border-gray-100 border text-center cursor-pointer" :class="{ 'text-blue-500': useBloom === true, 'border-blue-500': useBloom === true }"  @click="$emit('doPrayer')">Prayer</div>
+    </div>
+
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
-      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
+      <div class="text-white block px-2 mx-1 my-1 mb-4 border-gray-100 border text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
 
-      <div class="text-white block px-2 mx-1 my-1 mb-4 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Person Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Person Camera</div>
 
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
+      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div> -->
+      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div> -->
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
+      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div> -->
 
       <div v-if="isDev">
         <div>
@@ -842,10 +847,10 @@ export default {
     },
     async doOnce ({ idle, to, mixer, stopAll = true }) {
       return new Promise((resolve) => {
-        if (to.isRunning()) {
-          resolve()
-          return
-        }
+        // if (to.isRunning()) {
+        //   resolve()
+        //   return
+        // }
         if (stopAll) {
           mixer.stopAllAction()
         }
@@ -871,7 +876,6 @@ export default {
 
           let remain = this.activeLog[0]
           if (remain) {
-            idle.reset().stop()
             idle = remain
           }
 
@@ -879,14 +883,6 @@ export default {
           idle.enabled = true
           idle.play()
         }
-
-        // let hh = (to) => {
-        //   if (ev.action === to) {
-        //     mixer.addEventListener('finished', hh)
-        //     onEnd()
-        //   }
-        // }
-        // mixer.addEventListener('finished', hh)
 
         clearTimeout(this.doOnceTimeout)
         this.doOnceTimeout = setTimeout(() => {
@@ -936,7 +932,6 @@ export default {
 
         let remain = this.activeLog[0]
         if (remain) {
-          idle.reset().stop()
           idle = remain
         }
 
@@ -978,12 +973,7 @@ export default {
 
       let ymca = await this.getActionByDisplayName({ name: 'Ymca Dance', mixer })
 
-      let skillAction1 = await this.getActionByDisplayName({ name: 'Praying Knee Start', mixer })
-      let skillAction2 = await this.getActionByDisplayName({ name: 'Praying Knee', mixer })
-      let skillAction3 = await this.getActionByDisplayName({ name: 'Praying Knee LookDown', mixer })
-      let skillAction4 = await this.getActionByDisplayName({ name: 'Praying Knee LookUp', mixer })
-      let skillAction5 = await this.getActionByDisplayName({ name: 'Praying Knee End', mixer })
-      let skillAction6 = await this.getActionByDisplayName({ name: 'Praying Standing', mixer })
+      let prayerKnee = await this.getActionByDisplayName({ name: 'Praying Knee Start', mixer })
 
       let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
       let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
@@ -1010,12 +1000,7 @@ export default {
       // })
 
       let prayerSet = async () => {
-        await this.doOnce({ idle: skillAction2, to: skillAction1, mixer }).catch(e => console.log(e))
-        await this.doOnce({ idle: skillAction3, to: skillAction2, mixer }).catch(e => console.log(e))
-        await this.doOnce({ idle: skillAction4, to: skillAction3, mixer }).catch(e => console.log(e))
-        await this.doOnce({ idle: skillAction5, to: skillAction4, mixer }).catch(e => console.log(e))
-        await this.doOnce({ idle: skillAction6, to: skillAction5, mixer }).catch(e => console.log(e))
-        await this.doOnce({ idle: idle, to: skillAction6, mixer }).catch(e => console.log(e))
+        await this.doOnce({ idle, to: prayerKnee, mixer }).catch(e => console.log(e))
       }
 
       setTimeout(async () => {
@@ -1023,6 +1008,16 @@ export default {
         this.controlTarget.position.z = 650
         await prayerSet()
         // onKeyDown({ keyCode: 82 })
+      })
+
+      this.$on('ymcaDance', async () => {
+        this.isTakingComplexAction = true
+        await this.doOnce({ idle, to: ymca, mixer }).catch(e => console.log(e))
+        this.isTakingComplexAction = false
+      })
+
+      this.$on('doPrayer', () => {
+        prayerSet()
       })
 
       this.charReady = true
@@ -1067,7 +1062,7 @@ export default {
 
           case 84: // t
             this.isTakingComplexAction = true
-            await this.doOnce({ idle: ymca, to: ymca, mixer }).catch(e => console.log(e))
+            await this.doOnce({ idle, to: ymca, mixer }).catch(e => console.log(e))
             this.isTakingComplexAction = false
             break;
 
