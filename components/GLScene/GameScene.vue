@@ -12,6 +12,11 @@
       <!-- <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
       </O3D> -->
+
+      <!-- <O3D :animated="true" layout="holycross" :visible="charReady">
+        <HolyCross :visible="charReady"></HolyCross>
+      </O3D> -->
+
       <O3D :animated="true" layout="charmover" :visible="charReady">
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
@@ -36,10 +41,10 @@
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
       <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
 
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Person Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 mb-4 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 mb-4 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Person Camera</div>
 
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
 
@@ -156,6 +161,7 @@ export default {
       loadingManager: false,
       loadProgress: 0,
 
+      activeLog: [],
       isTakingComplexAction: false,
 
       // guy
@@ -270,6 +276,7 @@ export default {
       let idleMapper = require('../GLContent/Swat/idle/fbx').default
       let kneeMapper = require('../GLContent/Swat/knee/fbx').default
       let superheroMapper = require('../GLContent/Swat/superhero/fbx').default
+      let prayerMapper = require('../GLContent/Swat/prayer/fbx').default
       // kneeMapper
 
       let movesOrig = []
@@ -319,6 +326,7 @@ export default {
       // addToArr(breakdancesMapper)
       // addToArr(danceingMapper)
 
+      addToArr(prayerMapper)
       addToArr(controlMapper)
       addToArr(idleMapper)
       addToArr(kneeMapper)
@@ -384,74 +392,7 @@ export default {
       let actionObj = await this.prepAnimation({ inPlace, pose: moveObj.actionFBX, mixer })
       return actionObj
     },
-    async doOnce ({ idle, to, mixer, stopAll = true }) {
-      return new Promise((resolve) => {
-        if (to.isRunning()) {
-          resolve()
-          return
-        }
-        if (stopAll) {
-          mixer.stopAllAction()
-        }
-        idle.reset()
-        to.reset()
 
-        let fade = 0.3
-
-        to.enabled = true
-        idle.enabled = true
-
-        to.repetitions = 1
-        to.clampWhenFinished = true
-        to.reset().play()
-
-
-        idle.crossFadeTo(to, fade * to.duration, false)
-
-        clearTimeout(this.doOnceTimeout)
-        this.doOnceTimeout = setTimeout(() => {
-          idle.crossFadeFrom(to, fade * to.duration, false)
-          idle.enabled = true
-          idle.play()
-        }, to.duration * 1000 * (1.0 - fade))
-        setTimeout(() => {
-          resolve()
-        }, to.duration * 1000)
-      })
-    },
-    async doStart ({ idle, to, mixer, stopAll = true }) {
-      return new Promise((resolve, reject) => {
-        if (to.isRunning()) {
-          resolve(false)
-          return
-        }
-        if (stopAll) {
-          mixer.stopAllAction()
-        }
-        idle.reset()
-        to.reset()
-
-        let fade = 0.3
-
-        to.enabled = true
-        idle.enabled = true
-
-        to.repetitions = Infinity
-        to.clampWhenFinished = true
-        to.reset().play()
-
-        idle.crossFadeTo(to, fade * to.duration, false)
-        resolve(true)
-      })
-    },
-    async doEnd ({ restore, to, mixer }) {
-      return new Promise((resolve) => {
-        let fade = 0.3
-        restore.crossFadeFrom(to, fade * to.duration, false)
-        restore.enabled = true
-        restore.play()
-      })
-    },
     setWeight (action, weight) {
       action.enabled = true
       action.setEffectiveTimeScale(1)
@@ -523,7 +464,6 @@ export default {
           case 81: // q
             turnLeft = true
             break;
-
 
           case 69: // e
             turnRight = true
@@ -707,7 +647,6 @@ export default {
         }
 
         if (this.viewCameraMode === 'chase') {
-
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
           centerPosition.z += config.adjustZ
@@ -720,6 +659,12 @@ export default {
         }
 
         if (this.viewCameraMode === 'firstperson') {
+          camPlacer.position.x = config.adjustX
+          camPlacer.position.y = config.adjustY
+          camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+        }
+
+        if (this.viewCameraMode === 'back') {
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
           camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
@@ -755,14 +700,23 @@ export default {
           targetLookAt.y = headPosition.y - config.cameraExtraHeight
           targetLookAt.z = headPosition.z
         } else if (this.viewCameraMode === 'back') {
-          // make use of position
-          targetCamPos.x = guyBackPos.x
-          targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
-          targetCamPos.z = guyBackPos.z + extraZoom
+          // // make use of position
+          // targetCamPos.x = guyBackPos.x
+          // targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
+          // targetCamPos.z = guyBackPos.z + extraZoom
 
-          targetLookAt.x = headPosition.x
-          targetLookAt.y = headPosition.y - config.cameraExtraHeight
-          targetLookAt.z = headPosition.z
+          // targetLookAt.x = headPosition.x
+          // targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          // targetLookAt.z = headPosition.z
+
+          // make use of position
+          targetCamPos.x = camPlacerVec3.x
+          targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
+          targetCamPos.z = camPlacerVec3.z
+
+          targetLookAt.x = lookAtVec3.x
+          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
+          targetLookAt.z = lookAtVec3.z
         } else if (this.viewCameraMode === 'chase') {
           // make use of position
           targetCamPos.x = centerPosition.x
@@ -828,17 +782,17 @@ export default {
             sx: 2.5,
             sy: 2.5,
             sz: 2.5,
-            pz: 900 * 2.5,
+            pz: 800 * 2.5,
             py: 170 * 2.5
           },
-          bg: {
-            // pz: -400,
-            sx: 2,
-            sy: 2,
-            sz: 1,
-            py: -180,
-            rx: Math.PI * 0.5
-          },
+          // bg: {
+          //   // pz: -400,
+          //   sx: 2,
+          //   sy: 2,
+          //   sz: 1,
+          //   py: -180,
+          //   rx: Math.PI * 0.5
+          // },
           charmover: {
             px: this.charmover.position.x,
             py: this.charmover.position.y,
@@ -847,6 +801,7 @@ export default {
             ry: this.charmover.rotation.y,
             rz: this.charmover.rotation.z
           },
+
           // run: {
           //   // ry: Math.PI * -0.25,
           //   sx: 1,
@@ -881,6 +836,111 @@ export default {
         }
       })
     },
+    async doOnce ({ idle, to, mixer, stopAll = true }) {
+      return new Promise((resolve) => {
+        if (to.isRunning()) {
+          resolve()
+          return
+        }
+        if (stopAll) {
+          mixer.stopAllAction()
+        }
+        idle.reset()
+        to.reset()
+
+        let fade = 0.3
+
+        to.enabled = true
+        idle.enabled = true
+
+        to.repetitions = 1
+        to.clampWhenFinished = true
+        to.reset().play()
+
+        idle.crossFadeTo(to, fade * to.duration, false)
+
+        let onEnd = () => {
+          let idx = this.activeLog.indexOf(to)
+          if (idx !== -1) {
+            this.activeLog.splice(idx, 1)
+          }
+
+          let remain = this.activeLog[0]
+          if (remain) {
+            idle.reset().stop()
+            idle = remain
+          }
+
+          idle.crossFadeFrom(to, fade * to.duration, false)
+          idle.enabled = true
+          idle.play()
+        }
+
+        // let hh = (to) => {
+        //   if (ev.action === to) {
+        //     mixer.addEventListener('finished', hh)
+        //     onEnd()
+        //   }
+        // }
+        // mixer.addEventListener('finished', hh)
+
+        clearTimeout(this.doOnceTimeout)
+        this.doOnceTimeout = setTimeout(() => {
+          onEnd()
+        }, to.duration * 1000 * (1.0 - fade))
+
+        setTimeout(() => {
+          resolve()
+        }, to.duration * 1000)
+      })
+    },
+    async doStart ({ idle, to, mixer, canRestore = false, stopAll = true }) {
+      return new Promise((resolve, reject) => {
+        if (to.isRunning()) {
+          resolve(false)
+          return
+        }
+        if (stopAll) {
+          mixer.stopAllAction()
+        }
+        idle.reset()
+        to.reset()
+
+        let fade = 0.3
+
+        to.enabled = true
+        idle.enabled = true
+
+        to.repetitions = Infinity
+        to.clampWhenFinished = true
+        to.reset().play()
+
+        this.activeLog.push(to)
+
+        idle.crossFadeTo(to, fade * to.duration, false)
+        resolve(true)
+      })
+    },
+    async doEnd ({ idle, to, mixer }) {
+      return new Promise((resolve) => {
+        let fade = 0.3
+
+        let idx = this.activeLog.indexOf(to)
+        if (idx !== -1) {
+          this.activeLog.splice(idx, 1)
+        }
+
+        let remain = this.activeLog[0]
+        if (remain) {
+          idle.reset().stop()
+          idle = remain
+        }
+
+        idle.crossFadeFrom(to, fade * to.duration, false)
+        idle.enabled = true
+        idle.play()
+      })
+    },
     async setupAnimationSystem () {
       let moves = this.moves
       let mixer = await this.prepMixer({ actor: this.guyGLTF.scene })
@@ -895,7 +955,8 @@ export default {
           'left strafe',
           'right strafe',
           'control turn left a bit',
-          'control turn right a bit'
+          'control turn right a bit',
+          'Hip Hop Dancing (3) copy'
         ]
         let waiters = []
         if (preload) {
@@ -909,9 +970,9 @@ export default {
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
       // let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
-      let warmUp = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
+      // let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
-      let skillAction1 = await this.getActionByDisplayName({ name: 'Northern Soul Floor Combo', mixer })
+      let skillAction1 = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
 
       let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
       let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
@@ -919,6 +980,7 @@ export default {
 
       let leftStrafe = await this.getActionByDisplayName({ inPlace: true, name: 'left strafe', mixer })
       let rightStrafe = await this.getActionByDisplayName({ inPlace: true, name: 'right strafe', mixer })
+
       // let goForward = await this.getActionByDisplayName({ inPlace: true, name: 'control go forward', mixer })
       // let goBackward = await this.getActionByDisplayName({ inPlace: true, name: 'control go backward', mixer })
       // let goLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control go left', mixer })
@@ -929,52 +991,39 @@ export default {
 
       idle.play()
 
-      setTimeout(async () => {
-        this.viewCameraMode = 'close'
-        await this.doOnce({ idle, to: warmUp, mixer }).catch(e => console.log(e))
-        this.viewCameraMode = 'firstperson'
-      })
+      // setTimeout(async () => {
+      //   this.viewCameraMode = 'close'
+      //   await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log(e))
+      //   this.viewCameraMode = 'firstperson'
+      // })
 
       this.charReady = true
 
-      // this.$watch('displayStartMenu', () => {
-      //   if (!this.entered && !this.displayStartMenu && this.charReady) {
-      //     this.$emit('taunt')
-      //   }
-      // })
-      // this.$watch('entered', async () => {
-      //   if (this.entered && this.charReady) {
-      //     await this.doOnce({ idle, to: warmUp, mixer })
-      //   }
-      // })
       let moveForward, moveLeft, moveRight, moveBackward = false
-      let isRunning = () => {
-        return moveForward || moveLeft || moveRight || moveBackward
-      }
       var onKeyDown = async (event) => {
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
             this.isTakingComplexAction = false
-            await this.doStart({ idle, to: running, mixer })
+            await this.doStart({ canRestore: true, idle, to: running, mixer })
             break;
 
           case 37: // left
           case 65: // a
             this.isTakingComplexAction = false
-            await this.doStart({ idle, to: leftStrafe, mixer })
+            await this.doStart({ canRestore: true, idle, to: leftStrafe, mixer })
             break;
 
           case 40: // down
           case 83: // s
             this.isTakingComplexAction = false
-            await this.doStart({ idle, to: runningBack, mixer })
+            await this.doStart({ canRestore: true, idle, to: runningBack, mixer })
             break;
 
           case 39: // right
           case 68: // d
             this.isTakingComplexAction = false
-            await this.doStart({ idle, to: rightStrafe, mixer })
+            await this.doStart({ canRestore: true, idle, to: rightStrafe, mixer })
             break;
 
           case 32: // space
@@ -983,9 +1032,14 @@ export default {
             break;
 
           case 82: // r
-            this.isTakingComplexAction = true
-            await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log)
-            this.isTakingComplexAction = false
+            setTimeout(async () => {
+              this.isTakingComplexAction = true
+              // this.viewCameraMode = 'firstperson'
+              await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log(e))
+              // this.viewCameraMode = 'firstperson'
+              this.isTakingComplexAction = false
+            })
+            // await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log)
 
             break;
 
@@ -1003,30 +1057,30 @@ export default {
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
-            await this.doEnd({ restore: idle, to: running, mixer })
+            await this.doEnd({ idle: idle, to: running, mixer })
             break;
 
           case 37: // left
           case 65: // a
-            await this.doEnd({ restore: idle, to: leftStrafe, mixer })
+            await this.doEnd({ idle: idle, to: leftStrafe, mixer })
             break;
 
           case 40: // down
           case 83: // s
-            await this.doEnd({ restore: idle, to: runningBack, mixer })
+            await this.doEnd({ idle: idle, to: runningBack, mixer })
             break;
 
           case 39: // right
           case 68: // d
-            await this.doEnd({ restore: idle, to: rightStrafe, mixer })
+            await this.doEnd({ idle: idle, to: rightStrafe, mixer })
             break;
 
           case 81: // q
-            await this.doEnd({ restore: idle, to: turnLeft, mixer })
+            await this.doEnd({ idle: idle, to: turnLeft, mixer })
             break;
 
           case 69: // e
-            await this.doEnd({ restore: idle, to: turnRight, mixer })
+            await this.doEnd({ idle: idle, to: turnRight, mixer })
             break;
         }
       };
