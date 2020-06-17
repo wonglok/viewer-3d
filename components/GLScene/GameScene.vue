@@ -31,6 +31,79 @@
         <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
       </div>
     </div>
+
+    <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
+
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Person Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 mb-4 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
+
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
+
+      <div v-if="isDev">
+        <div>
+          <div class="text-white">
+            adjustX
+          </div>
+          <div>
+            <input type="range" min="-500" step="0.0001" max="500" v-model="viewSettings.adjustX">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.adjustX += 25" @keydown.down="viewSettings.adjustX -= 25" v-model="viewSettings.adjustX">
+          </div>
+        </div>
+        <div>
+          <div class="text-white">
+            adjustY
+          </div>
+          <div>
+            <input type="range" min="-500" step="0.0001" max="500" v-model="viewSettings.adjustY">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.adjustY += 25" @keydown.down="viewSettings.adjustY -= 25" v-model="viewSettings.adjustY">
+          </div>
+        </div>
+        <div>
+          <div class="text-white">
+            adjustZ
+          </div>
+          <div>
+            <input type="range" min="-500" step="0.0001" max="500" v-model="viewSettings.adjustZ">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.adjustZ += 25" @keydown.down="viewSettings.adjustZ -= 25" v-model="viewSettings.adjustZ">
+          </div>
+        </div>
+        <div>
+          <div class="text-white">
+            cameraExtraHeight
+          </div>
+          <div>
+            <input type="range" min="-200" step="0.001" max="200" v-model="viewSettings.cameraExtraHeight">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.cameraExtraHeight += 25" @keydown.down="viewSettings.cameraExtraHeight -= 25" v-model="viewSettings.cameraExtraHeight">
+          </div>
+        </div>
+
+        <div>
+          <div class="text-white">
+            defaultCloseup
+          </div>
+          <div>
+            <input type="range" min="-1024" step="0.001" max="1024" v-model="viewSettings.defaultCloseup">
+            <input type="number" step="1" class="w-8 text-black px-1" @keydown.up="viewSettings.defaultCloseup += 25" @keydown.down="viewSettings.defaultCloseup -= 25" v-model="viewSettings.defaultCloseup">
+          </div>
+        </div>
+
+        <div v-if="Bloom">
+          <div class="text-white">
+            Bloom.threshold
+          </div>
+          <div>
+            <input type="range" min="0" step="0.00001" max="1" v-model="Bloom.threshold">
+            <input type="number" step="0.00001" class="w-8 text-black px-1" @keydown.up="Bloom.threshold += 0.1" @keydown.down="Bloom.threshold -= 0.1" v-model="Bloom.threshold">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="displayStartMenu" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="!!charReady && !entered" @click="setupControls();">
         Start Game
@@ -67,19 +140,26 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      Bloom: false,
+      isDev: process.env.NODE_ENV === 'development',
       controls: false,
       charmover: new Object3D(),
       controlTarget: new Object3D(),
       // face vs chase
-      camMode: 'chase',
-      // characterO3D: false,
+      viewCameraMode: 'firstperson',
+      viewSettings: {},
+
       charReady: false,
       guyGLTF: false,
       activeMixers: [],
       displayStartMenu: true,
 
+
       loadingManager: false,
       loadProgress: 0,
+
+      activeActions: [],
+      isTakingComplexAction: false,
 
       // guy
       guy: false,
@@ -97,6 +177,8 @@ export default {
       scene: new Scene(),
       tCube: false,
       layouts: false,
+      useBloom: true,
+
       // blur: 0,
       // socket: false,
       // entered: false
@@ -305,13 +387,15 @@ export default {
       let actionObj = await this.prepAnimation({ inPlace, pose: moveObj.actionFBX, mixer })
       return actionObj
     },
-    async doOnce ({ idle, to, mixer }) {
+    async doOnce ({ idle, to, mixer, stopAll = true }) {
       return new Promise((resolve) => {
         if (to.isRunning()) {
           resolve()
           return
         }
-        mixer.stopAllAction()
+        if (stopAll) {
+          mixer.stopAllAction()
+        }
         idle.reset()
         to.reset()
 
@@ -324,10 +408,18 @@ export default {
         to.clampWhenFinished = true
         to.reset().play()
 
+        this.activeActions.push(to)
+
         idle.crossFadeTo(to, fade * to.duration, false)
 
         clearTimeout(this.doOnceTimeout)
         this.doOnceTimeout = setTimeout(() => {
+          this.activeActions.splice(this.activeActions.indexOf(to), 1)
+          let firstRemainActive = this.activeActions[0]
+          if (firstRemainActive) {
+            idle = firstRemainActive
+          }
+
           idle.crossFadeFrom(to, fade * to.duration, false)
           idle.enabled = true
           idle.play()
@@ -337,13 +429,15 @@ export default {
         }, to.duration * 1000)
       })
     },
-    async doStart ({ idle, to, mixer }) {
+    async doStart ({ idle, to, mixer, stopAll = true }) {
       return new Promise((resolve, reject) => {
         if (to.isRunning()) {
           resolve(false)
           return
         }
-        mixer.stopAllAction()
+        if (stopAll) {
+          mixer.stopAllAction()
+        }
         idle.reset()
         to.reset()
 
@@ -356,16 +450,24 @@ export default {
         to.clampWhenFinished = true
         to.reset().play()
 
+        this.activeActions.push(to)
+
+
         idle.crossFadeTo(to, fade * to.duration, false)
         resolve(true)
       })
     },
-    async doEnd ({ idle, to, mixer }) {
+    async doEnd ({ restore, to, mixer }) {
       return new Promise((resolve) => {
+        this.activeActions.splice(this.activeActions.indexOf(to), 1)
+        let firstRemainActive = this.activeActions[0]
         let fade = 0.3
-        idle.crossFadeFrom(to, fade * to.duration, false)
-        idle.enabled = true
-        idle.play()
+        if (firstRemainActive) {
+          restore = firstRemainActive
+        }
+        restore.crossFadeFrom(to, fade * to.duration, false)
+        restore.enabled = true
+        restore.play()
       })
     },
     setWeight (action, weight) {
@@ -445,13 +547,10 @@ export default {
             turnRight = true
             break;
         }
-
       };
 
       var onKeyUp = (event) => {
-
         switch ( event.keyCode ) {
-
           case 38: // up
           case 87: // w
             moveForward = false;
@@ -490,55 +589,106 @@ export default {
       // this.camera.position.z = 500
 
       let lookAtVec3 = new Vector3()
+      let lookAtLerpVec3 = new Vector3()
 
+      let headPosition = new Vector3()
+      let centerPosition = new Vector3()
+      let lerperLookAt = new Vector3()
+      let lerperCamPos = new Vector3()
+      let targetLookAt = new Vector3()
+      let targetCamPos = new Vector3()
+      let centerRelPos = new Vector3()
+      let guyEyePos = new Vector3()
+      let infrontOFhead = new Vector3()
+      let guyBackPos = new Vector3()
+      let guyBodyPos = new Vector3()
+
+      let resetCam = () => {
+        vscroll.value = 0
+        if (this.viewCameraMode === 'face') {
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 70
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 900,
+          this.viewSettings.defaultCloseup = 0
+        } else if (this.viewCameraMode === 'back') {
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 17.6991
+          this.viewSettings.adjustZ = -10.3706
+
+          this.viewSettings.cameraExtraHeight = 42.754
+          this.viewSettings.farest = 900
+          this.viewSettings.defaultCloseup = -215.504
+        } else if (this.viewCameraMode === 'chase') {
+          this.viewSettings.adjustX = -123.7555
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 0
+
+          this.viewSettings.cameraExtraHeight = 3.982
+          this.viewSettings.defaultCloseup = 492.46 + 24.6128
+          this.viewSettings.farest = 900
+        } else if (this.viewCameraMode === 'close') {
+          this.viewSettings.adjustX = -147.9535
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = -195.1051
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.defaultCloseup = -48.425
+          this.viewSettings.farest = 900
+        } else if (this.viewCameraMode === 'firstperson') {
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 177.2677
+          this.viewSettings.adjustZ = 200.2212
+
+          this.viewSettings.cameraExtraHeight = 21.792
+          this.viewSettings.defaultCloseup = 263.363
+          this.viewSettings.farest = 900
+        }
+      }
+      resetCam()
+      this.$watch('viewCameraMode', resetCam)
+      let updateO3D = (o3d) => {
+        o3d.updateMatrix()
+        o3d.updateMatrixWorld()
+        o3d.updateWorldMatrix()
+      }
       this.lookup('base').onLoop(() => {
+        if (!this.charReady) { return }
         var time = performance.now()
         var delta = (time - prevTime) / 1000
         prevTime = time;
 
-        // velocity.x -= velocity.x * 10.0 * delta;
-        // velocity.z -= velocity.z * 10.0 * delta;
-        // velocity.y = 0
-        // velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-
-        if (turnLeft) {
-          this.controlTarget.rotation.y += delta * 1.75
-        }
-        if (turnRight) {
-          this.controlTarget.rotation.y -= delta * 1.75
-        }
-        if (moveForward) {
-          this.controlTarget.translateZ(-delta * 700)
-        }
-        if (moveBackward) {
-          this.controlTarget.translateZ(delta * 700)
-        }
-        if (moveLeft) {
-          this.controlTarget.translateX(-delta * 700)
-        }
-        if (moveRight) {
-          this.controlTarget.translateX(delta * 700)
+        // update control target
+        if (!this.isTakingComplexAction) {
+          if (turnLeft) {
+            this.controlTarget.rotation.y += delta * 1.75
+          }
+          if (turnRight) {
+            this.controlTarget.rotation.y -= delta * 1.75
+          }
+          if (moveForward) {
+            this.controlTarget.translateZ(-delta * 700)
+          }
+          if (moveBackward) {
+            this.controlTarget.translateZ(delta * 700)
+          }
+          if (moveLeft) {
+            this.controlTarget.translateX(-delta * 700)
+          }
+          if (moveRight) {
+            this.controlTarget.translateX(delta * 700)
+          }
         }
 
-        // direction.z = Number(moveForward) - Number(moveBackward)
-        // direction.x = Number(moveRight) - Number(moveLeft)
-        // direction.normalize(); // this ensures consistent movements in all directions
-        // if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-        // if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
-        // this.controlTarget.position.x += -velocity.x * delta * speedScale
-        // this.controlTarget.position.z -= -velocity.z * delta * speedScale
-        // this.controlTarget.position.y += ( velocity.y * delta);
+        updateO3D(this.controlTarget)
+        // this.controlTarget.updateMatrix()
+        // this.controlTarget.updateMatrixWorld()
+        // this.controlTarget.updateWorldMatrix()
 
-        camPlacer.position.y = 80
-        camPlacer.position.z = 130 + vscroll.value * (150 + 200)
-
-        this.controlTarget.updateMatrix()
-        this.controlTarget.updateMatrixWorld()
-        this.controlTarget.updateWorldMatrix()
-
-        camPlacerVec3.setFromMatrixPosition(camPlacer.matrixWorld)
+        // sync control target to character
         charPlacerVec3.setFromMatrixPosition(charPlacer.matrixWorld)
-
         this.charmover.rotation.x = this.controlTarget.rotation.x
         this.charmover.rotation.y = this.controlTarget.rotation.y
         this.charmover.rotation.z = this.controlTarget.rotation.z
@@ -546,19 +696,151 @@ export default {
         this.charmover.position.x = charPlacerVec3.x
         this.charmover.position.y = charPlacerVec3.y
         this.charmover.position.z = charPlacerVec3.z
-        // this.charmover.rotation.y = Math.PI
 
-        this.camera.position.x = camPlacerVec3.x
-        this.camera.position.y = camPlacerVec3.y
-        this.camera.position.z = camPlacerVec3.z
-
-        if (this.guyFace && this.charReady) {
-          lookAtVec3.setFromMatrixPosition(this.guy.matrixWorld)
-          this.camera.lookAt(lookAtVec3)
+        // can calculate camera
+        let config = this.viewSettings
+        for (let kn in config) {
+          if (typeof config[kn] === 'string') {
+            let orig = config[kn]
+            let newVal = Number(config[kn])
+            if (isNaN(newVal)) {
+            } else {
+              config[kn] = newVal
+            }
+          }
+        }
+        if (this.guy) {
+          this.guy.getWorldPosition(centerPosition)
+        }
+        if (this.viewCameraMode === 'face') {
+          this.guyFace.position.x = config.adjustX
+          this.guyFace.position.y = config.adjustY
+          this.guyFace.position.z = config.adjustZ
         }
 
-        // if (!parentScrollBox) { return }
+        if (this.viewCameraMode === 'back') {
+          this.guyBack.position.x = config.adjustX
+          this.guyBack.position.y = config.adjustY
+          this.guyBack.position.z = config.adjustZ
+        }
 
+        if (this.viewCameraMode === 'chase') {
+
+          centerPosition.x += config.adjustX
+          centerPosition.y += config.adjustY
+          centerPosition.z += config.adjustZ
+        }
+
+        if (this.viewCameraMode === 'close') {
+          centerPosition.x += config.adjustX
+          centerPosition.y += config.adjustY
+          centerPosition.z += config.adjustZ
+        }
+
+        if (this.viewCameraMode === 'firstperson') {
+          camPlacer.position.x = config.adjustX
+          camPlacer.position.y = config.adjustY
+          camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+        }
+
+        if (this.guyHead && this.guy && this.guyFace && this.guyBack) {
+          updateO3D(this.guyHead)
+          updateO3D(this.guy)
+          updateO3D(this.guyFace)
+          updateO3D(this.guyBack)
+          updateO3D(camPlacer)
+
+          headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
+          guyBodyPos.setFromMatrixPosition(this.guy.matrixWorld)
+          guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
+          guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
+
+          camPlacerVec3.setFromMatrixPosition(camPlacer.matrixWorld)
+          lookAtVec3.setFromMatrixPosition(this.guy.matrixWorld)
+        }
+
+        let progress = vscroll.value
+        let scrollZoom = config.farest * progress * 1
+        let extraZoom = config.defaultCloseup + scrollZoom
+
+        if (this.viewCameraMode === 'face') {
+          // make use of position
+          targetCamPos.x = guyEyePos.x
+          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
+          targetCamPos.z = guyEyePos.z + extraZoom
+
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'back') {
+          // make use of position
+          targetCamPos.x = guyBackPos.x
+          targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
+          targetCamPos.z = guyBackPos.z - extraZoom
+
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'chase') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z - extraZoom
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'close') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z - extraZoom
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'firstperson') {
+          // make use of position
+          targetCamPos.x = camPlacerVec3.x
+          targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
+          targetCamPos.z = camPlacerVec3.z
+
+          targetLookAt.x = lookAtVec3.x
+          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
+          targetLookAt.z = lookAtVec3.z
+        }
+
+        if (this.viewCameraMode === 'face') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'back') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'chase') {
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
+        } else if (this.viewCameraMode === 'close') {
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
+        } else if (this.viewCameraMode === 'firstperson') {
+          lerperLookAt.lerp(targetLookAt, 1)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        }
+
+        this.camera.lookAt(targetLookAt)
+        this.camera.position.copy(targetCamPos)
+
+        // if (['face', 'back', 'chase', 'close'].includes(this.viewCameraMode)) {
+        //   this.camera.lookAt(lerperLookAt)
+        //   this.camera.position.copy(lerperCamPos)
+        // }
+        // if (this.viewCameraMode === 'firstperson') {
+        //   // lookAtLerpVec3.lerp(lookAtVec3, 0.2)
+        // }
+        // if (!parentScrollBox) { return }
+      })
+
+      this.lookup('base').onLoop(() => {
         this.layouts = {
           walk: {
             sx: 2.5,
@@ -678,89 +960,86 @@ export default {
       //     await this.doOnce({ idle, to: warmUp, mixer })
       //   }
       // })
-      let moveForward = false
-      let moveLeft = false
-      let moveRight = false
-      let moveBackward = false
+      let moveForward, moveLeft, moveRight, moveBackward = false
+      let isRunning = () => {
+        return moveForward || moveLeft || moveRight || moveBackward
+      }
       var onKeyDown = async (event) => {
-        this.isAnyKeyDown = true
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
-            moveForward = true;
+            this.isTakingComplexAction = false
             await this.doStart({ idle, to: running, mixer })
             break;
 
           case 37: // left
           case 65: // a
+            this.isTakingComplexAction = false
             await this.doStart({ idle, to: leftStrafe, mixer })
-            moveLeft = true;
             break;
 
           case 40: // down
           case 83: // s
+            this.isTakingComplexAction = false
             await this.doStart({ idle, to: runningBack, mixer })
-            moveBackward = true;
             break;
 
           case 39: // right
           case 68: // d
+            this.isTakingComplexAction = false
             await this.doStart({ idle, to: rightStrafe, mixer })
-            moveRight = true;
             break;
 
           case 32: // space
+            this.isTakingComplexAction = false
             await this.doOnce({ idle, to: jump, mixer })
             break;
 
           case 82: // r
-            await this.doOnce({ idle, to: skillAction1, mixer })
+            this.isTakingComplexAction = true
+            await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log)
+            this.isTakingComplexAction = false
+
             break;
 
           case 81: // q
-            await this.doStart({ idle, to: turnLeft, mixer })
+            await this.doStart({ idle, to: turnLeft, mixer, stopAll: false })
             break;
           case 69: // e
-            await this.doStart({ idle, to: turnRight, mixer })
+            await this.doStart({ idle, to: turnRight, mixer, stopAll: false })
             break;
         }
 
       };
 
       var onKeyUp = async (event) => {
-        this.isAnyKeyDown = false
         switch ( event.keyCode ) {
           case 38: // up
           case 87: // w
-            await this.doEnd({ idle, to: running, mixer })
-            moveForward = false;
+            await this.doEnd({ restore: idle, to: running, mixer })
             break;
 
           case 37: // left
           case 65: // a
-            await this.doEnd({ idle, to: leftStrafe, mixer })
-            moveLeft = false;
+            await this.doEnd({ restore: idle, to: leftStrafe, mixer })
             break;
 
           case 40: // down
           case 83: // s
-            await this.doEnd({ idle, to: runningBack, mixer })
-            moveBackward = false;
+            await this.doEnd({ restore: idle, to: runningBack, mixer })
             break;
 
           case 39: // right
           case 68: // d
-            await this.doEnd({ idle, to: rightStrafe, mixer })
-            moveRight = false;
+            await this.doEnd({ restore: idle, to: rightStrafe, mixer })
             break;
 
           case 81: // q
-            await this.doEnd({ idle, to: turnLeft, mixer })
+            await this.doEnd({ restore: idle, to: turnLeft, mixer })
             break;
 
-
           case 69: // e
-            await this.doEnd({ idle, to: turnRight, mixer })
+            await this.doEnd({ restore: idle, to: turnRight, mixer })
             break;
         }
       };
@@ -813,6 +1092,52 @@ export default {
     //   controls.update()
     // })
     await this.setupCameraSystem()
+
+    /* BLOOM START */
+    let { Vector2 } = require('three/src/math/Vector2')
+    let { EffectComposer } = require('three/examples/jsm/postprocessing/EffectComposer')
+    let { RenderPass } = require('three/examples/jsm/postprocessing/RenderPass')
+    let { UnrealBloomPass } = require('three/examples/jsm/postprocessing/UnrealBloomPass')
+    var Params = {
+      exposure: 1,
+      bloomStrength: 1.75,
+      bloomThreshold: 0.95534,
+      bloomRadius: 1.3
+    }
+    let renderer = this.lookup('renderer')
+    let element = this.lookup('element')
+    let rect = element.getBoundingClientRect()
+    var renderScene = new RenderPass(this.scene, this.camera)
+    let dpi = 1
+    var bloomPass = new UnrealBloomPass(new Vector2(rect.width * dpi, rect.height * dpi), 1.5, 0.4, 0.85)
+    this.Bloom = bloomPass
+    bloomPass.threshold = Params.bloomThreshold
+    bloomPass.strength = Params.bloomStrength
+    bloomPass.radius = Params.bloomRadius
+
+    this.composer = new EffectComposer(renderer)
+    this.composer.addPass(renderScene)
+    this.composer.addPass(bloomPass)
+    this.lookup('base').onResize(() => {
+      let rect = element.getBoundingClientRect()
+      let dpi = 1
+      bloomPass.setSize(rect.width * dpi, rect.height * dpi)
+      this.composer.setSize(rect.width * dpi, rect.height * dpi)
+    })
+
+    // this.$parent.$emit('composer', this.composer)
+    this.$on('syncBloom', () => {
+      if (this.useBloom) {
+        this.$parent.$emit('composer', this.composer)
+      } else {
+        this.$parent.$emit('composer', false)
+      }
+    })
+    this.$watch('useBloom', () => {
+      this.$emit('syncBloom')
+    })
+    this.$emit('syncBloom')
+    /* BLOOM END */
   }
 }
 </script>
