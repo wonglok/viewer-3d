@@ -36,14 +36,34 @@
         <span>Loading... {{ (loadProgress * 100).toFixed(1) }}%</span>
       </div>
     </div>
+
     <div class="absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
-      <div class="block px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
-        Go forward
+      <div class="block select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
+        Forward
       </div>
-      <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
-        Go backward
+      <div class="block select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
+        Backward
       </div>
     </div>
+
+    <div class="absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
+      <div class="block select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
+        Turn Left
+      </div>
+      <div class="block select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
+        Turn Right
+      </div>
+    </div>
+
+    <div class="absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
+      <div class="block select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
+        Go Left
+      </div>
+      <div class="block select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
+        Go Right
+      </div>
+    </div>
+
     <div class="absolute z-10 bottom-0 right-0 p-3 pb-12" v-if="charReady">
     </div>
 
@@ -57,6 +77,8 @@
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
+
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" v-if="isMobile" @click="setupGyroCam">Enable Gryo</div>
 
       <div v-if="isDev">
         <div>
@@ -155,6 +177,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      isMobile: window.innerWidth < 500,
       Bloom: false,
       isDev: process.env.NODE_ENV === 'development',
       controls: false,
@@ -173,6 +196,8 @@ export default {
 
       activeLog: [],
       isTakingComplexAction: false,
+
+      useGyro: false,
 
       // guy
       guy: false,
@@ -520,6 +545,52 @@ export default {
       })
       this.$on('go-backward', (v) => {
         moveBackward = v
+      })
+      this.$on('turn-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 81 })
+        } else {
+          onKeyUp({ keyCode: 81 })
+        }
+      })
+      this.$on('turn-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 69 })
+        } else {
+          onKeyUp({ keyCode: 69 })
+        }
+      })
+
+      this.$on('turn-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 81 })
+        } else {
+          onKeyUp({ keyCode: 81 })
+        }
+      })
+
+      this.$on('turn-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 69 })
+        } else {
+          onKeyUp({ keyCode: 69 })
+        }
+      })
+
+      this.$on('go-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 65 })
+        } else {
+          onKeyUp({ keyCode: 65 })
+        }
+      })
+
+      this.$on('go-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 68 })
+        } else {
+          onKeyUp({ keyCode: 68 })
+        }
       })
 
       document.addEventListener( 'keydown', onKeyDown, false );
@@ -1118,11 +1189,43 @@ export default {
         }
       })
 
+      this.$on('turn-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 81 })
+        } else {
+          onKeyUp({ keyCode: 81 })
+        }
+      })
+
+      this.$on('turn-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 69 })
+        } else {
+          onKeyUp({ keyCode: 69 })
+        }
+      })
+
+      this.$on('go-left', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 65 })
+        } else {
+          onKeyUp({ keyCode: 65 })
+        }
+      })
+
+      this.$on('go-right', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 68 })
+        } else {
+          onKeyUp({ keyCode: 68 })
+        }
+      })
+
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
     },
     setupGyroCam () {
-      if (window.innerWidth < 500) {
+      if (this.isMobile) {
         let proxyCam = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
@@ -1133,6 +1236,7 @@ export default {
           controls.update()
           // console.log(proxyCam.position.x, proxyCam.rotation.y)
           if (typeof proxyCam.rotation.y !== 'undefined') {
+            this.useGyro = true
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
         })
