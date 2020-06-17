@@ -28,16 +28,16 @@
       </O3D>
     </O3D>
 
-    <div class="absolute top-0 left-0 w-full h-full" ref="domlayer">
+    <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
-    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
+    <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
         <span>Loading... {{ (loadProgress * 100).toFixed(1) }}%</span>
       </div>
     </div>
 
-    <div class="absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
+    <div class="select-none absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
       <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
         Forward
       </div>
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
+    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
       <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
         Turn Left
       </div>
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <div class="absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
+    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
       <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
         Go Left
       </div>
@@ -65,21 +65,23 @@
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
-      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <!-- <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
 
-      <div class="text-white block px-2 mx-1 my-1 mb-4 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Person Camera</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
+      <div class="h-5"></div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
 
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'back', 'border-green-200': viewCameraMode === 'back' }" @click="viewCameraMode = 'back'">Back Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Camera</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="isMobile" @click="setupGyroCam">Enable Gryo</div>
 
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" v-if="isMobile" @click="setupGyroCam">Enable Gryo</div>
+      <div v-if="isDev" class="mt-5">
+        <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center cursor-pointer" :class="{ 'text-yellow-200': true, 'border-yellow-200': true }" @click="copyText">copyText</div>
 
-      <div v-if="isDev">
         <div>
-          <div class="text-white">
+          <div class="select-none text-white">
             adjustX
           </div>
           <div>
@@ -88,7 +90,7 @@
           </div>
         </div>
         <div>
-          <div class="text-white">
+          <div class="select-none text-white">
             adjustY
           </div>
           <div>
@@ -97,7 +99,7 @@
           </div>
         </div>
         <div>
-          <div class="text-white">
+          <div class="select-none text-white">
             adjustZ
           </div>
           <div>
@@ -106,7 +108,7 @@
           </div>
         </div>
         <div>
-          <div class="text-white">
+          <div class="select-none text-white">
             cameraExtraHeight
           </div>
           <div>
@@ -116,7 +118,7 @@
         </div>
 
         <div>
-          <div class="text-white">
+          <div class="select-none text-white">
             defaultCloseup
           </div>
           <div>
@@ -126,7 +128,7 @@
         </div>
 
         <div v-if="Bloom">
-          <div class="text-white">
+          <div class="select-none text-white">
             Bloom.threshold
           </div>
           <div>
@@ -160,7 +162,10 @@ import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID } from '../Reusabl
 import { Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import copy2clip from 'copy-to-clipboard'
+
 const TWEEN = require('@tweenjs/tween.js').default
+
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
@@ -431,6 +436,17 @@ export default {
       action.setEffectiveTimeScale(1)
       action.setEffectiveWeight(weight)
     },
+    copyText () {
+      copy2clip(`
+        this.viewSettings.adjustX = ${this.viewSettings.adjustX.toFixed(5)}
+        this.viewSettings.adjustY = ${this.viewSettings.adjustY.toFixed(5)}
+        this.viewSettings.adjustZ = ${this.viewSettings.adjustZ.toFixed(5)}
+
+        this.viewSettings.cameraExtraHeight = ${this.viewSettings.cameraExtraHeight.toFixed(5)}
+        this.viewSettings.farest = ${this.viewSettings.farest.toFixed(5)}
+        this.viewSettings.defaultCloseup = ${this.viewSettings.defaultCloseup.toFixed(5)}
+      `)
+    },
     async setupCameraSystem () {
       var moveForward = false
 			var moveBackward = false
@@ -613,23 +629,7 @@ export default {
 
       let resetCam = () => {
         vscroll.value = 0
-        if (this.viewCameraMode === 'face') {
-          this.viewSettings.adjustX = 0
-          this.viewSettings.adjustY = 0
-          this.viewSettings.adjustZ = 70
-
-          this.viewSettings.cameraExtraHeight = 0
-          this.viewSettings.farest = 900,
-          this.viewSettings.defaultCloseup = 0
-        } else if (this.viewCameraMode === 'back') {
-          this.viewSettings.adjustX = 0
-          this.viewSettings.adjustY = 17.6991
-          this.viewSettings.adjustZ = -10.3706
-
-          this.viewSettings.cameraExtraHeight = 42.754
-          this.viewSettings.farest = 900
-          this.viewSettings.defaultCloseup = 121.77
-        } else if (this.viewCameraMode === 'chase') {
+        if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = 0
@@ -653,8 +653,25 @@ export default {
           this.viewSettings.cameraExtraHeight = 21.792
           this.viewSettings.defaultCloseup = 263.363
           this.viewSettings.farest = 900
+        } else if (this.viewCameraMode === 'firstback') {
+          this.viewSettings.adjustX = 0.00000
+          this.viewSettings.adjustY = 70.51990
+          this.viewSettings.adjustZ = 0.00000
+
+          this.viewSettings.cameraExtraHeight = 0.00000
+          this.viewSettings.farest = 900.00000
+          this.viewSettings.defaultCloseup = 122.90300
+        } else if (this.viewCameraMode === 'firstface') {
+          this.viewSettings.adjustX = 0.00000
+          this.viewSettings.adjustY = 70.51990
+          this.viewSettings.adjustZ = 0.00000
+
+          this.viewSettings.cameraExtraHeight = 0.00000
+          this.viewSettings.farest = 900.00000
+          this.viewSettings.defaultCloseup = -153.77
         }
       }
+
       resetCam()
       this.$watch('viewCameraMode', resetCam)
       let updateO3D = (o3d) => {
@@ -720,17 +737,6 @@ export default {
         if (this.guy) {
           this.guy.getWorldPosition(centerPosition)
         }
-        if (this.viewCameraMode === 'face') {
-          this.guyFace.position.x = config.adjustX
-          this.guyFace.position.y = config.adjustY
-          this.guyFace.position.z = config.adjustZ
-        }
-
-        if (this.viewCameraMode === 'back') {
-          this.guyBack.position.x = config.adjustX
-          this.guyBack.position.y = config.adjustY
-          this.guyBack.position.z = config.adjustZ
-        }
 
         if (this.viewCameraMode === 'chase') {
           centerPosition.x += config.adjustX
@@ -749,12 +755,17 @@ export default {
           camPlacer.position.y = config.adjustY
           camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
         }
-
-        if (this.viewCameraMode === 'back') {
+        if (this.viewCameraMode === 'firstback') {
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
           camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
         }
+        if (this.viewCameraMode === 'firstface') {
+          camPlacer.position.x = config.adjustX
+          camPlacer.position.y = config.adjustY
+          camPlacer.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+        }
+
 
         if (this.guyHead && this.guy && this.guyFace && this.guyBack) {
           updateO3D(this.guyHead)
@@ -776,34 +787,7 @@ export default {
         let scrollZoom = config.farest * progress * 1
         let extraZoom = config.defaultCloseup + scrollZoom
 
-        if (this.viewCameraMode === 'face') {
-          // make use of position
-          targetCamPos.x = guyEyePos.x
-          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
-          targetCamPos.z = guyEyePos.z + extraZoom
-
-          targetLookAt.x = headPosition.x
-          targetLookAt.y = headPosition.y - config.cameraExtraHeight
-          targetLookAt.z = headPosition.z
-        } else if (this.viewCameraMode === 'back') {
-          // // make use of position
-          // targetCamPos.x = guyBackPos.x
-          // targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
-          // targetCamPos.z = guyBackPos.z + extraZoom
-
-          // targetLookAt.x = headPosition.x
-          // targetLookAt.y = headPosition.y - config.cameraExtraHeight
-          // targetLookAt.z = headPosition.z
-
-          // make use of position
-          targetCamPos.x = camPlacerVec3.x
-          targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
-          targetCamPos.z = camPlacerVec3.z
-
-          targetLookAt.x = lookAtVec3.x
-          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
-          targetLookAt.z = lookAtVec3.z
-        } else if (this.viewCameraMode === 'chase') {
+        if (this.viewCameraMode === 'chase') {
           // make use of position
           targetCamPos.x = centerPosition.x
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
@@ -830,15 +814,27 @@ export default {
           targetLookAt.x = lookAtVec3.x
           targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
           targetLookAt.z = lookAtVec3.z
+        } else if (this.viewCameraMode === 'firstback') {
+          // make use of position
+          targetCamPos.x = camPlacerVec3.x
+          targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
+          targetCamPos.z = camPlacerVec3.z
+
+          targetLookAt.x = lookAtVec3.x
+          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
+          targetLookAt.z = lookAtVec3.z
+        } else if (this.viewCameraMode === 'firstface') {
+          // make use of position
+          targetCamPos.x = camPlacerVec3.x
+          targetCamPos.y = camPlacerVec3.y + config.cameraExtraHeight
+          targetCamPos.z = camPlacerVec3.z
+
+          targetLookAt.x = lookAtVec3.x
+          targetLookAt.y = lookAtVec3.y - config.cameraExtraHeight
+          targetLookAt.z = lookAtVec3.z
         }
 
-        if (this.viewCameraMode === 'face') {
-          lerperLookAt.lerp(targetLookAt, 0.2)
-          lerperCamPos.lerp(targetCamPos, 0.2)
-        } else if (this.viewCameraMode === 'back') {
-          lerperLookAt.lerp(targetLookAt, 0.2)
-          lerperCamPos.lerp(targetCamPos, 0.2)
-        } else if (this.viewCameraMode === 'chase') {
+        if (this.viewCameraMode === 'chase') {
           lerperLookAt.lerp(targetLookAt, 0.05)
           lerperCamPos.lerp(targetCamPos, 0.05)
         } else if (this.viewCameraMode === 'close') {
@@ -847,19 +843,16 @@ export default {
         } else if (this.viewCameraMode === 'firstperson') {
           lerperLookAt.lerp(targetLookAt, 1)
           lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'firstback') {
+          lerperLookAt.lerp(targetLookAt, 1)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'firstface') {
+          lerperLookAt.lerp(targetLookAt, 1)
+          lerperCamPos.lerp(targetCamPos, 0.2)
         }
 
         this.camera.lookAt(targetLookAt)
         this.camera.position.copy(targetCamPos)
-
-        // if (['face', 'back', 'chase', 'close'].includes(this.viewCameraMode)) {
-        //   this.camera.lookAt(lerperLookAt)
-        //   this.camera.position.copy(lerperCamPos)
-        // }
-        // if (this.viewCameraMode === 'firstperson') {
-        //   // lookAtLerpVec3.lerp(lookAtVec3, 0.2)
-        // }
-        // if (!parentScrollBox) { return }
       })
 
       this.lookup('base').onLoop(() => {
@@ -1055,7 +1048,8 @@ export default {
       await preload()
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
-      // let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
+      // let tauntTimerHand = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
+
       // let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
       let skillAction1 = await this.getActionByDisplayName({ name: 'Warming Up', mixer })

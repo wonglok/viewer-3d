@@ -28,16 +28,16 @@
       </O3D>
     </O3D>
 
-    <div class="absolute top-0 left-0 w-full h-full" ref="domlayer">
+    <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
-    <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
+    <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
         <span>Loading... {{ (loadProgress * 100).toFixed(1) }}%</span>
       </div>
     </div>
 
-    <div class="absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
+    <div class="select-none absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
       <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
         Forward
       </div>
@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <div class="absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
+    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
       <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
         Turn Left
       </div>
@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <div class="absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
+    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
       <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
         Go Left
       </div>
@@ -65,23 +65,25 @@
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': useBloom === true, 'border-green-200': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
-      <!-- <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showTool, 'border-green-200': showTool }" @click="showTool = !showTool">Actions</div> -->
 
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
-      <div class="h-5"></div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
 
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="isMobile" @click="setupGyroCam">Enable Gryo</div>
+      <div class="h-3"></div>
 
-      <div v-if="isDev" class="mt-5">
-        <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center cursor-pointer" :class="{ 'text-yellow-200': true, 'border-yellow-200': true }" @click="copyText">copyText</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">Try AR/XR Mode</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+
+      <div class="h-3"></div>
+
+      <div v-if="isDev" class="">
+        <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center cursor-pointer" :class="{ 'text-yellow-200': true, 'border-yellow-200': true }" @click="copyText">copyText</div>
 
         <div>
-          <div class="text-white">
+          <div class="select-none text-xs text-white">
             adjustX
           </div>
           <div>
@@ -90,7 +92,7 @@
           </div>
         </div>
         <div>
-          <div class="text-white">
+          <div class="select-none text-xs text-white">
             adjustY
           </div>
           <div>
@@ -99,7 +101,7 @@
           </div>
         </div>
         <div>
-          <div class="text-white">
+          <div class="select-none text-xs text-white">
             adjustZ
           </div>
           <div>
@@ -108,7 +110,7 @@
           </div>
         </div>
         <div>
-          <div class="text-white">
+          <div class="select-none text-xs text-white">
             cameraExtraHeight
           </div>
           <div>
@@ -118,7 +120,7 @@
         </div>
 
         <div>
-          <div class="text-white">
+          <div class="select-none text-xs text-white">
             defaultCloseup
           </div>
           <div>
@@ -128,7 +130,7 @@
         </div>
 
         <div v-if="Bloom">
-          <div class="text-white">
+          <div class="select-none text-xs text-white">
             Bloom.threshold
           </div>
           <div>
@@ -1048,7 +1050,8 @@ export default {
       await preload()
 
       let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
-      // let taunt = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
+      // let tauntTimerHand = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
+
       // let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
       let skillAction1 = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
