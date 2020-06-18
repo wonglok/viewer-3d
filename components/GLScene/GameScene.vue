@@ -91,6 +91,7 @@
         <span v-if="useGyro">Using AR/XR Mode</span>
       </div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showActionBox, 'border-green-200': showActionBox }" @click="showActionBox = !showActionBox">Show Actions</div>
 
       <div class="h-3"></div>
 
