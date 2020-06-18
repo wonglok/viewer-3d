@@ -93,7 +93,7 @@
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
       </div>
@@ -257,6 +257,19 @@ export default {
       // blur: 0,
       // socket: false,
       // entered: false
+    }
+  },
+  watch: {
+    actionListFilter () {
+      if (this.actionListFilter === 'dance') {
+        this.viewCameraMode = 'close'
+      } else if (this.actionListFilter === 'combat') {
+        this.viewCameraMode = 'behind'
+      } else if (this.actionListFilter === 'ready') {
+        this.viewCameraMode = 'firstperson'
+      } else if (this.actionListFilter === 'control') {
+        this.viewCameraMode = 'firstperson'
+      }
     }
   },
   methods: {
@@ -1233,13 +1246,6 @@ export default {
 
       this.$on('play-move', async ({ move, cb = () => {} }) => {
         try {
-          this.isTakingComplexAction = true
-          let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
-          await this.doMany({ idle, to: action, mixer, stopAll: true }).catch(() => {
-            this.isTakingComplexAction = false
-          })
-          this.isTakingComplexAction = false
-
           this.$nextTick(() => {
             let list = this.$refs[`item-${move._id}`]
             if (list) {
@@ -1250,6 +1256,13 @@ export default {
               }
             }
           })
+
+          this.isTakingComplexAction = true
+          let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
+          await this.doMany({ idle, to: action, mixer, stopAll: true }).catch(() => {
+            this.isTakingComplexAction = false
+          })
+          this.isTakingComplexAction = false
         } catch (e) {
           console.log(e)
         }
@@ -1422,17 +1435,20 @@ export default {
         controls.dampping = true
 
         this.lookup('base').onLoop(() => {
+          if (!this.useGyro) {
+            return
+          }
           controls.enabled = true
           controls.update()
           // console.log(proxyCam.position.x, proxyCam.rotation.y)
           if (typeof proxyCam.rotation.y !== 'undefined') {
-            this.useGyro = true
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
         })
       } catch (e) {
         console.log(e)
       }
+      this.useGyro = !this.useGyro
     }
   },
   beforeDestroy () {
