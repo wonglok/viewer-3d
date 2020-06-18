@@ -197,7 +197,7 @@ export default {
   data () {
     return {
       initConfig: {
-        scale: 0.5,
+        scale: 0.1,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
         controlTargetPos: new Vector3(0, 0, 0),
         initAction: 'Warming Up'
@@ -475,13 +475,13 @@ export default {
     },
     copyText () {
       copy2clip(`
-          this.viewSettings.adjustX = ${this.viewSettings.adjustX.toFixed(5)}
-          this.viewSettings.adjustY = ${this.viewSettings.adjustY.toFixed(5)}
-          this.viewSettings.adjustZ = ${this.viewSettings.adjustZ.toFixed(5)}
+          this.viewSettings.adjustX = ${1 / this.initConfig.scale * this.viewSettings.adjustX}
+          this.viewSettings.adjustY = ${1 / this.initConfig.scale * this.viewSettings.adjustY}
+          this.viewSettings.adjustZ = ${1 / this.initConfig.scale * this.viewSettings.adjustZ}
 
-          this.viewSettings.cameraExtraHeight = ${this.viewSettings.cameraExtraHeight.toFixed(5)}
-          this.viewSettings.farest = ${this.viewSettings.farest.toFixed(5)}
-          this.viewSettings.defaultCloseup = ${this.viewSettings.defaultCloseup.toFixed(5)}
+          this.viewSettings.cameraExtraHeight = ${1 / this.initConfig.scale * this.viewSettings.cameraExtraHeight}
+          this.viewSettings.farest = ${1 / this.initConfig.scale * this.viewSettings.farest}
+          this.viewSettings.defaultCloseup = ${1 / this.initConfig.scale * this.viewSettings.defaultCloseup}
       `)
     },
     async setupCameraSystem () {
@@ -664,31 +664,31 @@ export default {
 
         if (this.viewCameraMode === 'behind') {
 
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 0
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 900
+          this.viewSettings.defaultCloseup = -1189.38
+
+        } else if (this.viewCameraMode === 'face') {
+
           // this.viewSettings.adjustX = 0.00000
-          // this.viewSettings.adjustY = 33.04760
+          // this.viewSettings.adjustY = 0.00000
           // this.viewSettings.adjustZ = 0.00000
 
           // this.viewSettings.cameraExtraHeight = 0.00000
           // this.viewSettings.farest = 900.00000
-          // this.viewSettings.defaultCloseup = -134.79600
+          // this.viewSettings.defaultCloseup = 72.77900
 
-          this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 1.79760
-          this.viewSettings.adjustZ = -50.19360
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 0
 
-          this.viewSettings.cameraExtraHeight = -36.89200
-          this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = -16.99100
-
-        } else if (this.viewCameraMode === 'face') {
-
-          this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 0.00000
-          this.viewSettings.adjustZ = 0.00000
-
-          this.viewSettings.cameraExtraHeight = 0.00000
-          this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = 72.77900
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 900
+          this.viewSettings.defaultCloseup = 631.5
 
         } else if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
