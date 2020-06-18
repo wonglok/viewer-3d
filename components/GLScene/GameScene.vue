@@ -31,8 +31,8 @@
     <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
-    <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-white w-56 overflow-y-auto moves-box">
-      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
+    <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-sm text-white w-56 overflow-y-auto moves-box">
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
     </div>
 
     <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
@@ -823,6 +823,12 @@ export default {
             this.guyFace.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
           }
 
+          if (this.viewCameraMode === 'behind') {
+            this.guyBack.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            this.guyBack.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
+
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
           camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
@@ -848,13 +854,13 @@ export default {
 
         if (this.viewCameraMode === 'behind') {
           // make use of position
-          targetCamPos.x = guyEyePos.x
-          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
-          targetCamPos.z = guyEyePos.z
+          targetCamPos.x = guyBackPos.x
+          targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
+          targetCamPos.z = guyBackPos.z
 
-          targetLookAt.x = guyBackPos.x
-          targetLookAt.y = guyBackPos.y - config.cameraExtraHeight
-          targetLookAt.z = guyBackPos.z
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
         } else if (this.viewCameraMode === 'face') {
           // make use of position
           targetCamPos.x = guyEyePos.x
@@ -1196,13 +1202,17 @@ export default {
       idle.play()
 
       this.$on('play-move', async ({ move, cb = () => {} }) => {
-        this.isTakingComplexAction = true
-        let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
-        await this.doMany({ idle, to: action, mixer, stopAll: true }).catch(() => {
+        try {
+          this.isTakingComplexAction = true
+          let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
+          await this.doMany({ idle, to: action, mixer, stopAll: true }).catch(() => {
+            this.isTakingComplexAction = false
+          })
           this.isTakingComplexAction = false
-        })
-        this.isTakingComplexAction = false
-        cb()
+          cb()
+        } catch (e) {
+          console.log(e)
+        }
       })
 
       // this.viewCameraMode = 'face'
