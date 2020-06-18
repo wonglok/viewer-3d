@@ -32,6 +32,7 @@
     </div>
 
     <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-sm text-white w-56 overflow-y-auto moves-box">
+      <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a>
       <div class="p-1">
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
@@ -40,7 +41,6 @@
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
       </div>
-      <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a>
       <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves.filter(actionFilter)" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
     </div>
 
