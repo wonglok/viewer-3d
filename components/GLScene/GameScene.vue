@@ -32,7 +32,14 @@
     </div>
 
     <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-sm text-white w-56 overflow-y-auto moves-box">
-      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
+      <div class="p-1">
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'dance'" :style="{ backgroundColor: actionListFilter === 'dance' ? 'green' : '' }">Dance</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
+      </div>
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves.filter(actionFilter)" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
     </div>
 
     <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
@@ -203,6 +210,7 @@ export default {
         controlTargetPos: new Vector3(0, 0, 0),
         initAction: 'Warming Up'
       },
+      actionListFilter: 'all',
       showActionBox: true,
       lastClickedMove: false,
       hasGyro: true,
@@ -260,6 +268,19 @@ export default {
     //     }
     //   })
     // },
+    actionFilter (item) {
+      if (this.actionListFilter === 'all') {
+        return true
+      } else if (this.actionListFilter) {
+        if (this.actionListFilter === item.type) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return true
+      }
+    },
     click () {
       console.log('123')
     },
@@ -353,7 +374,7 @@ export default {
 
       let movesOrig = []
 
-      let addToArr = async ({ mapper, type, preload }) => {
+      let addToList = async ({ mapper, type, preload }) => {
         let arr = []
         for (let kn in mapper) {
           arr.push({
@@ -387,38 +408,26 @@ export default {
         return arr
       }
 
-      // addToArr(idleMapper)
-      // await addToArr(controlMapper, true)
-      // addToArr(kickMapper)
-      // addToArr(boxingMapper)
-      // addToArr(superheroMapper)
-      // addToArr(boxinghitMapper)
-      // addToArr(locomotionMapper)
-      // addToArr(gestureMapper)
-      // addToArr(thrillerMapper)
-      // addToArr(breakdancesMapper)
-      // addToArr(danceingMapper)
+      addToList({ mapper: prayerMapper, type: 'ready' })
+      addToList({ mapper: idleMapper, type: 'ready' })
+      addToList({ mapper: gestureMapper, type: 'ready' })
 
-      addToArr({ mapper: prayerMapper, type: 'prayer' })
-      addToArr({ mapper: idleMapper, type: 'ready' })
-      addToArr({ mapper: gestureMapper, type: 'ready' })
+      addToList({ mapper: thrillerMapper, type: 'dance' })
+      addToList({ mapper: breakdancesMapper, type: 'dance' })
+      addToList({ mapper: danceingMapper, type: 'dance' })
 
-      addToArr({ mapper: thrillerMapper, type: 'dance' })
-      addToArr({ mapper: breakdancesMapper, type: 'dance' })
-      addToArr({ mapper: danceingMapper, type: 'dance' })
+      addToList({ mapper: kneeMapper, type: 'combat' })
+      addToList({ mapper: kickMapper, type: 'combat' })
+      addToList({ mapper: boxingMapper, type: 'combat' })
+      addToList({ mapper: mmaMapper, type: 'combat' })
+      addToList({ mapper: superheroMapper, type: 'combat' })
+      addToList({ mapper: boxinghitMapper, type: 'combat' })
+      addToList({ mapper: hurtMapper, type: 'combat' })
 
-      addToArr({ mapper: kneeMapper, type: 'combat' })
-      addToArr({ mapper: kickMapper, type: 'combat' })
-      addToArr({ mapper: boxingMapper, type: 'combat' })
-      addToArr({ mapper: mmaMapper, type: 'combat' })
-      addToArr({ mapper: superheroMapper, type: 'combat' })
-      addToArr({ mapper: boxinghitMapper, type: 'combat' })
-      addToArr({ mapper: hurtMapper, type: 'combat' })
-      addToArr({ mapper: rifleMapper, type: 'combat' })
-
-      addToArr({ mapper: locomotionMapper, type: 'control' })
-      addToArr({ mapper: controlMapper, type: 'control' })
-      addToArr({ mapper: capoeiraMapper, type: 'dance' })
+      addToList({ mapper: locomotionMapper, type: 'control' })
+      addToList({ mapper: rifleMapper, type: 'control' })
+      addToList({ mapper: controlMapper, type: 'control' })
+      addToList({ mapper: capoeiraMapper, type: 'dance' })
 
       this.moves = movesOrig
       /* Moves End */
@@ -1230,7 +1239,17 @@ export default {
             this.isTakingComplexAction = false
           })
           this.isTakingComplexAction = false
-          cb()
+
+          this.$nextTick(() => {
+            let list = this.$refs[`item-${move._id}`]
+            if (list) {
+              let dom = list[0]
+              try {
+                dom.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' })
+              } catch (e) {
+              }
+            }
+          })
         } catch (e) {
           console.log(e)
         }
