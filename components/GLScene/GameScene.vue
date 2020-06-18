@@ -1375,7 +1375,7 @@ export default {
       document.addEventListener( 'keyup', onKeyUp, false );
     },
     setupGyroCam () {
-      if (this.isMobile) {
+      try {
         let proxyCam = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
@@ -1390,6 +1390,8 @@ export default {
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
         })
+      } catch (e) {
+        console.log(e)
       }
     }
   },
