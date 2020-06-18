@@ -31,6 +31,10 @@
     <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
+    <div v-if="charReady && showActionBox && moves" class="select-none absolute z-20 top-0 left-0 text-white w-56 overflow-y-auto moves-box">
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
+    </div>
+
     <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">
         <span>Loading... {{ (loadProgress * 100).toFixed(1) }}%</span>
@@ -185,6 +189,8 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      showActionBox: true,
+      lastClickedMove: false,
       hasGyro: true,
       isMobile: window.innerWidth < 500,
       Bloom: false,
@@ -1103,6 +1109,20 @@ export default {
 
       idle.play()
 
+      this.$on('play-move', async ({ move, cb = () => {} }) => {
+        this.isTakingComplexAction = true
+        let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
+        await this.doOnce({ idle, to: action, mixer, stopAll: true }).catch(() => {
+          this.isTakingComplexAction = false
+        })
+        this.isTakingComplexAction = false
+        cb()
+      })
+
+      let orig = this.viewCameraMode
+      this.viewCameraMode = 'chase'
+      this.$emit('play-move', { move: { displayName: 'Flip Kick (1)' }, cb: () => { this.viewCameraMode = orig } })
+
       // setTimeout(async () => {
       //   this.viewCameraMode = 'close'
       //   await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log(e))
@@ -1383,6 +1403,13 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="postcss">
+.moves-box{
+  height: 170px;
+}
+@screen lg {
+  .moves-box{
+    height: calc(100% - 180px);
+  }
+}
 </style>

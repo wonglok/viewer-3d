@@ -176,11 +176,28 @@ export default {
         }
 
         if (item && item.name === 'mixamorigHead') {
+          let guyHeadCam = new Object3D()
+          guyHeadCam.position.x = 0
+          guyHeadCam.position.y = 0
+          guyHeadCam.position.z = -100
+          item.add(guyHeadCam)
+          this.$emit('guyHeadCam', guyHeadCam)
+        }
+
+        if (item && item.name === 'mixamorigHead') {
           let guyHead = new Object3D()
           guyHead.position.y = 0
           guyHead.position.z = 0
           item.add(guyHead)
           this.$emit('guyHead', guyHead)
+        }
+
+        if (item && item.name === 'mixamorigHips') {
+          let guyHip = new Object3D()
+          guyHip.position.y = 0
+          guyHip.position.z = 0
+          item.add(guyHip)
+          this.$emit('guyHip', guyHip)
         }
       })
     },
