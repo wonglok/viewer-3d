@@ -79,7 +79,8 @@
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Facing Head</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Behind Head</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
@@ -463,13 +464,13 @@ export default {
     },
     copyText () {
       copy2clip(`
-        this.viewSettings.adjustX = ${this.viewSettings.adjustX.toFixed(5)}
-        this.viewSettings.adjustY = ${this.viewSettings.adjustY.toFixed(5)}
-        this.viewSettings.adjustZ = ${this.viewSettings.adjustZ.toFixed(5)}
+          this.viewSettings.adjustX = ${this.viewSettings.adjustX.toFixed(5)}
+          this.viewSettings.adjustY = ${this.viewSettings.adjustY.toFixed(5)}
+          this.viewSettings.adjustZ = ${this.viewSettings.adjustZ.toFixed(5)}
 
-        this.viewSettings.cameraExtraHeight = ${this.viewSettings.cameraExtraHeight.toFixed(5)}
-        this.viewSettings.farest = ${this.viewSettings.farest.toFixed(5)}
-        this.viewSettings.defaultCloseup = ${this.viewSettings.defaultCloseup.toFixed(5)}
+          this.viewSettings.cameraExtraHeight = ${this.viewSettings.cameraExtraHeight.toFixed(5)}
+          this.viewSettings.farest = ${this.viewSettings.farest.toFixed(5)}
+          this.viewSettings.defaultCloseup = ${this.viewSettings.defaultCloseup.toFixed(5)}
       `)
     },
     async setupCameraSystem () {
@@ -639,7 +640,15 @@ export default {
 
       let resetCam = () => {
         vscroll.value = 0
-        if (this.viewCameraMode === 'face') {
+        if (this.viewCameraMode === 'behind') {
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = -70
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 900
+          this.viewSettings.defaultCloseup = 0
+        } else if (this.viewCameraMode === 'face') {
           this.viewSettings.adjustX = 0
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = 70
@@ -647,9 +656,7 @@ export default {
           this.viewSettings.cameraExtraHeight = 0
           this.viewSettings.farest = 900
           this.viewSettings.defaultCloseup = 0
-        }
-
-        if (this.viewCameraMode === 'chase') {
+        } else if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = 0
@@ -772,6 +779,12 @@ export default {
           this.guyFace.position.z = config.adjustZ
         }
 
+        if (this.viewCameraMode === 'behind') {
+          this.guyFace.position.x = config.adjustX
+          this.guyFace.position.y = config.adjustY
+          this.guyFace.position.z = config.adjustZ
+        }
+
         if (this.viewCameraMode === 'chase') {
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
@@ -827,11 +840,20 @@ export default {
         let scrollZoom = config.farest * progress * 1
         let extraZoom = config.defaultCloseup + scrollZoom
 
-        if (this.viewCameraMode === 'face') {
+        if (this.viewCameraMode === 'behind') {
           // make use of position
           targetCamPos.x = guyEyePos.x
           targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
           targetCamPos.z = guyEyePos.z + extraZoom
+
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'face') {
+          // make use of position
+          targetCamPos.x = guyEyePos.x
+          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
+          targetCamPos.z = guyEyePos.z - extraZoom
 
           targetLookAt.x = headPosition.x
           targetLookAt.y = headPosition.y - config.cameraExtraHeight
@@ -892,7 +914,10 @@ export default {
           targetLookAt.z = guyEyePos.z
         }
 
-        if (this.viewCameraMode === 'eye') {
+        if (this.viewCameraMode === 'behind') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'eye') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'chase') {
@@ -1169,7 +1194,8 @@ export default {
         cb()
       })
 
-      this.$emit('play-move', { move: { displayName: 'Northern Soul Floor Combo' }, cb: () => {} })
+      this.viewCameraMode = 'face'
+      this.$emit('play-move', { move: { displayName: 'Warming Up' }, cb: () => {} })
 
       // setTimeout(async () => {
       //   this.viewCameraMode = 'close'
