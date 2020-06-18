@@ -36,6 +36,7 @@
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'dance'" :style="{ backgroundColor: actionListFilter === 'dance' ? 'green' : '' }">Dance</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'action'" :style="{ backgroundColor: actionListFilter === 'action' ? 'green' : '' }">Action</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
       </div>
@@ -204,6 +205,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      Math,
       initConfig: {
         scale: 0.1,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
@@ -214,7 +216,7 @@ export default {
       showActionBox: true,
       lastClickedMove: false,
       hasGyro: true,
-      isMobile: window.innerWidth < 500,
+      // isMobile: window.innerWidth < 500,
       Bloom: false,
       isDev: process.env.NODE_ENV === 'development',
       controls: false,
@@ -244,13 +246,11 @@ export default {
       guySkeleton: false,
 
       moves: false,
-      Math,
+
       shaderCube: false,
-      settings: {},
-      flower1: {},
-      image: false,
+
       scene: new Scene(),
-      tCube: false,
+
       layouts: false,
       useBloom: true,
 
@@ -266,8 +266,12 @@ export default {
       } else if (this.actionListFilter === 'combat') {
         this.viewCameraMode = 'behind'
       } else if (this.actionListFilter === 'ready') {
-        this.viewCameraMode = 'firstperson'
+        this.viewCameraMode = 'close'
       } else if (this.actionListFilter === 'control') {
+        this.viewCameraMode = 'chase'
+      } else if (this.actionListFilter === 'action') {
+        this.viewCameraMode = 'chase'
+      } else if (this.actionListFilter === 'all') {
         this.viewCameraMode = 'firstperson'
       }
     }
@@ -429,11 +433,12 @@ export default {
       addToList({ mapper: breakdancesMapper, type: 'dance' })
       addToList({ mapper: danceingMapper, type: 'dance' })
 
+      addToList({ mapper: superheroMapper, type: 'action' })
+
       addToList({ mapper: kneeMapper, type: 'combat' })
       addToList({ mapper: kickMapper, type: 'combat' })
       addToList({ mapper: boxingMapper, type: 'combat' })
       addToList({ mapper: mmaMapper, type: 'combat' })
-      addToList({ mapper: superheroMapper, type: 'combat' })
       addToList({ mapper: boxinghitMapper, type: 'combat' })
       addToList({ mapper: hurtMapper, type: 'combat' })
 
