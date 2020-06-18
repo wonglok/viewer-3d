@@ -669,7 +669,7 @@ export default {
           this.viewSettings.adjustZ = 0
 
           this.viewSettings.cameraExtraHeight = 0
-          this.viewSettings.farest = 900
+          this.viewSettings.farest = 2000
           this.viewSettings.defaultCloseup = -1189.38
 
         } else if (this.viewCameraMode === 'face') {
@@ -687,7 +687,7 @@ export default {
           this.viewSettings.adjustZ = 0
 
           this.viewSettings.cameraExtraHeight = 0
-          this.viewSettings.farest = 900
+          this.viewSettings.farest = 2000
           this.viewSettings.defaultCloseup = 631.5
 
         } else if (this.viewCameraMode === 'chase') {
@@ -817,7 +817,11 @@ export default {
 
           this.guyFace.position.x = config.adjustX
           this.guyFace.position.y = config.adjustY
-          this.guyFace.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          if (this.viewCameraMode === 'behind') {
+            this.guyFace.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            this.guyFace.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
 
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
