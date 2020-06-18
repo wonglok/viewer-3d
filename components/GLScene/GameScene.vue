@@ -3,8 +3,8 @@
 
     <O3D v-if="layouts && shaderCube && camera">
       <AmbinetLight :intensity="2"></AmbinetLight>
-      <DirectionalLight :intensity="1"></DirectionalLight>
-      <HemisphereLight :intensity="1"></HemisphereLight>
+      <DirectionalLight v-if="character === 'swat'" :intensity="1"></DirectionalLight>
+      <HemisphereLight v-if="character === 'swat'" :intensity="1"></HemisphereLight>
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
       </O3D>
@@ -21,7 +21,7 @@
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
@@ -40,6 +40,7 @@
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
         <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
       </div>
+      <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a>
       <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves.filter(actionFilter)" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
     </div>
 
@@ -185,7 +186,7 @@
 
 <script>
 import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID, ChaseControls } from '../Reusable'
-import { Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
+import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import copy2clip from 'copy-to-clipboard'
@@ -202,10 +203,15 @@ export default {
   components: {
     ...require('../webgl').default
   },
+  created () {
+    Cache.enabled = true
+  },
   mixins: [Tree],
   data () {
     return {
       Math,
+      character: 'swat',
+      characterList: ['swat', 'girl'],
       initConfig: {
         scale: 0.1,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
@@ -260,6 +266,21 @@ export default {
     }
   },
   watch: {
+    character () {
+      this.controlTarget.position.x = 0
+      this.controlTarget.position.y = 0
+      this.controlTarget.position.z = 0
+      this.controlTarget.rotation.x = 0
+      this.controlTarget.rotation.y = 0
+      this.controlTarget.rotation.z = 0
+
+      this.charmover.position.x = 0
+      this.charmover.position.y = 0
+      this.charmover.position.z = 0
+      this.charmover.rotation.x = 0
+      this.charmover.rotation.y = 0
+      this.charmover.rotation.z = 0
+    },
     actionListFilter () {
       if (this.actionListFilter === 'dance') {
         this.viewCameraMode = 'close'
@@ -302,16 +323,17 @@ export default {
       console.log('123')
     },
     removeGLTF ({ gltf }) {
-      this.guyGLTF = false
     },
     async setupGLTF ({ gltf }) {
-      this.guyGLTF = gltf
-      await this.setupChar()
+      await this.setupChar({ gltf })
     },
-    async setupChar () {
-      console.log('here____')
+    async setupChar ({ gltf }) {
+      this.charReady = false
       await this.setupMovesDB()
-      await this.setupAnimationSystem()
+      await this.setupAnimationSystem({ gltf })
+      if (this.lastClickedMove) {
+        this.$emit('play-move', { move: this.lastClickedMove })
+      }
     },
     async loadMove (chosenMove) {
       let loaderFBX = this.loaderFBX = this.loaderFBX || new FBXLoader(this.loadingManager)
@@ -336,6 +358,9 @@ export default {
       }, console.log)
     },
     async setupMovesDB () {
+      if (this.moves) {
+        return
+      }
       /* Loader START */
       this.loadingManager = DefaultLoadingManager
       this.loadingManager.onURL = (url, progress) => {
@@ -1192,9 +1217,9 @@ export default {
         idle.play()
       })
     },
-    async setupAnimationSystem () {
+    async setupAnimationSystem ({ gltf }) {
       let moves = this.moves
-      let mixer = await this.prepMixer({ actor: this.guyGLTF.scene })
+      let mixer = await this.prepMixer({ actor: gltf.scene })
 
       let parallelPreload = async () => {
         let arr = [
@@ -1282,7 +1307,9 @@ export default {
       //   this.viewCameraMode = 'firstperson'
       // })
 
-      this.charReady = true
+      setTimeout(() => {
+        this.charReady = true
+      }, 100)
 
       let moveForward, moveLeft, moveRight, moveBackward = false
       var onKeyDown = async (event) => {

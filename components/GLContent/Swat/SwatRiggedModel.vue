@@ -14,6 +14,9 @@ export default {
   name: 'Swat',
   mixins: [Tree],
   props: {
+    character: {
+      default: 'swat'
+    },
     shaderCube: {
       default: false
     },
@@ -41,15 +44,23 @@ export default {
       this.$on('configModelMat', () => {
         model.scene.traverse((item) => {
           item.frustumCulled = false
+          if (item.isMesh && item.material) {
+            item.material.transparent = true
+          }
+          if (this.shaderCube && this.character === 'swat') {
+            if (item.isMesh && item.material) {
+              item.material.envMap = this.shaderCube.out.envMap
+              // item.material.roughness = 0.5
+              // item.material.metalness = 0.5
+            }
 
-          if (this.shaderCube) {
             if (item.isMesh && item.name === 'Mesh_1') {
               // metal
               // item.material = this.shaderCube.out.material
               // this.shaderCube.out.material.skinning = true
 
               item.material.envMap = this.shaderCube.out.envMap
-              item.frustumCulled = false
+              // item.frustumCulled = false
               // item.material.flatShading = true
               // item.material.roughness = 0.0
               // item.material.metalness = 1.0
@@ -61,7 +72,7 @@ export default {
               // this.shaderCube.out.material.skinning = true
 
               item.material.envMap = this.shaderCube.out.envMap
-              item.frustumCulled = false
+              // item.frustumCulled = false
             }
           }
         })
@@ -70,6 +81,15 @@ export default {
       model.gltfName = 'swat-guy'
       this.gltf = model
       this.$emit('setupGLTF', model)
+      this.o3d.position.x = 0
+      this.o3d.position.y = 0
+      this.o3d.position.z = 0
+      this.o3d.rotation.x = 0
+      this.o3d.rotation.y = 0
+      this.o3d.rotation.z = 0
+      this.o3d.children.forEach((aa) => {
+        this.o3d.remove(aa)
+      })
       this.o3d.add(model.scene)
 
       /*
@@ -228,7 +248,7 @@ export default {
       let provideArrayBuffer = async (url) => {
         let NS = 'array-buffer-@' + url
         var store = localforage.createInstance({
-          name: 'rigged-model-swat'
+          name: 'rigged-model-dancefloor'
         });
         try {
           var value = await store.getItem(NS);
@@ -255,67 +275,31 @@ export default {
         })
       }
 
-      let all = await Promise.all([
-        new Promise(async (resolve) => {
-          let url = require('file-loader!./character/swat-guy.glb')
-          let arrayBuffer = await provideArrayBuffer(url)
-          let gltfobj = await modelParser(arrayBuffer)
-          resolve(gltfobj)
-          // // eslint-disable-next-line
-          // loaderFile.load(url, (v) => {
-          //   loaderModel.parse(v, '/', (parsed) => {
-          //     console.log(parsed)
-          //     resolve(parsed)
-          //   })
-          // }, (v) => {
-          //   let manager = this.lookup('loadingManager')
-          //   if (manager.onURL) {
-          //     manager.onURL(url, v.loaded / v.total)
-          //   }
-          // })
-        }),
+      let loadChar = async () => {
+        let all = await Promise.all([
+          new Promise(async (resolve) => {
+            let url = require('file-loader!./character/swat-guy.glb')
 
-        // new Promise((resolve) => {
-        //   // eslint-disable-next-line
-        //   loaderTex.load(require('./matcap/red-2.jpg'), (obj) => {
-        //     let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xffffff, matcap: obj })
-        //     resolve(result)
-        //   })
-        // }),
-        // new Promise((resolve) => {
-        //   // eslint-disable-next-line
-        //   loaderTex.load(require('./matcap/pink-2.jpg'), (obj) => {
-        //     let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xffffff, matcap: obj })
-        //     resolve(result)
-        //   })
-        // }),
-        // new Promise((resolve) => {
-        //   // eslint-disable-next-line
-        //   loaderTex.load(require('./matcap/silver.png'), (obj) => {
-        //     let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xffffff, matcap: obj })
-        //     resolve(result)
-        //   })
-        // }),
-        // new Promise((resolve) => {
-        //   // eslint-disable-next-line
-        //   loaderTex.load(require('./matcap/yellow.jpg'), (obj) => {
-        //     let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xffffff, matcap: obj })
-        //     resolve(result)
-        //   })
-        // }),
+            if (this.character === 'girl') {
+              url = require('file-loader!./character/girl.glb')
+            }
+            if (this.character === 'swat') {
+              url = require('file-loader!./character/swat-guy.glb')
+            }
 
-        // new Promise((resolve) => {
-        //   let link = `https://res.cloudinary.com/loklok-keystone/image/upload/v1590477810/loklok/matcap/silver.png`
-        //   // eslint-disable-next-line
-        //   loaderTex.load(link || require('./matcap/silver.png'), (obj) => {
-        //     let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xeeeeee, matcap: obj })
-        //     resolve(result)
-        //   })
-        // })
-      ])
+            let arrayBuffer = await provideArrayBuffer(url)
+            let gltfobj = await modelParser(arrayBuffer)
+            resolve(gltfobj)
+          })
+        ])
 
-      this.configModel({
-        model: all[0]
+        this.configModel({
+          model: all[0]
+        })
+      }
+      loadChar()
+      this.$watch('character', () => {
+        loadChar()
       })
     }
   },
