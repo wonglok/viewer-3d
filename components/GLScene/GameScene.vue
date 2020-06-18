@@ -1,5 +1,5 @@
 <template>
-  <O3D>
+  <O3D :animated="true" layout="allsamller">
 
     <O3D v-if="layouts && shaderCube && camera">
       <AmbinetLight :intensity="2"></AmbinetLight>
@@ -31,7 +31,7 @@
     <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
-    <div v-if="charReady && showActionBox && moves" class="select-none absolute z-20 top-0 left-0 text-white w-56 overflow-y-auto moves-box">
+    <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-white w-56 overflow-y-auto moves-box">
       <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.2)' }">{{ moveItem.displayName }}</a>
     </div>
 
@@ -197,6 +197,7 @@ export default {
   data () {
     return {
       initConfig: {
+        scale: 0.5,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
         controlTargetPos: new Vector3(0, 0, 0),
         initAction: 'Warming Up'
@@ -657,8 +658,8 @@ export default {
 
         if (this.charmover) {
           this.camera.position.copy(this.charmover.position)
-          this.camera.position.y += 180
-          this.camera.position.z += 300
+          this.camera.position.y += 180 * this.initConfig.scale
+          this.camera.position.z += 300 * this.initConfig.scale
         }
 
         if (this.viewCameraMode === 'behind') {
@@ -733,6 +734,13 @@ export default {
           this.viewSettings.farest = 900.00000
           this.viewSettings.defaultCloseup = -56.35400
         }
+
+        this.viewSettings.adjustX *= this.initConfig.scale
+        this.viewSettings.adjustY *= this.initConfig.scale
+        this.viewSettings.adjustZ *= this.initConfig.scale
+        this.viewSettings.cameraExtraHeight *= this.initConfig.scale
+        this.viewSettings.farest *= this.initConfig.scale
+        this.viewSettings.defaultCloseup *= this.initConfig.scale
       }
 
       resetCam()
@@ -749,6 +757,8 @@ export default {
         var delta = (time - prevTime) / 1000
         prevTime = time;
 
+        // delta *= this.initConfig.scale
+
         // update control target
         if (turnLeft) {
           this.controlTarget.rotation.y += delta * 1.75
@@ -758,16 +768,16 @@ export default {
         }
         if (!this.isTakingComplexAction) {
           if (moveForward) {
-            this.controlTarget.translateZ(-delta * 700)
+            this.controlTarget.translateZ(-delta * 700 * this.initConfig.scale)
           }
           if (moveBackward) {
-            this.controlTarget.translateZ(delta * 700)
+            this.controlTarget.translateZ(delta * 700 * this.initConfig.scale)
           }
           if (moveLeft) {
-            this.controlTarget.translateX(-delta * 700)
+            this.controlTarget.translateX(-delta * 700 * this.initConfig.scale)
           }
           if (moveRight) {
-            this.controlTarget.translateX(delta * 700)
+            this.controlTarget.translateX(delta * 700 * this.initConfig.scale)
           }
         }
 
@@ -932,12 +942,15 @@ export default {
 
       this.lookup('base').onLoop(() => {
         this.layouts = {
+          allsamller: {
+
+          },
           walk: {
-            sx: 5.5,
-            sy: 5.5,
-            sz: 5.5,
-            pz: 800 * 5.5,
-            py: 1157
+            sx: 5.5 * this.initConfig.scale,
+            sy: 5.5 * this.initConfig.scale,
+            sz: 5.5 * this.initConfig.scale,
+            pz: 800 * 5.5 * this.initConfig.scale,
+            py: 1157 * this.initConfig.scale
           },
           // bg: {
           //   // pz: -400,
@@ -948,9 +961,14 @@ export default {
           //   rx: Math.PI * 0.5
           // },
           charmover: {
+            sx: this.initConfig.scale,
+            sy: this.initConfig.scale,
+            sz: this.initConfig.scale,
+
             px: this.charmover.position.x,
             py: this.charmover.position.y,
             pz: this.charmover.position.z,
+
             rx: this.charmover.rotation.x,
             ry: this.charmover.rotation.y,
             rz: this.charmover.rotation.z
