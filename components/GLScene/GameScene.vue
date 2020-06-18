@@ -408,12 +408,12 @@ export default {
       addToArr(boxinghitMapper)
       addToArr(hurtMapper)
       addToArr(locomotionMapper)
+      addToArr(rifleMapper)
+      addToArr(gestureMapper)
       addToArr(capoeiraMapper)
       addToArr(thrillerMapper)
       addToArr(breakdancesMapper)
       addToArr(danceingMapper)
-      addToArr(rifleMapper)
-      addToArr(gestureMapper)
 
       this.moves = movesOrig
       /* Moves End */
