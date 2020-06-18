@@ -71,21 +71,21 @@
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
 
 
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
 
       <div class="h-3"></div>
 
       <!-- <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Cam</div> -->
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Behind Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Back Cam</div>
 
       <div class="h-3"></div>
 
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Scene Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Close Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
@@ -353,10 +353,11 @@ export default {
 
       let movesOrig = []
 
-      let addToArr = async (mapper, preload) => {
+      let addToArr = async ({ mapper, type, preload }) => {
         let arr = []
         for (let kn in mapper) {
           arr.push({
+            type,
             _id: getID(),
             displayName: kn,
             fbx: false,
@@ -398,23 +399,26 @@ export default {
       // addToArr(breakdancesMapper)
       // addToArr(danceingMapper)
 
-      addToArr(prayerMapper)
-      addToArr(controlMapper)
-      addToArr(idleMapper)
-      addToArr(kneeMapper)
-      addToArr(kickMapper)
-      addToArr(boxingMapper)
-      addToArr(mmaMapper)
-      addToArr(superheroMapper)
-      addToArr(boxinghitMapper)
-      addToArr(hurtMapper)
-      addToArr(locomotionMapper)
-      addToArr(rifleMapper)
-      addToArr(gestureMapper)
-      addToArr(capoeiraMapper)
-      addToArr(thrillerMapper)
-      addToArr(breakdancesMapper)
-      addToArr(danceingMapper)
+      addToArr({ mapper: prayerMapper, type: 'prayer' })
+      addToArr({ mapper: idleMapper, type: 'ready' })
+      addToArr({ mapper: gestureMapper, type: 'ready' })
+
+      addToArr({ mapper: thrillerMapper, type: 'dance' })
+      addToArr({ mapper: breakdancesMapper, type: 'dance' })
+      addToArr({ mapper: danceingMapper, type: 'dance' })
+
+      addToArr({ mapper: kneeMapper, type: 'combat' })
+      addToArr({ mapper: kickMapper, type: 'combat' })
+      addToArr({ mapper: boxingMapper, type: 'combat' })
+      addToArr({ mapper: mmaMapper, type: 'combat' })
+      addToArr({ mapper: superheroMapper, type: 'combat' })
+      addToArr({ mapper: boxinghitMapper, type: 'combat' })
+      addToArr({ mapper: hurtMapper, type: 'combat' })
+      addToArr({ mapper: rifleMapper, type: 'combat' })
+
+      addToArr({ mapper: locomotionMapper, type: 'control' })
+      addToArr({ mapper: controlMapper, type: 'control' })
+      addToArr({ mapper: capoeiraMapper, type: 'dance' })
 
       this.moves = movesOrig
       /* Moves End */
@@ -812,19 +816,31 @@ export default {
         if (this.guyHead && this.guy && this.guyFace && this.guyBack && this.guySkeleton) {
           this.guy.getWorldPosition(centerPosition)
 
+          let flip = [
+            'close',
+            'behind',
+            'firstface'
+          ]
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
-          centerPosition.z += config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+
+          if (flip.includes(this.viewCameraMode)) {
+            centerPosition.z += config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            centerPosition.z += config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
 
           this.guyFace.position.x = config.adjustX
           this.guyFace.position.y = config.adjustY
-          if (this.viewCameraMode === 'behind') {
+          if (flip.includes(this.viewCameraMode)) {
             this.guyFace.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
           } else {
             this.guyFace.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
           }
 
-          if (this.viewCameraMode === 'behind') {
+          this.guyBack.position.x = config.adjustX
+          this.guyBack.position.y = config.adjustY
+          if (flip.includes(this.viewCameraMode)) {
             this.guyBack.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
           } else {
             this.guyBack.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
@@ -832,7 +848,11 @@ export default {
 
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
-          camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          if (flip.includes(this.viewCameraMode)) {
+            camPlacer.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
 
           updateO3D(this.guyHead)
           updateO3D(this.guy)
