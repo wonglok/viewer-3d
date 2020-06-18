@@ -663,13 +663,21 @@ export default {
 
         if (this.viewCameraMode === 'behind') {
 
-          this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 33.04760
-          this.viewSettings.adjustZ = 0.00000
+          // this.viewSettings.adjustX = 0.00000
+          // this.viewSettings.adjustY = 33.04760
+          // this.viewSettings.adjustZ = 0.00000
 
-          this.viewSettings.cameraExtraHeight = 0.00000
+          // this.viewSettings.cameraExtraHeight = 0.00000
+          // this.viewSettings.farest = 900.00000
+          // this.viewSettings.defaultCloseup = -134.79600
+
+          this.viewSettings.adjustX = 0.00000
+          this.viewSettings.adjustY = 1.79760
+          this.viewSettings.adjustZ = -50.19360
+
+          this.viewSettings.cameraExtraHeight = -36.89200
           this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = -134.79600
+          this.viewSettings.defaultCloseup = -16.99100
 
         } else if (this.viewCameraMode === 'face') {
 
