@@ -79,6 +79,7 @@
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Character</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
@@ -416,6 +417,9 @@ export default {
       return mixer
     },
     prepAnimation ({ pose, mixer, inPlace }) {
+      if (pose && !pose.animations) {
+        return Promise.reject()
+      }
       return new Promise((resolve) => {
         let action = false
         pose.animations.forEach((clip) => {
@@ -635,6 +639,16 @@ export default {
 
       let resetCam = () => {
         vscroll.value = 0
+        if (this.viewCameraMode === 'face') {
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 70
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 900
+          this.viewSettings.defaultCloseup = 0
+        }
+
         if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
           this.viewSettings.adjustY = 0
@@ -752,6 +766,12 @@ export default {
           this.guy.getWorldPosition(centerPosition)
         }
 
+        if (this.viewCameraMode === 'face') {
+          this.guyFace.position.x = config.adjustX
+          this.guyFace.position.y = config.adjustY
+          this.guyFace.position.z = config.adjustZ
+        }
+
         if (this.viewCameraMode === 'chase') {
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
@@ -807,7 +827,16 @@ export default {
         let scrollZoom = config.farest * progress * 1
         let extraZoom = config.defaultCloseup + scrollZoom
 
-        if (this.viewCameraMode === 'eye') {
+        if (this.viewCameraMode === 'face') {
+          // make use of position
+          targetCamPos.x = guyEyePos.x
+          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
+          targetCamPos.z = guyEyePos.z + extraZoom
+
+          targetLookAt.x = headPosition.x
+          targetLookAt.y = headPosition.y - config.cameraExtraHeight
+          targetLookAt.z = headPosition.z
+        } else if (this.viewCameraMode === 'eye') {
           // make use of position
           targetCamPos.x = guyEyePos.x
           targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
@@ -945,6 +974,27 @@ export default {
             // pz: 100
           }
         }
+      })
+    },
+    async doMany ({ idle, to, mixer, stopAll = true }) {
+      return new Promise((resolve) => {
+        if (to.isRunning()) {
+          resolve()
+          return
+        }
+        if (stopAll) {
+          mixer.stopAllAction()
+        }
+        to.reset()
+
+        to.enabled = true
+        // to.repetitions = 1
+        // to.clampWhenFinished = true
+        to.reset().play()
+
+        setTimeout(() => {
+          resolve()
+        }, to.duration * 1000)
       })
     },
     async doOnce ({ idle, to, mixer, stopAll = true }) {
@@ -1112,16 +1162,14 @@ export default {
       this.$on('play-move', async ({ move, cb = () => {} }) => {
         this.isTakingComplexAction = true
         let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
-        await this.doOnce({ idle, to: action, mixer, stopAll: true }).catch(() => {
+        await this.doMany({ idle, to: action, mixer, stopAll: true }).catch(() => {
           this.isTakingComplexAction = false
         })
         this.isTakingComplexAction = false
         cb()
       })
 
-      let orig = this.viewCameraMode
-      this.viewCameraMode = 'chase'
-      this.$emit('play-move', { move: { displayName: 'Flip Kick (1)' }, cb: () => { this.viewCameraMode = orig } })
+      this.$emit('play-move', { move: { displayName: 'Northern Soul Floor Combo' }, cb: () => {} })
 
       // setTimeout(async () => {
       //   this.viewCameraMode = 'close'
