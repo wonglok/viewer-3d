@@ -70,6 +70,7 @@
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
 
+
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
@@ -82,6 +83,7 @@
 
       <div class="h-3"></div>
 
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Scene Cam</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Cam</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Close Cam</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
@@ -173,7 +175,7 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID, ChaseControls } from '../Reusable'
 import { Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -194,6 +196,11 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      initConfig: {
+        controlTargetLookAt: new Vector3(0, 0, 0 + 20),
+        controlTargetPos: new Vector3(0, 0, 0),
+        initAction: 'Warming Up'
+      },
       showActionBox: true,
       lastClickedMove: false,
       hasGyro: true,
@@ -491,15 +498,8 @@ export default {
 			var velocity = new Vector3()
       var direction = new Vector3()
 
-      this.controlTarget.position.x = 0
-      this.controlTarget.position.y = 0
-      this.controlTarget.position.z = 1980
-
-      this.controlTarget.rotateY
-
       let camPlacer = new Object3D()
       let camPlacerVec3 = new Vector3()
-
 
       let charPlacer = new Object3D()
       let charPlacerVec3 = new Vector3()
@@ -641,8 +641,26 @@ export default {
       let guyBackPos = new Vector3()
       let guyBodyPos = new Vector3()
 
+      this.controls = new ChaseControls(this.camera, this.$refs['domlayer'])
+      this.controls.enablePan = true
+      this.controls.enableDamping = true
+      this.controls.enableKeys = false
+
       let resetCam = () => {
         vscroll.value = 0
+        this.controls.reset()
+
+        this.controlTarget.position.x = this.initConfig.controlTargetPos.x
+        this.controlTarget.position.y = this.initConfig.controlTargetPos.y
+        this.controlTarget.position.z = this.initConfig.controlTargetPos.z
+        this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
+
+        if (this.charmover) {
+          this.camera.position.copy(this.charmover.position)
+          this.camera.position.y += 180
+          this.camera.position.z += 300
+        }
+
         if (this.viewCameraMode === 'behind') {
 
           this.viewSettings.adjustX = 0.00000
@@ -706,12 +724,12 @@ export default {
           this.viewSettings.cameraExtraHeight = -65.26500
           this.viewSettings.farest = 900.00000
           this.viewSettings.defaultCloseup = -56.35400
-
         }
       }
 
       resetCam()
       this.$watch('viewCameraMode', resetCam)
+
       let updateO3D = (o3d) => {
         o3d.updateMatrix()
         o3d.updateMatrixWorld()
@@ -874,7 +892,7 @@ export default {
         if (this.viewCameraMode === 'behind') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-        } else if (this.viewCameraMode === 'eye') {
+        } else if (this.viewCameraMode === 'face') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'chase') {
@@ -894,8 +912,14 @@ export default {
           lerperCamPos.lerp(targetCamPos, 0.2)
         }
 
-        this.camera.lookAt(targetLookAt)
-        this.camera.position.copy(targetCamPos)
+        if (this.viewCameraMode === 'static') {
+          this.controls.enabled = true
+          this.controls.update()
+        } else {
+          this.controls.enabled = false
+          this.camera.lookAt(lerperLookAt)
+          this.camera.position.copy(lerperCamPos)
+        }
       })
 
       this.lookup('base').onLoop(() => {
@@ -1151,8 +1175,8 @@ export default {
         cb()
       })
 
-      this.viewCameraMode = 'face'
-      this.$emit('play-move', { move: { displayName: 'Warming Up' }, cb: () => {} })
+      // this.viewCameraMode = 'face'
+      this.$emit('play-move', { move: { displayName: this.initConfig.initAction }, cb: () => {} })
 
       // setTimeout(async () => {
       //   this.viewCameraMode = 'close'
@@ -1327,7 +1351,7 @@ export default {
           }
         })
       }
-    },
+    }
   },
   beforeDestroy () {
   },
@@ -1360,8 +1384,10 @@ export default {
     this.scene.background = new Color('#1a1a1a')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
-    this.camera.position.z = -1000
-    this.camera.position.y = 380
+    this.camera.position.x = this.initConfig.controlTargetPos.x
+    this.camera.position.y = this.initConfig.controlTargetPos.y
+    this.camera.position.z = this.initConfig.controlTargetPos.z
+    this.camera.lookAt(this.initConfig.controlTargetLookAt)
 
     this.scene.add(this.o3d)
 
