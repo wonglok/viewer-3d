@@ -71,16 +71,19 @@
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
 
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Mirror Back</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Mirror Face</div>
+
+      <div class="h-3"></div>
+
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Facing Head</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Behind Head</div>
 
       <div class="h-3"></div>
 
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Facing Head</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Behind Head</div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
@@ -641,21 +644,25 @@ export default {
       let resetCam = () => {
         vscroll.value = 0
         if (this.viewCameraMode === 'behind') {
-          this.viewSettings.adjustX = 0
-          this.viewSettings.adjustY = 0
-          this.viewSettings.adjustZ = -70
 
-          this.viewSettings.cameraExtraHeight = 0
-          this.viewSettings.farest = 900
-          this.viewSettings.defaultCloseup = 0
+          this.viewSettings.adjustX = 0.00000
+          this.viewSettings.adjustY = 0.00000
+          this.viewSettings.adjustZ = 0.00000
+
+          this.viewSettings.cameraExtraHeight = 60.61900
+          this.viewSettings.farest = 900.00000
+          this.viewSettings.defaultCloseup = 266.76100
+
         } else if (this.viewCameraMode === 'face') {
-          this.viewSettings.adjustX = 0
-          this.viewSettings.adjustY = 0
-          this.viewSettings.adjustZ = 70
 
-          this.viewSettings.cameraExtraHeight = 0
-          this.viewSettings.farest = 900
-          this.viewSettings.defaultCloseup = 0
+          this.viewSettings.adjustX = 0.00000
+          this.viewSettings.adjustY = 0.00000
+          this.viewSettings.adjustZ = 0.00000
+
+          this.viewSettings.cameraExtraHeight = 0.00000
+          this.viewSettings.farest = 900.00000
+          this.viewSettings.defaultCloseup = 222.58400
+
         } else if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
           this.viewSettings.adjustY = 0
@@ -682,20 +689,22 @@ export default {
           this.viewSettings.farest = 900
         } else if (this.viewCameraMode === 'firstback') {
           this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 70.51990
-          this.viewSettings.adjustZ = 0.00000
+          this.viewSettings.adjustY = 155.42040
+          this.viewSettings.adjustZ = 253.04200
 
           this.viewSettings.cameraExtraHeight = 0.00000
           this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = 122.90300
+          this.viewSettings.defaultCloseup = 0.00000
         } else if (this.viewCameraMode === 'firstface') {
+
           this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 70.51990
+          this.viewSettings.adjustY = 0.00000
           this.viewSettings.adjustZ = 0.00000
 
-          this.viewSettings.cameraExtraHeight = 0.00000
+          this.viewSettings.cameraExtraHeight = 103.81600
           this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = -153.77
+          this.viewSettings.defaultCloseup = -278.93800
+
         } else if (this.viewCameraMode === 'eye') {
           this.viewSettings.adjustX = 0.00000
           this.viewSettings.adjustY = 70.51990
@@ -827,13 +836,14 @@ export default {
           updateO3D(this.guyBack)
           updateO3D(camPlacer)
 
-          headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-          guyBodyPos.setFromMatrixPosition(this.guy.matrixWorld)
           guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
+          headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
+
+          guyBodyPos.setFromMatrixPosition(this.guy.matrixWorld)
           guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
 
           camPlacerVec3.setFromMatrixPosition(camPlacer.matrixWorld)
-          lookAtVec3.setFromMatrixPosition(this.guyBack.matrixWorld)
+          lookAtVec3.setFromMatrixPosition(this.guy.matrixWorld)
         }
 
         let progress = vscroll.value
@@ -842,22 +852,22 @@ export default {
 
         if (this.viewCameraMode === 'behind') {
           // make use of position
-          targetCamPos.x = guyEyePos.x
-          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
-          targetCamPos.z = guyEyePos.z + extraZoom
+          targetCamPos.x = headPosition.x
+          targetCamPos.y = headPosition.y + config.cameraExtraHeight
+          targetCamPos.z = headPosition.z + extraZoom
 
-          targetLookAt.x = headPosition.x
-          targetLookAt.y = headPosition.y - config.cameraExtraHeight
-          targetLookAt.z = headPosition.z
+          targetLookAt.x = guyEyePos.x
+          targetLookAt.y = guyEyePos.y - config.cameraExtraHeight
+          targetLookAt.z = guyEyePos.z
         } else if (this.viewCameraMode === 'face') {
           // make use of position
-          targetCamPos.x = guyEyePos.x
-          targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
-          targetCamPos.z = guyEyePos.z - extraZoom
+          targetCamPos.x = headPosition.x
+          targetCamPos.y = headPosition.y + config.cameraExtraHeight
+          targetCamPos.z = headPosition.z - extraZoom
 
-          targetLookAt.x = headPosition.x
-          targetLookAt.y = headPosition.y - config.cameraExtraHeight
-          targetLookAt.z = headPosition.z
+          targetLookAt.x = guyEyePos.x
+          targetLookAt.y = guyEyePos.y - config.cameraExtraHeight
+          targetLookAt.z = guyEyePos.z
         } else if (this.viewCameraMode === 'eye') {
           // make use of position
           targetCamPos.x = guyEyePos.x
@@ -915,11 +925,11 @@ export default {
         }
 
         if (this.viewCameraMode === 'behind') {
-          lerperLookAt.lerp(targetLookAt, 0.2)
-          lerperCamPos.lerp(targetCamPos, 0.2)
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
         } else if (this.viewCameraMode === 'eye') {
-          lerperLookAt.lerp(targetLookAt, 0.2)
-          lerperCamPos.lerp(targetCamPos, 0.2)
+          lerperLookAt.lerp(targetLookAt, 0.05)
+          lerperCamPos.lerp(targetCamPos, 0.05)
         } else if (this.viewCameraMode === 'chase') {
           lerperLookAt.lerp(targetLookAt, 0.05)
           lerperCamPos.lerp(targetCamPos, 0.05)
