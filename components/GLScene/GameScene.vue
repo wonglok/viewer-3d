@@ -1022,6 +1022,8 @@ export default {
           this.controls.enabled = false
           if (this.useGyro) {
             lerperLookAt.y += this.extraHeight.y
+            lerperLookAt.z += this.extraHeight.z
+            lerperLookAt.x += this.extraHeight.x
             console.log(this.extraHeight.y)
           }
           this.camera.lookAt(lerperLookAt)
