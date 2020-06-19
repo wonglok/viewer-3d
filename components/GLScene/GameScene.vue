@@ -569,7 +569,7 @@ export default {
 
       let lookAtMeGyroTargetPosition = new Vector3()
       let lookAtMeGyroTarget = new Object3D()
-      lookAtMeGyroTarget.position.z = 0
+      // lookAtMeGyroTarget.position.z = -100
       this.controlTargetLooker.add(lookAtMeGyroTarget)
 
       // conrtol
@@ -917,6 +917,15 @@ export default {
             camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
           }
 
+          if (this.useGyro) {
+            if (flip.includes(this.viewCameraMode)) {
+              lookAtMeGyroTarget.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+            } else {
+              lookAtMeGyroTarget.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+            }
+            lookAtMeGyroTarget.position.z *= -1
+          }
+
           updateO3D(this.guyHead)
           updateO3D(this.guy)
           updateO3D(this.guyFace)
@@ -924,10 +933,8 @@ export default {
           updateO3D(camPlacer)
           updateO3D(lookAtMeGyroTarget)
 
-          if (this.useGyro) {
-            lookAtMeGyroTarget.position.z = -camPlacer.position.z
-            lookAtMeGyroTargetPosition.setFromMatrixPosition(lookAtMeGyroTarget.matrixWorld)
-          }
+          lookAtMeGyroTargetPosition.setFromMatrixPosition(lookAtMeGyroTarget.matrixWorld)
+
 
           guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
           guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
@@ -1492,7 +1499,6 @@ export default {
         let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
         controls.dampping = true
         // proxyCam.up = new Vector3(0, 1, 0)
-        proxyCam.add(this.controlTargetLooker)
         this.lookup('base').onLoop(() => {
           if (!this.useGyro) {
             return
@@ -1565,7 +1571,6 @@ export default {
     this.camera.position.y = this.initConfig.controlTargetPos.y
     this.camera.position.z = this.initConfig.controlTargetPos.z
     this.camera.lookAt(this.initConfig.controlTargetLookAt)
-    this.charmover.add(this.camera)
 
     this.scene.add(this.o3d)
 
