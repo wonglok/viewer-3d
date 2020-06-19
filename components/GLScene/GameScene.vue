@@ -1510,12 +1510,12 @@ export default {
 
           // let device = controls.deviceOrientation
           // if (device) {
-            // var alpha = device.alpha ? MathUtils.degToRad(device.alpha) + controls.alphaOffset : 0; // Z
-            // var beta = device.beta ? MathUtils.degToRad(device.beta) : 0; // X'
-            // var gamma = device.gamma ? MathUtils.degToRad(device.gamma) : 0; // Y''
-            // var orient = controls.screenOrientation ? MathUtils.degToRad(controls.screenOrientation) : 0; // O
+          // var alpha = device.alpha ? MathUtils.degToRad(device.alpha) + controls.alphaOffset : 0; // Z
+          // var beta = device.beta ? MathUtils.degToRad(device.beta) : 0; // X'
+          // var gamma = device.gamma ? MathUtils.degToRad(device.gamma) : 0; // Y''
+          // var orient = controls.screenOrientation ? MathUtils.degToRad(controls.screenOrientation) : 0; // O
 
-            // this.controlTargetLooker.rotation.x = beta
+          // this.controlTargetLooker.rotation.x = beta
 
           if (typeof proxyCam.rotation.y !== 'undefined') {
             this.controlTarget.rotation.y = proxyCam.rotation.y
@@ -1523,13 +1523,13 @@ export default {
 
           if (this.viewCameraMode === 'firstface') {
             if (typeof proxyCam.rotation.x !== 'undefined') {
-              this.controlTargetLooker.rotation.x = -proxyCam.rotation.x
+              this.controlTargetLooker.rotation.x = proxyCam.rotation.x
             }
             if (typeof proxyCam.rotation.y !== 'undefined') {
               this.controlTargetLooker.rotation.y = proxyCam.rotation.y
             }
             if (typeof proxyCam.rotation.z !== 'undefined') {
-              this.controlTargetLooker.rotation.z = -proxyCam.rotation.z
+              this.controlTargetLooker.rotation.z = proxyCam.rotation.z
             }
           } else {
             if (typeof proxyCam.rotation.x !== 'undefined') {
