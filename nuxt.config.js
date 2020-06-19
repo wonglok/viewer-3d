@@ -1,8 +1,15 @@
+import path from 'path'
+import fs from 'fs'
+
 export default {
   server: {
     port: 3000,
     host: '0.0.0.0',
-    timing: false
+    timing: false,
+    // https: {
+    //   key: fs.readFileSync(path.join(__dirname, '/cert/server.key')),
+    //   cert: fs.readFileSync(path.join(__dirname, '/cert/server.crt'))
+    // }
   },
   mode: 'spa',
   /*

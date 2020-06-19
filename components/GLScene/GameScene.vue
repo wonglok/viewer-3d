@@ -18,7 +18,6 @@
       </O3D> -->
 
       <O3D :animated="true" layout="charmover" :visible="charReady">
-
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
@@ -81,26 +80,26 @@
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
 
 
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
 
       <div class="h-3"></div>
 
-      <!-- <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Cam</div> -->
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Cam</div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Back Cam</div>
+      <!-- <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Cam</div> -->
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Back Cam</div>
 
       <div class="h-3"></div>
 
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
       </div>
-      <div class="select-none text-sm text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
       <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showActionBox, 'border-green-200': showActionBox }" @click="showActionBox = !showActionBox">Show Actions</div>
 
       <div class="h-3"></div>
@@ -187,7 +186,7 @@
 
 <script>
 import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID, ChaseControls } from '../Reusable'
-import { Euler, MathUtils, Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
+import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import copy2clip from 'copy-to-clipboard'
@@ -229,7 +228,6 @@ export default {
       controls: false,
       charmover: new Object3D(),
       controlTarget: new Object3D(),
-      controlTargetLooker: new Object3D(),
       // face vs chase
       viewCameraMode: 'firstperson',
       viewSettings: {},
@@ -566,15 +564,8 @@ export default {
       charPlacer.position.y = 0
       charPlacer.position.z = 0
 
-
-      let lookAtMeGyroTargetPosition = new Vector3()
-      let lookAtMeGyroTarget = new Object3D()
-      // lookAtMeGyroTarget.position.z = -100
-      this.controlTargetLooker.add(lookAtMeGyroTarget)
-
-      // conrtol
-      this.controlTarget.add(charPlacer)
       this.controlTarget.add(camPlacer)
+      this.controlTarget.add(charPlacer)
 
       let vscroll = makeScroller({ base: this.lookup('base'), mounter: this.$refs['domlayer'], limit: { direction: 'vertical', canRun: true, ny: 0, y: 1 }, onMove: () => {} })
 
@@ -739,6 +730,7 @@ export default {
           this.viewSettings.defaultCloseup = -1189.38
 
         } else if (this.viewCameraMode === 'face') {
+
           // this.viewSettings.adjustX = 0.00000
           // this.viewSettings.adjustY = 0.00000
           // this.viewSettings.adjustZ = 0.00000
@@ -780,6 +772,7 @@ export default {
           this.viewSettings.defaultCloseup = 263.363
           this.viewSettings.farest = 900
         } else if (this.viewCameraMode === 'firstback') {
+
           this.viewSettings.adjustX = 0.00000
           this.viewSettings.adjustY = 85.03870
           this.viewSettings.adjustZ = 131.77540
@@ -789,6 +782,7 @@ export default {
           this.viewSettings.defaultCloseup = 0.00000
 
         } else if (this.viewCameraMode === 'firstface') {
+
           this.viewSettings.adjustX = 0.00000
           this.viewSettings.adjustY = 133.43470
           this.viewSettings.adjustZ = -76.46570
@@ -845,16 +839,11 @@ export default {
         }
 
         updateO3D(this.controlTarget)
-        updateO3D(this.controlTargetLooker)
-
         // this.controlTarget.updateMatrix()
         // this.controlTarget.updateMatrixWorld()
         // this.controlTarget.updateWorldMatrix()
 
         // sync control target to character
-
-        // controlTargetLooker.add(lookAtMeGyroTarget)
-
         charPlacerVec3.setFromMatrixPosition(charPlacer.matrixWorld)
         this.charmover.rotation.x = this.controlTarget.rotation.x
         this.charmover.rotation.y = this.controlTarget.rotation.y
@@ -884,7 +873,6 @@ export default {
             'behind',
             'firstface'
           ]
-
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
 
@@ -918,24 +906,11 @@ export default {
             camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
           }
 
-          if (this.useGyro) {
-            if (flip.includes(this.viewCameraMode)) {
-              lookAtMeGyroTarget.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
-            } else {
-              lookAtMeGyroTarget.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
-            }
-            lookAtMeGyroTarget.position.z *= -1
-          }
-
           updateO3D(this.guyHead)
           updateO3D(this.guy)
           updateO3D(this.guyFace)
           updateO3D(this.guyBack)
           updateO3D(camPlacer)
-          updateO3D(lookAtMeGyroTarget)
-
-          lookAtMeGyroTargetPosition.setFromMatrixPosition(lookAtMeGyroTarget.matrixWorld)
-
 
           guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
           guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
@@ -1030,21 +1005,12 @@ export default {
         } else if (this.viewCameraMode === 'firstperson') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-          if (this.useGyro) {
-            lerperLookAt.add(lookAtMeGyroTargetPosition)
-          }
         } else if (this.viewCameraMode === 'firstback') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-          if (this.useGyro) {
-            lerperLookAt.add(lookAtMeGyroTargetPosition)
-          }
         } else if (this.viewCameraMode === 'firstface') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-          if (this.useGyro) {
-            lerperLookAt.add(lookAtMeGyroTargetPosition)
-          }
         }
 
         if (this.viewCameraMode === 'static') {
@@ -1333,7 +1299,6 @@ export default {
       })
 
       // this.viewCameraMode = 'face'
-
       this.$emit('play-move', { move: { displayName: this.initConfig.initAction }, cb: () => {} })
 
       // setTimeout(async () => {
@@ -1500,50 +1465,17 @@ export default {
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
         controls.dampping = true
-        // proxyCam.up = new Vector3(0, 1, 0)
+
         this.lookup('base').onLoop(() => {
           if (!this.useGyro) {
             return
           }
           controls.enabled = true
           controls.update()
-
-          // let device = controls.deviceOrientation
-          // if (device) {
-          // var alpha = device.alpha ? MathUtils.degToRad(device.alpha) + controls.alphaOffset : 0; // Z
-          // var beta = device.beta ? MathUtils.degToRad(device.beta) : 0; // X'
-          // var gamma = device.gamma ? MathUtils.degToRad(device.gamma) : 0; // Y''
-          // var orient = controls.screenOrientation ? MathUtils.degToRad(controls.screenOrientation) : 0; // O
-
-          // this.controlTargetLooker.rotation.x = beta
-
+          // console.log(proxyCam.position.x, proxyCam.rotation.y)
           if (typeof proxyCam.rotation.y !== 'undefined') {
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
-
-          if (this.viewCameraMode === 'firstface') {
-            if (typeof proxyCam.rotation.x !== 'undefined') {
-              this.controlTargetLooker.rotation.x = proxyCam.rotation.x
-            }
-            if (typeof proxyCam.rotation.y !== 'undefined') {
-              this.controlTargetLooker.rotation.y = proxyCam.rotation.y
-            }
-            if (typeof proxyCam.rotation.z !== 'undefined') {
-              this.controlTargetLooker.rotation.z = proxyCam.rotation.z
-            }
-          } else {
-            if (typeof proxyCam.rotation.x !== 'undefined') {
-              this.controlTargetLooker.rotation.x = proxyCam.rotation.x
-            }
-            if (typeof proxyCam.rotation.y !== 'undefined') {
-              this.controlTargetLooker.rotation.y = proxyCam.rotation.y
-            }
-            if (typeof proxyCam.rotation.z !== 'undefined') {
-              this.controlTargetLooker.rotation.z = proxyCam.rotation.z
-            }
-          }
-
-          // }
         })
       } catch (e) {
         console.log(e)
