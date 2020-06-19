@@ -884,6 +884,7 @@ export default {
             'behind',
             'firstface'
           ]
+
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
 
@@ -1332,6 +1333,7 @@ export default {
       })
 
       // this.viewCameraMode = 'face'
+
       this.$emit('play-move', { move: { displayName: this.initConfig.initAction }, cb: () => {} })
 
       // setTimeout(async () => {
@@ -1519,15 +1521,28 @@ export default {
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
 
-          if (typeof proxyCam.rotation.x !== 'undefined') {
-            this.controlTargetLooker.rotation.x = proxyCam.rotation.x
+          if (this.viewCameraMode === 'firstface') {
+            if (typeof proxyCam.rotation.x !== 'undefined') {
+              this.controlTargetLooker.rotation.x = -proxyCam.rotation.x
+            }
+            if (typeof proxyCam.rotation.y !== 'undefined') {
+              this.controlTargetLooker.rotation.y = proxyCam.rotation.y
+            }
+            if (typeof proxyCam.rotation.z !== 'undefined') {
+              this.controlTargetLooker.rotation.z = -proxyCam.rotation.z
+            }
+          } else {
+            if (typeof proxyCam.rotation.x !== 'undefined') {
+              this.controlTargetLooker.rotation.x = proxyCam.rotation.x
+            }
+            if (typeof proxyCam.rotation.y !== 'undefined') {
+              this.controlTargetLooker.rotation.y = proxyCam.rotation.y
+            }
+            if (typeof proxyCam.rotation.z !== 'undefined') {
+              this.controlTargetLooker.rotation.z = proxyCam.rotation.z
+            }
           }
-          if (typeof proxyCam.rotation.y !== 'undefined') {
-            this.controlTargetLooker.rotation.y = proxyCam.rotation.y
-          }
-          if (typeof proxyCam.rotation.z !== 'undefined') {
-            this.controlTargetLooker.rotation.z = proxyCam.rotation.z
-          }
+
           // }
         })
       } catch (e) {
