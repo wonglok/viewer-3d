@@ -1,10 +1,10 @@
 <template>
-  <O3D>
+  <O3D :animated="true" layout="allsamller">
 
     <O3D v-if="layouts && shaderCube && camera">
       <AmbinetLight :intensity="2"></AmbinetLight>
-      <DirectionalLight :intensity="1"></DirectionalLight>
-      <HemisphereLight :intensity="1"></HemisphereLight>
+      <DirectionalLight v-if="character === 'swat'" :intensity="1"></DirectionalLight>
+      <HemisphereLight v-if="character === 'swat'" :intensity="1"></HemisphereLight>
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
       </O3D>
@@ -21,7 +21,7 @@
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
@@ -29,6 +29,19 @@
     </O3D>
 
     <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
+    </div>
+
+    <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-sm text-white w-56 overflow-y-auto moves-box">
+      <!-- <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a> -->
+      <div class="p-1">
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'dance'" :style="{ backgroundColor: actionListFilter === 'dance' ? 'green' : '' }">Dance</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'action'" :style="{ backgroundColor: actionListFilter === 'action' ? 'green' : '' }">Action</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
+        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
+      </div>
+      <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves.filter(actionFilter)" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
     </div>
 
     <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="!charReady" :style="{ backgroundColor: !charReady ? `rgba(0,0,0,0.6)` : '' }" >
@@ -66,20 +79,28 @@
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
 
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">Personal Camera</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">Personal Back</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">Personal Face</div>
+
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
 
       <div class="h-3"></div>
 
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Observe Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Closeup Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Character</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" v-if="hasGyro" @click="setupGyroCam">
+      <!-- <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Cam</div> -->
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Back Cam</div>
+
+      <div class="h-3"></div>
+
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
+      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
       </div>
       <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showActionBox, 'border-green-200': showActionBox }" @click="showActionBox = !showActionBox">Show Actions</div>
 
       <div class="h-3"></div>
 
@@ -164,8 +185,8 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID } from '../Reusable'
-import { Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
+import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID, ChaseControls } from '../Reusable'
+import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import copy2clip from 'copy-to-clipboard'
@@ -182,11 +203,26 @@ export default {
   components: {
     ...require('../webgl').default
   },
+  created () {
+    Cache.enabled = true
+  },
   mixins: [Tree],
   data () {
     return {
+      Math,
+      character: 'swat',
+      // characterList: ['swat', 'girl'],
+      initConfig: {
+        scale: 0.1,
+        controlTargetLookAt: new Vector3(0, 0, 0 + 20),
+        controlTargetPos: new Vector3(0, 0, 0),
+        initAction: 'Warming Up'
+      },
+      actionListFilter: 'all',
+      showActionBox: true,
+      lastClickedMove: false,
       hasGyro: true,
-      isMobile: window.innerWidth < 500,
+      // isMobile: window.innerWidth < 500,
       Bloom: false,
       isDev: process.env.NODE_ENV === 'development',
       controls: false,
@@ -216,19 +252,49 @@ export default {
       guySkeleton: false,
 
       moves: false,
-      Math,
+
       shaderCube: false,
-      settings: {},
-      flower1: {},
-      image: false,
+
       scene: new Scene(),
-      tCube: false,
+
       layouts: false,
       useBloom: true,
 
       // blur: 0,
       // socket: false,
       // entered: false
+    }
+  },
+  watch: {
+    character () {
+      this.controlTarget.position.x = 0
+      this.controlTarget.position.y = 0
+      this.controlTarget.position.z = 0
+      this.controlTarget.rotation.x = 0
+      this.controlTarget.rotation.y = 0
+      this.controlTarget.rotation.z = 0
+
+      this.charmover.position.x = 0
+      this.charmover.position.y = 0
+      this.charmover.position.z = 0
+      this.charmover.rotation.x = 0
+      this.charmover.rotation.y = 0
+      this.charmover.rotation.z = 0
+    },
+    actionListFilter () {
+      if (this.actionListFilter === 'dance') {
+        this.viewCameraMode = 'close'
+      } else if (this.actionListFilter === 'combat') {
+        this.viewCameraMode = 'behind'
+      } else if (this.actionListFilter === 'ready') {
+        this.viewCameraMode = 'close'
+      } else if (this.actionListFilter === 'control') {
+        this.viewCameraMode = 'chase'
+      } else if (this.actionListFilter === 'action') {
+        this.viewCameraMode = 'chase'
+      } else if (this.actionListFilter === 'all') {
+        this.viewCameraMode = 'firstperson'
+      }
     }
   },
   methods: {
@@ -240,20 +306,34 @@ export default {
     //     }
     //   })
     // },
+    actionFilter (item) {
+      if (this.actionListFilter === 'all') {
+        return true
+      } else if (this.actionListFilter) {
+        if (this.actionListFilter === item.type) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return true
+      }
+    },
     click () {
       console.log('123')
     },
     removeGLTF ({ gltf }) {
-      this.guyGLTF = false
     },
     async setupGLTF ({ gltf }) {
-      this.guyGLTF = gltf
-      await this.setupChar()
+      await this.setupChar({ gltf })
     },
-    async setupChar () {
-      console.log('here____')
+    async setupChar ({ gltf }) {
+      this.charReady = false
       await this.setupMovesDB()
-      await this.setupAnimationSystem()
+      await this.setupAnimationSystem({ gltf })
+      if (this.lastClickedMove) {
+        this.$emit('play-move', { move: this.lastClickedMove })
+      }
     },
     async loadMove (chosenMove) {
       let loaderFBX = this.loaderFBX = this.loaderFBX || new FBXLoader(this.loadingManager)
@@ -278,6 +358,9 @@ export default {
       }, console.log)
     },
     async setupMovesDB () {
+      if (this.moves) {
+        return
+      }
       /* Loader START */
       this.loadingManager = DefaultLoadingManager
       this.loadingManager.onURL = (url, progress) => {
@@ -333,10 +416,11 @@ export default {
 
       let movesOrig = []
 
-      let addToArr = async (mapper, preload) => {
+      let addToList = async ({ mapper, type, preload }) => {
         let arr = []
         for (let kn in mapper) {
           arr.push({
+            type,
             _id: getID(),
             displayName: kn,
             fbx: false,
@@ -366,35 +450,27 @@ export default {
         return arr
       }
 
-      // addToArr(idleMapper)
-      // await addToArr(controlMapper, true)
-      // addToArr(kickMapper)
-      // addToArr(boxingMapper)
-      // addToArr(superheroMapper)
-      // addToArr(boxinghitMapper)
-      // addToArr(locomotionMapper)
-      // addToArr(gestureMapper)
-      // addToArr(thrillerMapper)
-      // addToArr(breakdancesMapper)
-      // addToArr(danceingMapper)
+      addToList({ mapper: prayerMapper, type: 'ready' })
+      addToList({ mapper: idleMapper, type: 'ready' })
+      addToList({ mapper: gestureMapper, type: 'ready' })
 
-      addToArr(prayerMapper)
-      addToArr(controlMapper)
-      addToArr(idleMapper)
-      addToArr(kneeMapper)
-      addToArr(kickMapper)
-      addToArr(boxingMapper)
-      addToArr(mmaMapper)
-      addToArr(superheroMapper)
-      addToArr(boxinghitMapper)
-      addToArr(hurtMapper)
-      addToArr(locomotionMapper)
-      addToArr(capoeiraMapper)
-      addToArr(thrillerMapper)
-      addToArr(breakdancesMapper)
-      addToArr(danceingMapper)
-      addToArr(rifleMapper)
-      addToArr(gestureMapper)
+      addToList({ mapper: thrillerMapper, type: 'dance' })
+      addToList({ mapper: breakdancesMapper, type: 'dance' })
+      addToList({ mapper: danceingMapper, type: 'dance' })
+
+      addToList({ mapper: superheroMapper, type: 'action' })
+
+      addToList({ mapper: kneeMapper, type: 'combat' })
+      addToList({ mapper: kickMapper, type: 'combat' })
+      addToList({ mapper: boxingMapper, type: 'combat' })
+      addToList({ mapper: mmaMapper, type: 'combat' })
+      addToList({ mapper: boxinghitMapper, type: 'combat' })
+      addToList({ mapper: hurtMapper, type: 'combat' })
+
+      addToList({ mapper: locomotionMapper, type: 'control' })
+      addToList({ mapper: rifleMapper, type: 'control' })
+      addToList({ mapper: controlMapper, type: 'control' })
+      addToList({ mapper: capoeiraMapper, type: 'dance' })
 
       this.moves = movesOrig
       /* Moves End */
@@ -410,6 +486,9 @@ export default {
       return mixer
     },
     prepAnimation ({ pose, mixer, inPlace }) {
+      if (pose && !pose.animations) {
+        return Promise.reject()
+      }
       return new Promise((resolve) => {
         let action = false
         pose.animations.forEach((clip) => {
@@ -453,13 +532,13 @@ export default {
     },
     copyText () {
       copy2clip(`
-        this.viewSettings.adjustX = ${this.viewSettings.adjustX.toFixed(5)}
-        this.viewSettings.adjustY = ${this.viewSettings.adjustY.toFixed(5)}
-        this.viewSettings.adjustZ = ${this.viewSettings.adjustZ.toFixed(5)}
+          this.viewSettings.adjustX = ${1 / this.initConfig.scale * this.viewSettings.adjustX}
+          this.viewSettings.adjustY = ${1 / this.initConfig.scale * this.viewSettings.adjustY}
+          this.viewSettings.adjustZ = ${1 / this.initConfig.scale * this.viewSettings.adjustZ}
 
-        this.viewSettings.cameraExtraHeight = ${this.viewSettings.cameraExtraHeight.toFixed(5)}
-        this.viewSettings.farest = ${this.viewSettings.farest.toFixed(5)}
-        this.viewSettings.defaultCloseup = ${this.viewSettings.defaultCloseup.toFixed(5)}
+          this.viewSettings.cameraExtraHeight = ${1 / this.initConfig.scale * this.viewSettings.cameraExtraHeight}
+          this.viewSettings.farest = ${1 / this.initConfig.scale * this.viewSettings.farest}
+          this.viewSettings.defaultCloseup = ${1 / this.initConfig.scale * this.viewSettings.defaultCloseup}
       `)
     },
     async setupCameraSystem () {
@@ -477,15 +556,8 @@ export default {
 			var velocity = new Vector3()
       var direction = new Vector3()
 
-      this.controlTarget.position.x = 0
-      this.controlTarget.position.y = 0
-      this.controlTarget.position.z = 1980
-
-      this.controlTarget.rotateY
-
       let camPlacer = new Object3D()
       let camPlacerVec3 = new Vector3()
-
 
       let charPlacer = new Object3D()
       let charPlacerVec3 = new Vector3()
@@ -627,9 +699,55 @@ export default {
       let guyBackPos = new Vector3()
       let guyBodyPos = new Vector3()
 
+      this.controls = new ChaseControls(this.camera, this.$refs['domlayer'])
+      this.controls.enablePan = true
+      this.controls.enableDamping = true
+      this.controls.enableKeys = false
+
       let resetCam = () => {
         vscroll.value = 0
-        if (this.viewCameraMode === 'chase') {
+        this.controls.reset()
+
+        this.controlTarget.position.x = this.initConfig.controlTargetPos.x
+        this.controlTarget.position.y = this.initConfig.controlTargetPos.y
+        this.controlTarget.position.z = this.initConfig.controlTargetPos.z
+        this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
+
+        if (this.charmover) {
+          this.camera.position.copy(this.charmover.position)
+          this.camera.position.y += 180 * this.initConfig.scale
+          this.camera.position.z += 300 * this.initConfig.scale
+        }
+
+        if (this.viewCameraMode === 'behind') {
+
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 0
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 2000
+          this.viewSettings.defaultCloseup = -1189.38
+
+        } else if (this.viewCameraMode === 'face') {
+
+          // this.viewSettings.adjustX = 0.00000
+          // this.viewSettings.adjustY = 0.00000
+          // this.viewSettings.adjustZ = 0.00000
+
+          // this.viewSettings.cameraExtraHeight = 0.00000
+          // this.viewSettings.farest = 900.00000
+          // this.viewSettings.defaultCloseup = 72.77900
+
+          this.viewSettings.adjustX = 0
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 0
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.farest = 2000
+          this.viewSettings.defaultCloseup = 631.5
+
+        } else if (this.viewCameraMode === 'chase') {
           this.viewSettings.adjustX = -123.7555
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = 0
@@ -654,34 +772,37 @@ export default {
           this.viewSettings.defaultCloseup = 263.363
           this.viewSettings.farest = 900
         } else if (this.viewCameraMode === 'firstback') {
+
           this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 70.51990
-          this.viewSettings.adjustZ = 0.00000
+          this.viewSettings.adjustY = 85.03870
+          this.viewSettings.adjustZ = 131.77540
 
           this.viewSettings.cameraExtraHeight = 0.00000
           this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = 122.90300
+          this.viewSettings.defaultCloseup = 0.00000
+
         } else if (this.viewCameraMode === 'firstface') {
-          this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 70.51990
-          this.viewSettings.adjustZ = 0.00000
 
-          this.viewSettings.cameraExtraHeight = 0.00000
-          this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = -153.77
-        } else if (this.viewCameraMode === 'eye') {
           this.viewSettings.adjustX = 0.00000
-          this.viewSettings.adjustY = 70.51990
-          this.viewSettings.adjustZ = 0.00000
+          this.viewSettings.adjustY = 133.43470
+          this.viewSettings.adjustZ = -76.46570
 
-          this.viewSettings.cameraExtraHeight = 0.00000
+          this.viewSettings.cameraExtraHeight = -65.26500
           this.viewSettings.farest = 900.00000
-          this.viewSettings.defaultCloseup = 86.93800
+          this.viewSettings.defaultCloseup = -56.35400
         }
+
+        this.viewSettings.adjustX *= this.initConfig.scale
+        this.viewSettings.adjustY *= this.initConfig.scale
+        this.viewSettings.adjustZ *= this.initConfig.scale
+        this.viewSettings.cameraExtraHeight *= this.initConfig.scale
+        this.viewSettings.farest *= this.initConfig.scale
+        this.viewSettings.defaultCloseup *= this.initConfig.scale
       }
 
       resetCam()
       this.$watch('viewCameraMode', resetCam)
+
       let updateO3D = (o3d) => {
         o3d.updateMatrix()
         o3d.updateMatrixWorld()
@@ -693,6 +814,8 @@ export default {
         var delta = (time - prevTime) / 1000
         prevTime = time;
 
+        // delta *= this.initConfig.scale
+
         // update control target
         if (turnLeft) {
           this.controlTarget.rotation.y += delta * 1.75
@@ -702,16 +825,16 @@ export default {
         }
         if (!this.isTakingComplexAction) {
           if (moveForward) {
-            this.controlTarget.translateZ(-delta * 700)
+            this.controlTarget.translateZ(-delta * 700 * this.initConfig.scale)
           }
           if (moveBackward) {
-            this.controlTarget.translateZ(delta * 700)
+            this.controlTarget.translateZ(delta * 700 * this.initConfig.scale)
           }
           if (moveLeft) {
-            this.controlTarget.translateX(-delta * 700)
+            this.controlTarget.translateX(-delta * 700 * this.initConfig.scale)
           }
           if (moveRight) {
-            this.controlTarget.translateX(delta * 700)
+            this.controlTarget.translateX(delta * 700 * this.initConfig.scale)
           }
         }
 
@@ -742,58 +865,59 @@ export default {
             }
           }
         }
-        if (this.guy) {
+        if (this.guyHead && this.guy && this.guyFace && this.guyBack && this.guySkeleton) {
           this.guy.getWorldPosition(centerPosition)
-        }
 
-        if (this.viewCameraMode === 'chase') {
+          let flip = [
+            'close',
+            'behind',
+            'firstface'
+          ]
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
-          centerPosition.z += config.adjustZ
-        }
 
-        if (this.viewCameraMode === 'close') {
-          centerPosition.x += config.adjustX
-          centerPosition.y += config.adjustY
-          centerPosition.z += config.adjustZ
-        }
+          if (flip.includes(this.viewCameraMode)) {
+            centerPosition.z += config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            centerPosition.z += config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
 
-        if (this.viewCameraMode === 'eye') {
-          centerPosition.x += config.adjustX
-          centerPosition.y += config.adjustY
-          centerPosition.z += config.adjustZ
-        }
+          this.guyFace.position.x = config.adjustX
+          this.guyFace.position.y = config.adjustY
+          if (flip.includes(this.viewCameraMode)) {
+            this.guyFace.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            this.guyFace.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
 
-        if (this.viewCameraMode === 'firstperson') {
+          this.guyBack.position.x = config.adjustX
+          this.guyBack.position.y = config.adjustY
+          if (flip.includes(this.viewCameraMode)) {
+            this.guyBack.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            this.guyBack.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
+
           camPlacer.position.x = config.adjustX
           camPlacer.position.y = config.adjustY
-          camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
-        }
-        if (this.viewCameraMode === 'firstback') {
-          camPlacer.position.x = config.adjustX
-          camPlacer.position.y = config.adjustY
-          camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
-        }
-        if (this.viewCameraMode === 'firstface') {
-          camPlacer.position.x = config.adjustX
-          camPlacer.position.y = config.adjustY
-          camPlacer.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
-        }
+          if (flip.includes(this.viewCameraMode)) {
+            camPlacer.position.z = config.adjustZ + config.defaultCloseup - vscroll.value * config.farest
+          } else {
+            camPlacer.position.z = config.adjustZ + config.defaultCloseup + vscroll.value * config.farest
+          }
 
-
-        if (this.guyHead && this.guy && this.guyFace && this.guyBack) {
           updateO3D(this.guyHead)
           updateO3D(this.guy)
           updateO3D(this.guyFace)
           updateO3D(this.guyBack)
           updateO3D(camPlacer)
 
-          headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
-          guyBodyPos.setFromMatrixPosition(this.guy.matrixWorld)
           guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
           guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
-
           camPlacerVec3.setFromMatrixPosition(camPlacer.matrixWorld)
+
+          headPosition.setFromMatrixPosition(this.guyHead.matrixWorld)
+          guyBodyPos.setFromMatrixPosition(this.guy.matrixWorld)
           lookAtVec3.setFromMatrixPosition(this.guy.matrixWorld)
         }
 
@@ -801,11 +925,20 @@ export default {
         let scrollZoom = config.farest * progress * 1
         let extraZoom = config.defaultCloseup + scrollZoom
 
-        if (this.viewCameraMode === 'eye') {
+        if (this.viewCameraMode === 'behind') {
+          // make use of position
+          targetCamPos.x = guyBackPos.x
+          targetCamPos.y = guyBackPos.y + config.cameraExtraHeight
+          targetCamPos.z = guyBackPos.z
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'face') {
           // make use of position
           targetCamPos.x = guyEyePos.x
           targetCamPos.y = guyEyePos.y + config.cameraExtraHeight
-          targetCamPos.z = guyEyePos.z - extraZoom
+          targetCamPos.z = guyEyePos.z
 
           targetLookAt.x = headPosition.x
           targetLookAt.y = headPosition.y - config.cameraExtraHeight
@@ -814,7 +947,7 @@ export default {
           // make use of position
           targetCamPos.x = centerPosition.x
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
-          targetCamPos.z = centerPosition.z - extraZoom
+          targetCamPos.z = centerPosition.z
 
           targetLookAt.x = guyBodyPos.x
           targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
@@ -823,7 +956,7 @@ export default {
           // make use of position
           targetCamPos.x = centerPosition.x
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
-          targetCamPos.z = centerPosition.z - extraZoom
+          targetCamPos.z = centerPosition.z
 
           targetLookAt.x = guyBodyPos.x
           targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
@@ -857,38 +990,50 @@ export default {
           targetLookAt.z = lookAtVec3.z
         }
 
-        if (this.viewCameraMode === 'eye') {
+        if (this.viewCameraMode === 'behind') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'face') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'chase') {
-          lerperLookAt.lerp(targetLookAt, 0.05)
-          lerperCamPos.lerp(targetCamPos, 0.05)
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'close') {
-          lerperLookAt.lerp(targetLookAt, 0.05)
-          lerperCamPos.lerp(targetCamPos, 0.05)
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'firstperson') {
-          lerperLookAt.lerp(targetLookAt, 1)
+          lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'firstback') {
-          lerperLookAt.lerp(targetLookAt, 1)
+          lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'firstface') {
-          lerperLookAt.lerp(targetLookAt, 1)
+          lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         }
 
-        this.camera.lookAt(targetLookAt)
-        this.camera.position.copy(targetCamPos)
+        if (this.viewCameraMode === 'static') {
+          this.controls.enabled = true
+          this.controls.update()
+        } else {
+          this.controls.enabled = false
+          this.camera.lookAt(lerperLookAt)
+          this.camera.position.copy(lerperCamPos)
+        }
       })
 
       this.lookup('base').onLoop(() => {
         this.layouts = {
+          allsamller: {
+
+          },
           walk: {
-            sx: 5.5,
-            sy: 5.5,
-            sz: 5.5,
-            pz: 800 * 5.5,
-            py: 1157
+            sx: 5.5 * this.initConfig.scale,
+            sy: 5.5 * this.initConfig.scale,
+            sz: 5.5 * this.initConfig.scale,
+            pz: 800 * 5.5 * this.initConfig.scale,
+            py: 1157 * this.initConfig.scale
           },
           // bg: {
           //   // pz: -400,
@@ -899,9 +1044,14 @@ export default {
           //   rx: Math.PI * 0.5
           // },
           charmover: {
+            sx: this.initConfig.scale,
+            sy: this.initConfig.scale,
+            sz: this.initConfig.scale,
+
             px: this.charmover.position.x,
             py: this.charmover.position.y,
             pz: this.charmover.position.z,
+
             rx: this.charmover.rotation.x,
             ry: this.charmover.rotation.y,
             rz: this.charmover.rotation.z
@@ -939,6 +1089,27 @@ export default {
             // pz: 100
           }
         }
+      })
+    },
+    async doMany ({ idle, to, mixer, stopAll = true }) {
+      return new Promise((resolve) => {
+        if (to.isRunning()) {
+          resolve()
+          return
+        }
+        if (stopAll) {
+          mixer.stopAllAction()
+        }
+        to.reset()
+
+        to.enabled = true
+        // to.repetitions = 1
+        // to.clampWhenFinished = true
+        to.reset().play()
+
+        setTimeout(() => {
+          resolve()
+        }, to.duration * 1000)
       })
     },
     async doOnce ({ idle, to, mixer, stopAll = true }) {
@@ -1046,9 +1217,9 @@ export default {
         idle.play()
       })
     },
-    async setupAnimationSystem () {
+    async setupAnimationSystem ({ gltf }) {
       let moves = this.moves
-      let mixer = await this.prepMixer({ actor: this.guyGLTF.scene })
+      let mixer = await this.prepMixer({ actor: gltf.scene })
 
       let parallelPreload = async () => {
         let arr = [
@@ -1103,13 +1274,42 @@ export default {
 
       idle.play()
 
+      this.$on('play-move', async ({ move, cb = () => {} }) => {
+        try {
+          this.$nextTick(() => {
+            let list = this.$refs[`item-${move._id}`]
+            if (list) {
+              let dom = list[0]
+              try {
+                dom.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' })
+              } catch (e) {
+              }
+            }
+          })
+
+          this.isTakingComplexAction = true
+          let action = await this.getActionByDisplayName({ name: move.displayName, mixer })
+          await this.doMany({ idle, to: action, mixer, stopAll: true }).catch(() => {
+            this.isTakingComplexAction = false
+          })
+          this.isTakingComplexAction = false
+        } catch (e) {
+          console.log(e)
+        }
+      })
+
+      // this.viewCameraMode = 'face'
+      this.$emit('play-move', { move: { displayName: this.initConfig.initAction }, cb: () => {} })
+
       // setTimeout(async () => {
       //   this.viewCameraMode = 'close'
       //   await this.doOnce({ idle, to: skillAction1, mixer }).catch(e => console.log(e))
       //   this.viewCameraMode = 'firstperson'
       // })
 
-      this.charReady = true
+      setTimeout(() => {
+        this.charReady = true
+      }, 100)
 
       let moveForward, moveLeft, moveRight, moveBackward = false
       var onKeyDown = async (event) => {
@@ -1260,23 +1460,28 @@ export default {
       document.addEventListener( 'keyup', onKeyUp, false );
     },
     setupGyroCam () {
-      if (this.isMobile) {
+      try {
         let proxyCam = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
         controls.dampping = true
 
         this.lookup('base').onLoop(() => {
+          if (!this.useGyro) {
+            return
+          }
           controls.enabled = true
           controls.update()
           // console.log(proxyCam.position.x, proxyCam.rotation.y)
           if (typeof proxyCam.rotation.y !== 'undefined') {
-            this.useGyro = true
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
         })
+      } catch (e) {
+        console.log(e)
       }
-    },
+      this.useGyro = !this.useGyro
+    }
   },
   beforeDestroy () {
   },
@@ -1309,8 +1514,10 @@ export default {
     this.scene.background = new Color('#1a1a1a')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
-    this.camera.position.z = -1000
-    this.camera.position.y = 380
+    this.camera.position.x = this.initConfig.controlTargetPos.x
+    this.camera.position.y = this.initConfig.controlTargetPos.y
+    this.camera.position.z = this.initConfig.controlTargetPos.z
+    this.camera.lookAt(this.initConfig.controlTargetLookAt)
 
     this.scene.add(this.o3d)
 
@@ -1383,6 +1590,13 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="postcss">
+.moves-box{
+  height: 170px;
+}
+@screen lg {
+  .moves-box{
+    height: calc(100% - 180px);
+  }
+}
 </style>
