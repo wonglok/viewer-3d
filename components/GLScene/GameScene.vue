@@ -78,8 +78,6 @@
     </div>
 
     <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
-
-
       <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
       <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
       <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
@@ -94,7 +92,8 @@
 
       <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
       <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
-      <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
+      <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-right', 'border-green-200': viewCameraMode === 'close-right' }" @click="viewCameraMode = 'close-right'">Close Up Right</div>
+      <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-left', 'border-green-200': viewCameraMode === 'close-left' }" @click="viewCameraMode = 'close-left'">Close Up Left</div>
       <div class="select-none text-white text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
@@ -287,11 +286,11 @@ export default {
     },
     actionListFilter () {
       if (this.actionListFilter === 'dance') {
-        this.viewCameraMode = 'close'
+        this.viewCameraMode = 'close-right'
       } else if (this.actionListFilter === 'combat') {
         this.viewCameraMode = 'behind'
       } else if (this.actionListFilter === 'ready') {
-        this.viewCameraMode = 'close'
+        this.viewCameraMode = 'close-left'
       } else if (this.actionListFilter === 'control') {
         this.viewCameraMode = 'chase'
       } else if (this.actionListFilter === 'action') {
@@ -759,8 +758,16 @@ export default {
           this.viewSettings.cameraExtraHeight = 3.982
           this.viewSettings.defaultCloseup = 492.46 + 24.6128
           this.viewSettings.farest = 900
-        } else if (this.viewCameraMode === 'close') {
+        } else if (this.viewCameraMode === 'close-right') {
           this.viewSettings.adjustX = -147.9535
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = -195.1051
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.defaultCloseup = -48.425
+          this.viewSettings.farest = 900
+        } else if (this.viewCameraMode === 'close-left') {
+          this.viewSettings.adjustX = 147.9535
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = -195.1051
 
@@ -873,7 +880,8 @@ export default {
           this.guy.getWorldPosition(centerPosition)
 
           let flip = [
-            'close',
+            'close-left',
+            'close-right',
             'behind',
             'firstface'
           ]
@@ -956,7 +964,16 @@ export default {
           targetLookAt.x = guyBodyPos.x
           targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
           targetLookAt.z = guyBodyPos.z
-        } else if (this.viewCameraMode === 'close') {
+        } else if (this.viewCameraMode === 'close-left') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'close-right') {
           // make use of position
           targetCamPos.x = centerPosition.x
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
@@ -1003,7 +1020,10 @@ export default {
         } else if (this.viewCameraMode === 'chase') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-        } else if (this.viewCameraMode === 'close') {
+        } else if (this.viewCameraMode === 'close-left') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'close-right') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'firstperson') {
@@ -1495,7 +1515,6 @@ export default {
           proxyLookAtTarget.updateWorldMatrix()
 
           this.extraHeight.setFromMatrixPosition(proxyLookAtTarget.matrixWorld)
-          // console.log(proxyCam.position.x, proxyCam.rotation.y)
           if (typeof proxyCam.rotation.y !== 'undefined') {
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
