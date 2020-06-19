@@ -6,10 +6,10 @@ export default {
     port: 3000,
     host: '0.0.0.0',
     timing: false,
-    https: {
-      key: fs.readFileSync(path.join(__dirname, '/cert/server.key')),
-      cert: fs.readFileSync(path.join(__dirname, '/cert/server.crt'))
-    }
+    // https: {
+    //   key: fs.readFileSync(path.join(__dirname, '/cert/server.key')),
+    //   cert: fs.readFileSync(path.join(__dirname, '/cert/server.crt'))
+    // }
   },
   mode: 'spa',
   /*

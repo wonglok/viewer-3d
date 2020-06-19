@@ -1022,7 +1022,7 @@ export default {
           this.controls.update()
         } else {
           this.controls.enabled = false
-          if (this.useGyro && ['firstperson', 'firstback', 'firstface'].includes(this.viewCameraMode)) {
+          if (this.useGyro && ['firstperson', 'firstback'].includes(this.viewCameraMode)) {
             lerperLookAt.y += this.extraHeight.y
             lerperLookAt.z += this.extraHeight.z
             lerperLookAt.x += this.extraHeight.x
