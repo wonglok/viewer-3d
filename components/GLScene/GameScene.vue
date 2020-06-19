@@ -18,6 +18,7 @@
       </O3D> -->
 
       <O3D :animated="true" layout="charmover" :visible="charReady">
+
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
@@ -568,7 +569,7 @@ export default {
 
       let lookAtMeGyroTargetPosition = new Vector3()
       let lookAtMeGyroTarget = new Object3D()
-      lookAtMeGyroTarget.position.z = -50
+      lookAtMeGyroTarget.position.z = 0
       this.controlTargetLooker.add(lookAtMeGyroTarget)
 
       // conrtol
@@ -923,8 +924,10 @@ export default {
           updateO3D(camPlacer)
           updateO3D(lookAtMeGyroTarget)
 
-          lookAtMeGyroTarget.position.z = Math.abs(camPlacer.position.z) * (flip.includes(this.viewCameraMode) ? 1 : -1)
-          lookAtMeGyroTargetPosition.setFromMatrixPosition(lookAtMeGyroTarget.matrixWorld)
+          if (this.useGyro) {
+            lookAtMeGyroTarget.position.z = -camPlacer.position.z
+            lookAtMeGyroTargetPosition.setFromMatrixPosition(lookAtMeGyroTarget.matrixWorld)
+          }
 
           guyEyePos.setFromMatrixPosition(this.guyFace.matrixWorld)
           guyBackPos.setFromMatrixPosition(this.guyBack.matrixWorld)
@@ -1019,12 +1022,21 @@ export default {
         } else if (this.viewCameraMode === 'firstperson') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
+          if (this.useGyro) {
+            lerperLookAt.add(lookAtMeGyroTargetPosition)
+          }
         } else if (this.viewCameraMode === 'firstback') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
+          if (this.useGyro) {
+            lerperLookAt.add(lookAtMeGyroTargetPosition)
+          }
         } else if (this.viewCameraMode === 'firstface') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
+          if (this.useGyro) {
+            lerperLookAt.add(lookAtMeGyroTargetPosition)
+          }
         }
 
         if (this.viewCameraMode === 'static') {
@@ -1032,7 +1044,6 @@ export default {
           this.controls.update()
         } else {
           this.controls.enabled = false
-          lerperLookAt.add(lookAtMeGyroTargetPosition)
           this.camera.lookAt(lerperLookAt)
           this.camera.position.copy(lerperCamPos)
         }
@@ -1554,6 +1565,7 @@ export default {
     this.camera.position.y = this.initConfig.controlTargetPos.y
     this.camera.position.z = this.initConfig.controlTargetPos.z
     this.camera.lookAt(this.initConfig.controlTargetLookAt)
+    this.charmover.add(this.camera)
 
     this.scene.add(this.o3d)
 
