@@ -86,6 +86,12 @@
     </div>
     <div class="touch-action-manipulation select-none absolute z-10 top-0 right-0 p-1" v-if="charReady && showToolsBox">
       <div class="text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showToolsBox, 'border-green-200': showToolsBox }" @click="showToolsBox = !showToolsBox">Show Tools</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
+        <span v-if="!useGyro">Try AR/XR Mode</span>
+        <span v-if="useGyro">Using AR/XR Mode</span>
+      </div>
+
 
       <div class="h-2"></div>
 
@@ -102,15 +108,10 @@
       <div class="h-2"></div>
 
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
-      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'front', 'border-green-200': viewCameraMode === 'front' }" @click="viewCameraMode = 'front'">Front Action Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Action Cam</div>
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-right', 'border-green-200': viewCameraMode === 'close-right' }" @click="viewCameraMode = 'close-right'">Close Up Right</div>
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-left', 'border-green-200': viewCameraMode === 'close-left' }" @click="viewCameraMode = 'close-left'">Close Up Left</div>
-      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
-        <span v-if="!useGyro">Try AR/XR Mode</span>
-        <span v-if="useGyro">Using AR/XR Mode</span>
-      </div>
-
-      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
 
       <div class="h-2"></div>
 
@@ -297,7 +298,7 @@ export default {
       if (this.actionListFilter === 'dance') {
         this.viewCameraMode = 'close-right'
       } else if (this.actionListFilter === 'combat') {
-        this.viewCameraMode = 'behind'
+        this.viewCameraMode = 'front'
       } else if (this.actionListFilter === 'ready') {
         this.viewCameraMode = 'close-left'
       } else if (this.actionListFilter === 'control') {
@@ -769,8 +770,16 @@ export default {
           this.viewSettings.adjustZ = 0
 
           this.viewSettings.cameraExtraHeight = 3.982
-          this.viewSettings.defaultCloseup = 492.46 + 24.6128
+          this.viewSettings.defaultCloseup = 138.76
           this.viewSettings.farest = 900
+        } else if (this.viewCameraMode === 'front') {
+          this.viewSettings.adjustX = 123.75550000000001
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = 0
+
+          this.viewSettings.cameraExtraHeight = 3.9820000000000007
+          this.viewSettings.farest = 900
+          this.viewSettings.defaultCloseup = -138.76
         } else if (this.viewCameraMode === 'close-right') {
           this.viewSettings.adjustX = -147.9535
           this.viewSettings.adjustY = 0
@@ -896,7 +905,8 @@ export default {
             'close-left',
             'close-right',
             'behind',
-            'firstface'
+            'firstface',
+            'front'
           ]
           centerPosition.x += config.adjustX
           centerPosition.y += config.adjustY
@@ -977,6 +987,15 @@ export default {
           targetLookAt.x = guyBodyPos.x
           targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
           targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'front') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
         } else if (this.viewCameraMode === 'close-left') {
           // make use of position
           targetCamPos.x = centerPosition.x
@@ -1031,6 +1050,9 @@ export default {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'chase') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'front') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'close-left') {
