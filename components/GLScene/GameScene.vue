@@ -717,27 +717,25 @@ export default {
       this.controls.enableDamping = true
       this.controls.enableKeys = false
 
-      let charPlaceLast = new Vector3()
-      let charPlace = new Vector3()
-      let camPlace = new Vector3()
+      let charLookAtPlaceLast = new Vector3()
+      let charLookAtPlace = new Vector3()
 
       this.lookup('base').onLoop(() => {
-        if (this.guyHead) {
+        if (this.guyBack) {
           this.controls.update()
 
-          this.guyHead.updateMatrix()
-          this.guyHead.updateMatrixWorld()
-          this.guyHead.updateWorldMatrix()
-          charPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
+          this.guyBack.updateMatrix()
+          this.guyBack.updateMatrixWorld()
+          this.guyBack.updateWorldMatrix()
+          charLookAtPlace.setFromMatrixPosition(this.guyBack.matrixWorld)
 
-          let diff = charPlaceLast.clone().sub(charPlace).multiplyScalar(-1)
-
+          let diff = charLookAtPlaceLast.clone().sub(charLookAtPlace).multiplyScalar(-1)
           this.controls.object.position.add(diff)
 
-          charPlaceLast.copy(charPlace)
+          charLookAtPlaceLast.copy(charLookAtPlace)
 
-          this.controls.target0.copy(charPlace)
-          this.controls.target.copy(charPlace)
+          this.controls.target0.lerp(charLookAtPlace, 0.2)
+          this.controls.target.lerp(charLookAtPlace, 0.2)
         }
       })
 
