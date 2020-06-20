@@ -106,7 +106,7 @@
 
       <div class="h-2"></div>
 
-      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'follower', 'border-green-200': viewCameraMode === 'follower' }" @click="viewCameraMode = 'follower'">Follower Cam</div>
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'front', 'border-green-200': viewCameraMode === 'front' }" @click="viewCameraMode = 'front'">Front Action Cam</div>
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Chase Action Cam</div>
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-right', 'border-green-200': viewCameraMode === 'close-right' }" @click="viewCameraMode = 'close-right'">Close Up Right</div>
@@ -298,7 +298,7 @@ export default {
       if (this.actionListFilter === 'dance') {
         this.viewCameraMode = 'close-right'
       } else if (this.actionListFilter === 'combat') {
-        this.viewCameraMode = 'front'
+        this.viewCameraMode = 'follower'
       } else if (this.actionListFilter === 'ready') {
         this.viewCameraMode = 'close-left'
       } else if (this.actionListFilter === 'control') {
@@ -1097,7 +1097,7 @@ export default {
           lerperCamPos.lerp(targetCamPos, 0.2)
         }
 
-        if (this.viewCameraMode === 'static') {
+        if (this.viewCameraMode === 'follower') {
           this.controls.enabled = true
           this.controls.update()
         } else {
