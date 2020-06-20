@@ -720,14 +720,23 @@ export default {
       let charLookAtPlaceLast = new Vector3()
       let charLookAtPlace = new Vector3()
 
+      this.$watch('guyHead', () => {
+        if (this.guyHead) {
+          this.guyHead.updateMatrix()
+          this.guyHead.updateMatrixWorld()
+          this.guyHead.updateWorldMatrix()
+          charLookAtPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
+        }
+      })
+
       this.lookup('base').onLoop(() => {
-        if (this.guyBack) {
+        if (this.guyHead && this.charReady) {
           this.controls.update()
 
-          this.guyBack.updateMatrix()
-          this.guyBack.updateMatrixWorld()
-          this.guyBack.updateWorldMatrix()
-          charLookAtPlace.setFromMatrixPosition(this.guyBack.matrixWorld)
+          this.guyHead.updateMatrix()
+          this.guyHead.updateMatrixWorld()
+          this.guyHead.updateWorldMatrix()
+          charLookAtPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
 
           let diff = charLookAtPlaceLast.clone().sub(charLookAtPlace).multiplyScalar(-1)
           this.controls.object.position.add(diff)
