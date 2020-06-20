@@ -3,7 +3,7 @@
     <ScissorArea class="webgl-banner">
       <div slot="dom" class="relative full">
       </div>
-      <SwatFullPageScene slot="o3d"></SwatFullPageScene>
+      <SwatRunScene slot="o3d"></SwatRunScene>
     </ScissorArea>
   </div>
 </template>

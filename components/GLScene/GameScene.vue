@@ -717,6 +717,30 @@ export default {
       this.controls.enableDamping = true
       this.controls.enableKeys = false
 
+      let charPlaceLast = new Vector3()
+      let charPlace = new Vector3()
+      let camPlace = new Vector3()
+
+      this.lookup('base').onLoop(() => {
+        if (this.guyHead) {
+          this.controls.update()
+
+          this.guyHead.updateMatrix()
+          this.guyHead.updateMatrixWorld()
+          this.guyHead.updateWorldMatrix()
+          charPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
+
+          let diff = charPlaceLast.clone().sub(charPlace).multiplyScalar(-1)
+
+          this.controls.object.position.add(diff)
+
+          charPlaceLast.copy(charPlace)
+
+          this.controls.target0.copy(charPlace)
+          this.controls.target.copy(charPlace)
+        }
+      })
+
       let resetCharCam = () => {
         if (this.charmover) {
           this.camera.position.copy(this.charmover.position)

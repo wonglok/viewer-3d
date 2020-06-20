@@ -22,6 +22,7 @@ export default {
     // let mat = new MeshBasicMaterial({ color: 0xff0000 })
     // let item = new Mesh(geo, mat)
     // this.o3d.add(item)
+    this.$emit('o3d', this.o3d)
   },
   beforeDestroy () {
   }
