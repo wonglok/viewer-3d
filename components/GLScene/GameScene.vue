@@ -32,7 +32,7 @@
       </O3D>
     </O3D>
 
-    <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
+    <div class="touch-action-manipulation select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
     <div v-if="charReady && showToolsBox && moves" class="p-1 select-none lg:select-text absolute z-20 top-0 left-0 text-xs lg:text-sm text-white w-56 overflow-y-auto moves-box">
@@ -91,7 +91,6 @@
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
       </div>
-
 
       <div class="h-2"></div>
 
@@ -223,7 +222,7 @@ export default {
       isSmallScreen: window.innerWidth < 500,
       Math,
       character: 'swat',
-      // characterList: ['swat', 'girl'],
+      characterList: ['swat', 'girl'],
       initConfig: {
         scale: 0.1,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
@@ -246,7 +245,6 @@ export default {
       viewSettings: {},
 
       charReady: false,
-      guyGLTF: false,
       displayStartMenu: true,
 
       loadingManager: false,
@@ -283,6 +281,7 @@ export default {
       this.controlTarget.position.x = 0
       this.controlTarget.position.y = 0
       this.controlTarget.position.z = 0
+
       this.controlTarget.rotation.x = 0
       this.controlTarget.rotation.y = 0
       this.controlTarget.rotation.z = 0
@@ -290,6 +289,7 @@ export default {
       this.charmover.position.x = 0
       this.charmover.position.y = 0
       this.charmover.position.z = 0
+
       this.charmover.rotation.x = 0
       this.charmover.rotation.y = 0
       this.charmover.rotation.z = 0
@@ -878,6 +878,7 @@ export default {
 
         // sync control target to character
         charPlacerVec3.setFromMatrixPosition(charPlacer.matrixWorld)
+
         this.charmover.rotation.x = this.controlTarget.rotation.x
         this.charmover.rotation.y = this.controlTarget.rotation.y
         this.charmover.rotation.z = this.controlTarget.rotation.z
@@ -1081,7 +1082,6 @@ export default {
             lerperLookAt.y += this.extraHeight.y
             lerperLookAt.z += this.extraHeight.z
             lerperLookAt.x += this.extraHeight.x
-            console.log(this.extraHeight.y)
           }
           this.camera.lookAt(lerperLookAt)
           this.camera.position.copy(lerperCamPos)
