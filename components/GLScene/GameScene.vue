@@ -50,30 +50,30 @@
       </div>
     </div>
 
-    <div class="select-none absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
-      <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
-        Forward
+    <div class="select-none  absolute z-10 bottom-0 left-0 p-3" :class="{  'pb-16': isDev }" v-if="charReady">
+      <div class="block rounded-full touch-action-manipulation text-center select-none  p-2 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
+        <img class="select-none  pointer-events-none" src="./img/up.svg" alt="">
       </div>
-      <div class="block text-center select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
-        Backward
-      </div>
-    </div>
-
-    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
-      <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
-        Turn Left
-      </div>
-      <div class="block text-center select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
-        Turn Right
+      <div class="block rounded-full touch-action-manipulation text-center select-none  p-2 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
+        <img class="select-none  pointer-events-none" src="./img/down.svg" alt="">
       </div>
     </div>
 
-    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
-      <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
-        Go Left
+    <div class="select-none  absolute z-10 bottom-0 right-0 p-3" :class="{  'pb-16': isDev }" v-if="charReady && !useGyro">
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none  p-2 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
+        <img class="select-none  pointer-events-none" src="./img/left.svg" alt="">
       </div>
-      <div class="block text-center select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
-        Go Right
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none  p-2 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
+        <img class="select-none  pointer-events-none" src="./img/right.svg" alt="">
+      </div>
+    </div>
+
+    <div class="select-none  absolute z-10 bottom-0 right-0 p-3" :class="{  'pb-16': isDev }" v-if="charReady && useGyro">
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none  p-2 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
+        <img class="select-none  pointer-events-none" src="./img/left.svg" alt="">
+      </div>
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none  p-2 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
+        <img class="select-none  pointer-events-none" src="./img/right.svg" alt="">
       </div>
     </div>
 
@@ -707,6 +707,14 @@ export default {
       this.controls.enableDamping = true
       this.controls.enableKeys = false
 
+      let resetCharCam = () => {
+        if (this.charmover) {
+          this.camera.position.copy(this.charmover.position)
+          this.camera.position.y += 180 * this.initConfig.scale
+          this.camera.position.z += 300 * this.initConfig.scale
+        }
+      }
+      // this.$on('reset-char-cam', resetCharCam)
       let resetCam = () => {
         vscroll.value = 0
         this.controls.reset()
@@ -716,11 +724,7 @@ export default {
         this.controlTarget.position.z = this.initConfig.controlTargetPos.z
         this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
 
-        if (this.charmover) {
-          this.camera.position.copy(this.charmover.position)
-          this.camera.position.y += 180 * this.initConfig.scale
-          this.camera.position.z += 300 * this.initConfig.scale
-        }
+        resetCharCam()
 
         if (this.viewCameraMode === 'behind') {
 
@@ -1640,5 +1644,8 @@ export default {
   .moves-box{
     height: calc(100% - 180px);
   }
+}
+.touch-action-manipulation{
+  touch-action: manipulation;
 }
 </style>
