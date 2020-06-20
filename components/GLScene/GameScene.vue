@@ -9,13 +9,17 @@
         <SwatWalk></SwatWalk>
       </O3D>
 
-      <!-- <O3D :animated="true" layout="bg">
+      <!--
+      <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
-      </O3D> -->
+      </O3D>
+      -->
 
-      <!-- <O3D :animated="true" layout="holycross" :visible="charReady">
+      <!--
+      <O3D :animated="true" layout="holycross" :visible="charReady">
         <HolyCross :visible="charReady"></HolyCross>
-      </O3D> -->
+      </O3D>
+      -->
 
       <O3D :animated="true" layout="charmover" :visible="charReady">
         <O3D :animated="true" layout="calibration">
@@ -50,7 +54,7 @@
       </div>
     </div>
 
-    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 left-0 p-2" :class="{  'pb-16': isDev }" v-if="charReady">
+    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 left-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady">
       <div class="block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
         <img class=" scale-75 transform select-none  pointer-events-none" src="./img/up.svg" alt="">
       </div>
@@ -59,7 +63,7 @@
       </div>
     </div>
 
-    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2" :class="{  'pb-16': isDev }" v-if="charReady && !useGyro">
+    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady && !useGyro">
       <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
         <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
       </div>
@@ -68,7 +72,7 @@
       </div>
     </div>
 
-    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2" :class="{  'pb-16': isDev }" v-if="charReady && useGyro">
+    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady && useGyro">
       <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
         <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
       </div>

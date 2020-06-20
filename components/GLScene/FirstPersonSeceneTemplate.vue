@@ -31,15 +31,15 @@
     <div class="select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
     </div>
 
-    <div v-if="charReady && showActionBox && moves" class="select-none lg:select-text absolute z-20 top-0 left-0 text-sm text-white w-56 overflow-y-auto moves-box">
+    <div v-if="charReady && showToolsBox && moves" class="p-1 select-none lg:select-text absolute z-20 top-0 left-0 text-xs lg:text-sm text-white w-56 overflow-y-auto moves-box">
       <!-- <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a> -->
       <div class="p-1">
-        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
-        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
-        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'dance'" :style="{ backgroundColor: actionListFilter === 'dance' ? 'green' : '' }">Dance</a>
-        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'action'" :style="{ backgroundColor: actionListFilter === 'action' ? 'green' : '' }">Action</a>
-        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
-        <a class="inline-block px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
+        <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
+        <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
+        <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'dance'" :style="{ backgroundColor: actionListFilter === 'dance' ? 'green' : '' }">Dance</a>
+        <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'action'" :style="{ backgroundColor: actionListFilter === 'action' ? 'green' : '' }">Action</a>
+        <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'combat'" :style="{ backgroundColor: actionListFilter === 'combat' ? 'green' : '' }">Combat</a>
+        <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'control'" :style="{ backgroundColor: actionListFilter === 'control' ? 'green' : '' }">Control</a>
       </div>
       <a :ref="`item-${moveItem._id}`" v-for="moveItem in moves.filter(actionFilter)" :key="moveItem._id + moveItem.displayName" @click="$emit('play-move', { move: moveItem }); lastClickedMove = moveItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: lastClickedMove === moveItem ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ moveItem.displayName }}</a>
     </div>
@@ -50,61 +50,67 @@
       </div>
     </div>
 
-    <div class="select-none absolute z-10 bottom-0 left-0 p-3 pb-16" v-if="charReady">
-      <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
-        Forward
+    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 left-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady">
+      <div class="block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
+        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/up.svg" alt="">
       </div>
-      <div class="block text-center select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
-        Backward
-      </div>
-    </div>
-
-    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && !useGyro">
-      <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
-        Turn Left
-      </div>
-      <div class="block text-center select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
-        Turn Right
+      <div class="block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
+        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/down.svg" alt="">
       </div>
     </div>
 
-    <div class="select-none absolute z-10 bottom-0 right-0 p-3 pb-16" v-if="charReady && useGyro">
-      <div class="block text-center select-none px-2 mx-1 my-1 mb-5 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
-        Go Left
+    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady && !useGyro">
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
+        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
       </div>
-      <div class="block text-center select-none px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
-        Go Right
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
+        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/right.svg" alt="">
       </div>
     </div>
 
-    <div class="absolute z-10 top-0 right-0 p-3" v-if="charReady">
+    <div class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady && useGyro">
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
+        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
+      </div>
+      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
+        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/right.svg" alt="">
+      </div>
+    </div>
 
+    <div class="touch-action-manipulation select-none absolute z-10 top-0 right-0 p-1" v-if="charReady && !showToolsBox">
+      <div class="text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showToolsBox, 'border-green-200': showToolsBox }" @click="showToolsBox = !showToolsBox">Show Tools</div>
+    </div>
+    <div class="touch-action-manipulation select-none absolute z-10 top-0 right-0 p-1" v-if="charReady && showToolsBox">
+      <div class="text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showToolsBox, 'border-green-200': showToolsBox }" @click="showToolsBox = !showToolsBox">Show Tools</div>
 
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
+      <div class="h-2"></div>
 
-      <div class="h-3"></div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstperson', 'border-green-200': viewCameraMode === 'firstperson' }" @click="viewCameraMode = 'firstperson'">First Person Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstback', 'border-green-200': viewCameraMode === 'firstback' }" @click="viewCameraMode = 'firstback'">First Person Back</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
 
-      <!-- <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Cam</div> -->
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Back Cam</div>
+      <div class="h-2"></div>
 
-      <div class="h-3"></div>
+      <!-- <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'eye', 'border-green-200': viewCameraMode === 'eye' }" @click="viewCameraMode = 'eye'">Eye Cam</div> -->
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'face', 'border-green-200': viewCameraMode === 'face' }" @click="viewCameraMode = 'face'">Face Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'behind', 'border-green-200': viewCameraMode === 'behind' }" @click="viewCameraMode = 'behind'">Back Cam</div>
 
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close', 'border-green-200': viewCameraMode === 'close' }" @click="viewCameraMode = 'close'">Dance Cam</div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
+      <div class="h-2"></div>
+
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'static', 'border-green-200': viewCameraMode === 'static' }" @click="viewCameraMode = 'static'">Fixed Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'chase', 'border-green-200': viewCameraMode === 'chase' }" @click="viewCameraMode = 'chase'">Action Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-right', 'border-green-200': viewCameraMode === 'close-right' }" @click="viewCameraMode = 'close-right'">Close Up Right</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'close-left', 'border-green-200': viewCameraMode === 'close-left' }" @click="viewCameraMode = 'close-left'">Close Up Left</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
       </div>
-      <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
-      <div class="text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showActionBox, 'border-green-200': showActionBox }" @click="showActionBox = !showActionBox">Show Actions</div>
 
-      <div class="h-3"></div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
 
-      <div v-if="isDev" class="">
+      <div class="h-2"></div>
+
+      <div v-if="isDev && !isSmallScreen" class="">
         <div class="select-none text-white block px-2 mx-1 my-1 border-gray-100 border text-20 text-center cursor-pointer" :class="{ 'text-yellow-200': true, 'border-yellow-200': true }" @click="copyText">copyText</div>
 
         <div>
@@ -167,7 +173,7 @@
       </div>
     </div>
 
-    <!-- <div class="absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="displayStartMenu" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" >
+    <!-- <div class="select-none absolute top-0 left-0 w-full h-full flex justify-center items-center" v-show="displayStartMenu" :style="{ backgroundColor: displayStartMenu ? `rgba(0,0,0,0.6)` : '' }" >
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white cursor-pointer" v-if="!!charReady && !entered" @click="setupControls();">
         Start Game
       </div>
@@ -178,7 +184,7 @@
         <span>Loading... {{ loadProgress.toFixed(1) }}%</span>
       </div>
     </div>
-    <div class="absolute top-0 left-0 p-3" v-if="!displayStartMenu">
+    <div class="select-none absolute top-0 left-0 p-3" v-if="!displayStartMenu">
       <div class="block px-2 mx-1 my-1 border-gray-100 border bg-gray-800 text-20 text-white">ESC to Exit</div>
     </div> -->
   </O3D>
@@ -209,6 +215,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      isSmallScreen: window.innerWidth < 500,
       Math,
       character: 'swat',
       // characterList: ['swat', 'girl'],
@@ -219,11 +226,12 @@ export default {
         initAction: 'Warming Up'
       },
       actionListFilter: 'all',
-      showActionBox: true,
+      showToolsBox: true,
       lastClickedMove: false,
       hasGyro: true,
       // isMobile: window.innerWidth < 500,
       Bloom: false,
+      extraHeight: new Vector3(),
       isDev: process.env.NODE_ENV === 'development',
       controls: false,
       charmover: new Object3D(),
@@ -283,11 +291,11 @@ export default {
     },
     actionListFilter () {
       if (this.actionListFilter === 'dance') {
-        this.viewCameraMode = 'close'
+        this.viewCameraMode = 'close-right'
       } else if (this.actionListFilter === 'combat') {
         this.viewCameraMode = 'behind'
       } else if (this.actionListFilter === 'ready') {
-        this.viewCameraMode = 'close'
+        this.viewCameraMode = 'close-left'
       } else if (this.actionListFilter === 'control') {
         this.viewCameraMode = 'chase'
       } else if (this.actionListFilter === 'action') {
@@ -704,6 +712,14 @@ export default {
       this.controls.enableDamping = true
       this.controls.enableKeys = false
 
+      let resetCharCam = () => {
+        if (this.charmover) {
+          this.camera.position.copy(this.charmover.position)
+          this.camera.position.y += 180 * this.initConfig.scale
+          this.camera.position.z += 300 * this.initConfig.scale
+        }
+      }
+      // this.$on('reset-char-cam', resetCharCam)
       let resetCam = () => {
         vscroll.value = 0
         this.controls.reset()
@@ -713,11 +729,7 @@ export default {
         this.controlTarget.position.z = this.initConfig.controlTargetPos.z
         this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
 
-        if (this.charmover) {
-          this.camera.position.copy(this.charmover.position)
-          this.camera.position.y += 180 * this.initConfig.scale
-          this.camera.position.z += 300 * this.initConfig.scale
-        }
+        resetCharCam()
 
         if (this.viewCameraMode === 'behind') {
 
@@ -755,8 +767,16 @@ export default {
           this.viewSettings.cameraExtraHeight = 3.982
           this.viewSettings.defaultCloseup = 492.46 + 24.6128
           this.viewSettings.farest = 900
-        } else if (this.viewCameraMode === 'close') {
+        } else if (this.viewCameraMode === 'close-right') {
           this.viewSettings.adjustX = -147.9535
+          this.viewSettings.adjustY = 0
+          this.viewSettings.adjustZ = -195.1051
+
+          this.viewSettings.cameraExtraHeight = 0
+          this.viewSettings.defaultCloseup = -48.425
+          this.viewSettings.farest = 900
+        } else if (this.viewCameraMode === 'close-left') {
+          this.viewSettings.adjustX = 147.9535
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = -195.1051
 
@@ -869,7 +889,8 @@ export default {
           this.guy.getWorldPosition(centerPosition)
 
           let flip = [
-            'close',
+            'close-left',
+            'close-right',
             'behind',
             'firstface'
           ]
@@ -952,7 +973,16 @@ export default {
           targetLookAt.x = guyBodyPos.x
           targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
           targetLookAt.z = guyBodyPos.z
-        } else if (this.viewCameraMode === 'close') {
+        } else if (this.viewCameraMode === 'close-left') {
+          // make use of position
+          targetCamPos.x = centerPosition.x
+          targetCamPos.y = centerPosition.y + config.cameraExtraHeight
+          targetCamPos.z = centerPosition.z
+
+          targetLookAt.x = guyBodyPos.x
+          targetLookAt.y = guyBodyPos.y - config.cameraExtraHeight
+          targetLookAt.z = guyBodyPos.z
+        } else if (this.viewCameraMode === 'close-right') {
           // make use of position
           targetCamPos.x = centerPosition.x
           targetCamPos.y = centerPosition.y + config.cameraExtraHeight
@@ -999,7 +1029,10 @@ export default {
         } else if (this.viewCameraMode === 'chase') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
-        } else if (this.viewCameraMode === 'close') {
+        } else if (this.viewCameraMode === 'close-left') {
+          lerperLookAt.lerp(targetLookAt, 0.2)
+          lerperCamPos.lerp(targetCamPos, 0.2)
+        } else if (this.viewCameraMode === 'close-right') {
           lerperLookAt.lerp(targetLookAt, 0.2)
           lerperCamPos.lerp(targetCamPos, 0.2)
         } else if (this.viewCameraMode === 'firstperson') {
@@ -1018,6 +1051,12 @@ export default {
           this.controls.update()
         } else {
           this.controls.enabled = false
+          if (this.useGyro && ['firstperson', 'firstback'].includes(this.viewCameraMode)) {
+            lerperLookAt.y += this.extraHeight.y
+            lerperLookAt.z += this.extraHeight.z
+            lerperLookAt.x += this.extraHeight.x
+            console.log(this.extraHeight.y)
+          }
           this.camera.lookAt(lerperLookAt)
           this.camera.position.copy(lerperCamPos)
         }
@@ -1461,18 +1500,30 @@ export default {
     },
     setupGyroCam () {
       try {
-        let proxyCam = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
+        let proxyCam = this.proxyCam = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
         let DeviceOrientationControls = require('three/examples/jsm/controls/DeviceOrientationControls').DeviceOrientationControls
         let controls = new DeviceOrientationControls(proxyCam, this.lookup('element'))
         controls.dampping = true
-
+        let proxyLookAtTarget = new Object3D()
+        proxyCam.add(proxyLookAtTarget)
         this.lookup('base').onLoop(() => {
           if (!this.useGyro) {
             return
           }
           controls.enabled = true
           controls.update()
-          // console.log(proxyCam.position.x, proxyCam.rotation.y)
+
+          proxyLookAtTarget.position.z = -8
+
+          proxyCam.updateMatrix()
+          proxyCam.updateMatrixWorld()
+          proxyCam.updateWorldMatrix()
+
+          proxyLookAtTarget.updateMatrix()
+          proxyLookAtTarget.updateMatrixWorld()
+          proxyLookAtTarget.updateWorldMatrix()
+
+          this.extraHeight.setFromMatrixPosition(proxyLookAtTarget.matrixWorld)
           if (typeof proxyCam.rotation.y !== 'undefined') {
             this.controlTarget.rotation.y = proxyCam.rotation.y
           }
@@ -1598,5 +1649,14 @@ export default {
   .moves-box{
     height: calc(100% - 180px);
   }
+}
+.touch-action-manipulation{
+  touch-action: manipulation;
+}
+.bg-transp-black{
+  background-color: rgba(0,0,0,0.3);
+}
+.disable-dbl-tap-zoom {
+  touch-action: manipulation;
 }
 </style>
