@@ -14,8 +14,10 @@
         <GlowBall></GlowBall>
       </O3D>
 
-      <O3D :animated="true" :layout="fruit.layout" v-for="(fruit) in myFruits" :key="fruit.layout">
-        <FruitCollection :shaderCube="shaderCube1" :fruit="fruit.type"></FruitCollection>
+      <O3D :animated="true" layout="fruitGroup">
+        <O3D :animated="true" :layout="fruit.layout" v-for="(fruit) in myFruits" :key="fruit.layout">
+          <FruitCollection :shaderCube="shaderCube1" :fruit="fruit.type"></FruitCollection>
+        </O3D>
       </O3D>
 
       <!--
@@ -34,7 +36,7 @@
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube0"></SwatRiggedModel>
+              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" @guyNeck="guyNeck = $event" :shaderCube="shaderCube0"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
@@ -275,6 +277,7 @@ export default {
       guyBack: false,
       guyFace: false,
       guySkeleton: false,
+      guyNeck: false,
 
       moves: false,
 
@@ -735,31 +738,32 @@ export default {
       let charLookAtPlaceLast = new Vector3()
       let charLookAtPlace = new Vector3()
 
-      this.$watch('guyHead', () => {
-        if (this.guyHead) {
-          this.guyHead.updateMatrix()
-          this.guyHead.updateMatrixWorld()
-          this.guyHead.updateWorldMatrix()
-          charLookAtPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
-        }
-      })
+      // this.$watch('guyHead', () => {
+      //   if (this.guyHead) {
+      //     this.guyHead.updateMatrix()
+      //     this.guyHead.updateMatrixWorld()
+      //     this.guyHead.updateWorldMatrix()
+      //     charLookAtPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
+      //   }
+      // })
 
       this.lookup('base').onLoop(() => {
-        if (this.guyHead && this.charReady) {
+        let lookAtGuy = this.guyHead
+        if (lookAtGuy && this.charReady) {
           this.controls.update()
 
-          this.guyHead.updateMatrix()
-          this.guyHead.updateMatrixWorld()
-          this.guyHead.updateWorldMatrix()
-          charLookAtPlace.setFromMatrixPosition(this.guyHead.matrixWorld)
+          lookAtGuy.updateMatrix()
+          lookAtGuy.updateMatrixWorld()
+          lookAtGuy.updateWorldMatrix()
+          charLookAtPlace.setFromMatrixPosition(lookAtGuy.matrixWorld)
 
           let diff = charLookAtPlaceLast.clone().sub(charLookAtPlace).multiplyScalar(-1)
           this.controls.object.position.add(diff)
 
           charLookAtPlaceLast.copy(charLookAtPlace)
 
-          this.controls.target0.lerp(charLookAtPlace, 0.2)
-          this.controls.target.lerp(charLookAtPlace, 0.2)
+          this.controls.target0.lerp(charLookAtPlace, 0.5)
+          this.controls.target.lerp(charLookAtPlace, 0.5)
           this.controls.saveState()
         }
       })
@@ -1589,8 +1593,8 @@ export default {
     }
     /* Loader End */
 
-    this.shaderCube0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
-    this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    this.shaderCube0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
 
     this.scene.background = new Color('#1a1a1a')
 
@@ -1692,7 +1696,7 @@ export default {
       },
       {
         'type': 'lemon',
-        'scale': 1
+        'scale': 4
       },
       {
         'type': 'grapes',
@@ -1715,14 +1719,24 @@ export default {
     this.myFruits = []
     this.fruitLayout = {}
     let fnMax = 20
+    let v3FruitTemp = new Vector3()
     for (var fi = 0; fi < fnMax; fi++) {
-      let fruitTypeInfo = typesOfFruit[Math.floor(Math.random() * typesOfFruit.length)]
+      let fruitTypeInfo = typesOfFruit[Math.floor(fi % (typesOfFruit.length - 1) + 0.0 * Math.random() * typesOfFruit.length)]
+      if (!fruitTypeInfo) {
+        continue
+      }
+      let radius = 50
+      let v3 = v3FruitTemp.setFromCylindricalCoords(radius, fi / fnMax * Math.PI * 2.0, 5)
+
       let data = {
-        px: (fi - (fnMax * 0.5)) * 16,
-        py: 6.7,
+        // px: (fi - (fnMax * 0.5)) * 16,
+        // py: 6.7,
         sx: fruitTypeInfo.scale,
         sy: fruitTypeInfo.scale,
-        sz: fruitTypeInfo.scale
+        sz: fruitTypeInfo.scale,
+        px: v3.x,
+        py: v3.y,
+        pz: v3.z
       }
       let layout = `layout-fn-${fi}`
       this.myFruits.push({
@@ -1734,9 +1748,13 @@ export default {
     }
 
     this.lookup('base').onLoop(() => {
+      let time = performance.now() * 0.001
       this.layouts = {
         ...(this.fruitLayout || {}),
-
+        fruitGroup: {
+          ry: Math.PI * 2.0 * time * 0.03,
+          pz: -100
+        },
         glowball: {
           pz: -100
         },

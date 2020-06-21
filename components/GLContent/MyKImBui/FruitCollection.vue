@@ -11,7 +11,7 @@ import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBuf
 
 let loaderTex = new TextureLoader()
 export default {
-  name: 'Swat',
+  name: 'Fruit',
   mixins: [Tree],
   props: {
     fruit: {

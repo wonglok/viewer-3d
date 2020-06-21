@@ -189,6 +189,14 @@ export default {
           this.$emit('guyBack', guyBack)
         }
 
+        if (item && item.name === 'mixamorigNeck') {
+          let guyNeck = new Object3D()
+          guyNeck.position.y = 0
+          guyNeck.position.z = 0
+          item.add(guyNeck)
+          this.$emit('guyNeck', guyNeck)
+        }
+
         if (item && item.name === 'mixamorigHead') {
           let guyFace = new Object3D()
           guyFace.position.x = 0
