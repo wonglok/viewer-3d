@@ -7,7 +7,7 @@
 <script>
 import { Tree, ShaderCube } from '../../Reusable'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { MeshMatcapMaterial, TextureLoader, DoubleSide } from 'three'
+import { MeshMatcapMaterial, TextureLoader, DoubleSide, AdditiveBlending } from 'three'
 
 let loaderFBX = new FBXLoader()
 let loaderTex = new TextureLoader()
@@ -111,7 +111,7 @@ export default {
           // let link = `https://res.cloudinary.com/loklok-keystone/image/upload/v1590477810/loklok/matcap/silver.png`
           // eslint-disable-next-line
           loaderTex.load(require('./matcap/silver.png'), (obj) => {
-            let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xeeeeee, matcap: obj })
+            let result = new MeshMatcapMaterial({ transparent: true, opacity: 1.0, color: 0xeeeeee, matcap: obj, side: DoubleSide })
             resolve(result)
           })
         })

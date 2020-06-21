@@ -7,7 +7,7 @@
 <script>
 import { Tree } from '../../Reusable'
 // import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { PointLight, DirectionalLight, HemisphereLight, AmbientLight } from 'three'
+import { AmbientLight } from 'three'
 
 // let loaderTex = new TextureLoader()
 export default {

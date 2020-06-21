@@ -9,6 +9,10 @@
         <SwatWalk></SwatWalk>
       </O3D>
 
+      <O3D :animated="true" layout="glowball">
+        <GlowBall></GlowBall>
+      </O3D>
+
       <!--
       <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
@@ -1140,74 +1144,6 @@ export default {
           this.camera.position.copy(lerperCamPos)
         }
       })
-
-      this.lookup('base').onLoop(() => {
-        this.layouts = {
-          allsamller: {
-
-          },
-          walk: {
-            sx: 5.5 * this.initConfig.scale,
-            sy: 5.5 * this.initConfig.scale,
-            sz: 5.5 * this.initConfig.scale,
-            pz: 800 * 5.5 * this.initConfig.scale,
-            py: 1157 * this.initConfig.scale
-          },
-          // bg: {
-          //   // pz: -400,
-          //   sx: 2,
-          //   sy: 2,
-          //   sz: 1,
-          //   py: -180,
-          //   rx: Math.PI * 0.5
-          // },
-          charmover: {
-            sx: this.initConfig.scale,
-            sy: this.initConfig.scale,
-            sz: this.initConfig.scale,
-
-            px: this.charmover.position.x,
-            py: this.charmover.position.y,
-            pz: this.charmover.position.z,
-
-            rx: this.charmover.rotation.x,
-            ry: this.charmover.rotation.y,
-            rz: this.charmover.rotation.z
-          },
-
-          // run: {
-          //   // ry: Math.PI * -0.25,
-          //   sx: 1,
-          //   sy: 1,
-          //   sz: 1,
-          //   // pz: -100,
-          //   // rx: Math.PI * 0.05 + Math.PI
-
-          //   // pz: -250,
-          //   // px: -2250,
-          //   // ry: Math.PI * 0.15,
-          // },
-
-          calibration: {
-            ry: Math.PI
-          },
-          correctAxis: {
-            rz: Math.PI * 0.5,
-            rx: Math.PI * -0.5
-          },
-          center: {
-            ry: Math.PI * -0.5,
-
-            // ry: Math.PI * (progress),
-            sx: 180,
-            sy: 180,
-            sz: 180,
-
-            py: -180,
-            // pz: 100
-          }
-        }
-      })
     },
     async doMany ({ idle, to, mixer, stopAll = true }) {
       return new Promise((resolve) => {
@@ -1720,6 +1656,74 @@ export default {
         return false
       }
     }, false)
+
+    this.lookup('base').onLoop(() => {
+      this.layouts = {
+        glowball: {
+          pz: -100
+        },
+        walk: {
+          sx: 5.5 * this.initConfig.scale,
+          sy: 5.5 * this.initConfig.scale,
+          sz: 5.5 * this.initConfig.scale,
+          pz: 800 * 5.5 * this.initConfig.scale,
+          py: 1157 * this.initConfig.scale
+        },
+        // bg: {
+        //   // pz: -400,
+        //   sx: 2,
+        //   sy: 2,
+        //   sz: 1,
+        //   py: -180,
+        //   rx: Math.PI * 0.5
+        // },
+        charmover: {
+          sx: this.initConfig.scale,
+          sy: this.initConfig.scale,
+          sz: this.initConfig.scale,
+
+          px: this.charmover.position.x,
+          py: this.charmover.position.y,
+          pz: this.charmover.position.z,
+
+          rx: this.charmover.rotation.x,
+          ry: this.charmover.rotation.y,
+          rz: this.charmover.rotation.z
+        },
+
+        // run: {
+        //   // ry: Math.PI * -0.25,
+        //   sx: 1,
+        //   sy: 1,
+        //   sz: 1,
+        //   // pz: -100,
+        //   // rx: Math.PI * 0.05 + Math.PI
+
+        //   // pz: -250,
+        //   // px: -2250,
+        //   // ry: Math.PI * 0.15,
+        // },
+
+        calibration: {
+          ry: Math.PI
+        },
+        correctAxis: {
+          rz: Math.PI * 0.5,
+          rx: Math.PI * -0.5
+        },
+        center: {
+          ry: Math.PI * -0.5,
+
+          // ry: Math.PI * (progress),
+          sx: 180,
+          sy: 180,
+          sz: 180,
+
+          py: -180,
+          // pz: 100
+        }
+      }
+    })
   }
 }
 </script>

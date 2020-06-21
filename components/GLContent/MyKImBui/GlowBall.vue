@@ -7,36 +7,45 @@
 <script>
 import { Tree } from '../../Reusable'
 // import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import { DirectionalLight } from 'three'
+import { ShaderMaterial, DoubleSide, SmoothShading } from 'three'
 
+import * as GlowBall from './GlowBall.js'
 // let loaderTex = new TextureLoader()
 export default {
   name: 'Swat',
   mixins: [Tree],
   props: {
     intensity: {
-      default: 3.6
+      defult: 3
     }
   },
   components: {
     ...require('../../webgl')
   },
+  data () {
+    return {
+      cleaners: []
+    }
+  },
   beforeDestroy () {
     this.o3d.children.forEach((item) => {
       this.o3d.remove(item)
     })
+    if (this.cleaners.lenght > 0) {
+      try {
+        this.cleaners.forEach(e => e())
+      } catch (e) {
+        console.log(e)
+      }
+    }
   },
   methods: {
-    configModel ({ model, mats }) {
-
-    },
     async loadStuff () {
-      let DirectionalLight = require('three/src/lights/DirectionalLight').DirectionalLight
-      var directionalLight = new DirectionalLight(0xffffff, this.intensity)
-      this.o3d.add(directionalLight)
-      this.$watch('intensity', () => {
-        directionalLight.intensity = this.intensity
-      })
+      let clean = this.clean = (cb = () => {}) => {
+        this.cleaners.push(cb)
+      }
+
+      await GlowBall.makeScene({ o3d: this.o3d, clean, camera: this.lookup('camera'), loop: this.lookup('base').onLoop })
     }
   },
   async mounted () {
