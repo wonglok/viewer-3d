@@ -1,6 +1,6 @@
 <template>
   <div class="full">
-    <GamePage class="full"></GamePage>
+    <ArtSpacePage class="full"></ArtSpacePage>
   </div>
 </template>
 

@@ -1726,11 +1726,12 @@ export default {
         continue
       }
       let radius = 50
-      let v3 = v3FruitTemp.setFromCylindricalCoords(radius, fi / fnMax * Math.PI * 2.0, 5)
+      let v3 = v3FruitTemp.clone().setFromCylindricalCoords(radius, fi / fnMax * Math.PI * 2.0, 5)
 
       let data = {
         // px: (fi - (fnMax * 0.5)) * 16,
         // py: 6.7,
+        ry: 0,
         sx: fruitTypeInfo.scale,
         sy: fruitTypeInfo.scale,
         sz: fruitTypeInfo.scale,
@@ -1738,6 +1739,10 @@ export default {
         py: v3.y,
         pz: v3.z
       }
+      this.lookup('base').onLoop(() => {
+        data.ry += 0.01
+      })
+
       let layout = `layout-fn-${fi}`
       this.myFruits.push({
         type: fruitTypeInfo.type,
