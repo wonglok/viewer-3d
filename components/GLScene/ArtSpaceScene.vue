@@ -23,10 +23,12 @@
       <O3D :animated="true" layout="waterGroup">
         <WaterBall></WaterBall>
       </O3D>
-      <!--
-      <O3D :animated="true" layout="bg">
+
+      <!-- <O3D :animated="true" layout="floorLayer">
         <ChromaticsFloor></ChromaticsFloor>
-      </O3D>
+      </O3D> -->
+
+      <!--
       -->
 
       <!--
@@ -1777,14 +1779,14 @@ export default {
           pz: 800 * 5.5 * this.initConfig.scale,
           py: 1157 * this.initConfig.scale
         },
-        // bg: {
-        //   // pz: -400,
-        //   sx: 2,
-        //   sy: 2,
-        //   sz: 1,
-        //   py: -180,
-        //   rx: Math.PI * 0.5
-        // },
+        floorLayer: {
+          // pz: -400,
+          sx: 0.5,
+          sy: 0.5,
+          sz: 0.5,
+          py: 0,
+          rx: Math.PI * 0.5
+        },
         charmover: {
           sx: this.initConfig.scale,
           sy: this.initConfig.scale,

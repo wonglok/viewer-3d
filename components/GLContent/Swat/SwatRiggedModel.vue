@@ -9,6 +9,10 @@ import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader, MeshPhysicalMaterial } from 'three'
 
+require('requestidlecallback')
+let requstIdleCallback = window.requstIdleCallback || setTimeout
+let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+
 let loaderTex = new TextureLoader()
 export default {
   name: 'Swat',
@@ -173,12 +177,13 @@ export default {
       // this.o3d.rotation.z += Math.PI * 0.5
 
       this.$emit('guySkeleton', this.o3d)
-      model.scene.traverse((item) => {
+      model.scene.traverse(async (item) => {
         if (item && item.name === 'mixamorigSpine2') {
           let guyCenter = new Object3D()
           guyCenter.position.y = 0
           item.add(guyCenter)
           this.$emit('guy', guyCenter)
+          await idle()
         }
 
         if (item && item.name === 'mixamorigSpine') {
@@ -187,6 +192,7 @@ export default {
           guyBack.position.z = 0
           item.add(guyBack)
           this.$emit('guyBack', guyBack)
+          await idle()
         }
 
         if (item && item.name === 'mixamorigNeck') {
@@ -195,6 +201,7 @@ export default {
           guyNeck.position.z = 0
           item.add(guyNeck)
           this.$emit('guyNeck', guyNeck)
+          await idle()
         }
 
         if (item && item.name === 'mixamorigHead') {
@@ -204,6 +211,7 @@ export default {
           guyFace.position.z = 0
           item.add(guyFace)
           this.$emit('guyFace', guyFace)
+          await idle()
         }
 
         if (item && item.name === 'mixamorigHead') {
@@ -213,6 +221,7 @@ export default {
           guyHeadCam.position.z = -100
           item.add(guyHeadCam)
           this.$emit('guyHeadCam', guyHeadCam)
+          await idle()
         }
 
         if (item && item.name === 'mixamorigHead') {
@@ -221,6 +230,7 @@ export default {
           guyHead.position.z = 0
           item.add(guyHead)
           this.$emit('guyHead', guyHead)
+          await idle()
         }
 
         if (item && item.name === 'mixamorigHips') {
@@ -229,12 +239,17 @@ export default {
           guyHip.position.z = 0
           item.add(guyHip)
           this.$emit('guyHip', guyHip)
+          await idle()
         }
 
         // console.log(item.name)
       })
 
-      this.o3d.add(model.scene)
+      idle().then(() => {
+        this.o3d.add(model.scene)
+      })
+
+      // this.o3d.add(model.scene)
     },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
@@ -298,9 +313,10 @@ export default {
             if (this.character === 'swat') {
               url = require('file-loader!./character/swat-guy.glb')
             }
-
             let arrayBuffer = await provideArrayBuffer(url)
+            await idle()
             let gltfobj = await modelParser(arrayBuffer)
+            await idle()
             resolve(gltfobj)
           })
         ])
