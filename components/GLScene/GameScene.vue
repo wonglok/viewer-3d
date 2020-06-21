@@ -1611,6 +1611,9 @@ export default {
         console.log(e)
       }
       this.useGyro = !this.useGyro
+      if (this.useGyro) {
+        this.viewCameraMode = 'firstperson'
+      }
     }
   },
   beforeDestroy () {
