@@ -117,7 +117,8 @@ export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
     myText.color = 'black'
     myText.backgroundColor = 'white'
     myText.padding = '3'
-    group.add(myText)
+
+    return myText
   }
 
   let setup = () => {

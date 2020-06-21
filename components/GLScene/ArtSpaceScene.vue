@@ -751,6 +751,7 @@ export default {
 
           this.controls.target0.lerp(charLookAtPlace, 0.2)
           this.controls.target.lerp(charLookAtPlace, 0.2)
+          this.controls.saveState()
         }
       })
 
@@ -766,10 +767,10 @@ export default {
         vscroll.value = 0
         this.controls.reset()
 
-        this.controlTarget.position.x = this.initConfig.controlTargetPos.x
-        this.controlTarget.position.y = this.initConfig.controlTargetPos.y
-        this.controlTarget.position.z = this.initConfig.controlTargetPos.z
-        this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
+        // this.controlTarget.position.x = this.initConfig.controlTargetPos.x
+        // this.controlTarget.position.y = this.initConfig.controlTargetPos.y
+        // this.controlTarget.position.z = this.initConfig.controlTargetPos.z
+        // this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
 
         resetCharCam()
 
