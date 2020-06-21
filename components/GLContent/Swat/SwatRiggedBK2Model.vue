@@ -7,7 +7,7 @@
 <script>
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader, MeshPhysicalMaterial } from 'three'
+import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader } from 'three'
 
 let loaderTex = new TextureLoader()
 export default {
@@ -44,12 +44,9 @@ export default {
       this.$on('configModelMat', () => {
         model.scene.traverse((item) => {
           if (item.isMesh && item.material) {
-            // let last = item.material
-            // item.material = new MeshPhysicalMaterial({ metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true, envMap: this.shaderCube.out.envMap })
             item.frustumCulled = false
             item.material.transparent = true
           }
-
           if (this.shaderCube && this.character === 'swat') {
             if (item.isMesh && item.material) {
               item.material.envMap = this.shaderCube.out.envMap

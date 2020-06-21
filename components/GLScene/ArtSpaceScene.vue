@@ -2,9 +2,9 @@
   <O3D :animated="true" layout="allsamller">
 
     <O3D v-if="canLoadGraph">
-      <AmbinetLight :intensity="2"></AmbinetLight>
-      <DirectionalLight v-if="character === 'swat'" :intensity="1"></DirectionalLight>
-      <HemisphereLight v-if="character === 'swat'" :intensity="1"></HemisphereLight>
+      <AmbinetLight :intensity="1.5"></AmbinetLight>
+      <DirectionalLight v-if="character === 'swat'" :intensity="1.5"></DirectionalLight>
+      <HemisphereLight v-if="character === 'swat'" :intensity="1.5"></HemisphereLight>
 
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
@@ -12,6 +12,10 @@
 
       <O3D :animated="true" layout="glowball" v-if="charReady">
         <GlowBall></GlowBall>
+      </O3D>
+
+      <O3D :animated="true" :layout="fruit.layout" v-for="(fruit) in myFruits" :key="fruit.layout">
+        <FruitCollection :shaderCube="shaderCube1" :fruit="fruit.type"></FruitCollection>
       </O3D>
 
       <!--
@@ -30,7 +34,7 @@
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube"></SwatRiggedModel>
+              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" :shaderCube="shaderCube0"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
@@ -202,7 +206,7 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeChrome, getID, ChaseControls } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeChrome, ShaderCube, getID, ChaseControls } from '../Reusable'
 import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -226,6 +230,8 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      myFruits: [],
+
       canLoadGraph: false,
       isSmallScreen: window.innerWidth < 500,
       Math,
@@ -272,7 +278,8 @@ export default {
 
       moves: false,
 
-      shaderCube: false,
+      shaderCube0: false,
+      shaderCube1: false,
 
       scene: new Scene(),
 
@@ -1582,7 +1589,8 @@ export default {
     }
     /* Loader End */
 
-    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    this.shaderCube0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
+    this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
 
     this.scene.background = new Color('#1a1a1a')
 
@@ -1660,8 +1668,75 @@ export default {
       }
     }, false)
 
+
+    let typesOfFruit = [
+      {
+        'type': 'pineapple',
+        'scale': 1
+      },
+      {
+        'type': 'tomato',
+        'scale': 0.03
+      },
+      {
+        'type': 'strawberry',
+        'scale': 0.2
+      },
+      {
+        'type': 'pear',
+        'scale': 1
+      },
+      {
+        'type': 'orange',
+        'scale': 1
+      },
+      {
+        'type': 'lemon',
+        'scale': 1
+      },
+      {
+        'type': 'grapes',
+        'scale': 1
+      },
+      {
+        'type': 'cherry',
+        'scale': 1
+      },
+      {
+        'type': 'banana',
+        'scale': 1
+      },
+      {
+        'type': 'apple',
+        'scale': 0.07
+      }
+    ]
+
+    this.myFruits = []
+    this.fruitLayout = {}
+    let fnMax = 20
+    for (var fi = 0; fi < fnMax; fi++) {
+      let fruitTypeInfo = typesOfFruit[Math.floor(Math.random() * typesOfFruit.length)]
+      let data = {
+        px: (fi - (fnMax * 0.5)) * 16,
+        py: 6.7,
+        sx: fruitTypeInfo.scale,
+        sy: fruitTypeInfo.scale,
+        sz: fruitTypeInfo.scale
+      }
+      let layout = `layout-fn-${fi}`
+      this.myFruits.push({
+        type: fruitTypeInfo.type,
+        layout,
+        data
+      })
+      this.fruitLayout[layout] = data
+    }
+
     this.lookup('base').onLoop(() => {
       this.layouts = {
+        ...(this.fruitLayout || {}),
+
         glowball: {
           pz: -100
         },
