@@ -5,8 +5,9 @@
 import { Mesh, SphereGeometry, Object3D, TextureLoader } from 'three'
 import * as GlowBallShader from './GlowBallShader'
 import { AdditiveBlending, DoubleSide } from 'three/build/three.module'
-import { Noise } from 'noisejs'
+// import { Noise } from 'noisejs'
 import SpriteText from 'three-spritetext'
+import 'requestidlecallback'
 
 export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
   const matcapTexLoader = new TextureLoader()
@@ -14,7 +15,7 @@ export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
   // resources
   const matcapTexture = matcapTexLoader.load(require('./matcaps/matcap2.jpg'))
   const matcaptopTexture = matcapTexLoader.load(require('./matcaps/matcap-top.png'))
-  const sphereGeo = new SphereGeometry(12, 64, 64);
+  const sphereGeo = new SphereGeometry(15, 32, 32);
 
   const group = new Object3D()
 
@@ -30,12 +31,13 @@ export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
 
   let makeSecondBall = () => {
     const topmaterial = GlowBallShader.makeMatCapCustom({ matcap: matcaptopTexture });
-    let bigger = sphereGeo.clone()
-    bigger.scale(1.1, 1.1, 1.1)
-    bigger.radius = 12 * 1.1
-    reg.set('s2', bigger)
+    // let bigger = sphereGeo.clone()
+    // bigger.scale(1.1, 1.1, 1.1)
+    // bigger.radius = 12 * 1.21
+    // reg.set('s2', bigger)
 
-    const topsphere = new Mesh(bigger, topmaterial);
+    const topsphere = new Mesh(sphereGeo, topmaterial);
+    topsphere.scale.multiplyScalar(1.21)
     loop(() => {
       topmaterial.uniforms.time.value = performance.now() * 0.0001
     })
@@ -47,32 +49,30 @@ export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
 
   let makeGlowMesh = () => {
     let mat = GlowBallShader.makeMatGlowCustom({ camera })
-    let geometry = sphereGeo.clone()
-    geometry.scale(1.21, 1.21, 1.21)
-    geometry.radius = 12 * 1.21
-    reg.set('s3', geometry)
+    // let geometry = sphereGeo.clone()
+    // geometry.scale(1.21, 1.21, 1.21)
+    // geometry.radius = 12 * 1.21
+    // reg.set('s3', geometry)
 
-    var glowMesh = new Mesh(geometry, mat)
-
+    var glowMesh = new Mesh(sphereGeo, mat)
+    glowMesh.scale.multiplyScalar(1.31)
     return glowMesh
   }
 
-
-
-  let k = 3;
-  let a = 0;
-  let g = 2;
-  var noise = new Noise(Math.random());
+  // let k = 3;
+  // let a = 0;
+  // let g = 2;
+  // var noise = new Noise(Math.random());
   const update = function() {
     const time = performance.now() * 0.001;
-    let sphereGeo = reg.get('s1')
-    let topsphereGeo = reg.get('s2')
-    if (!sphereGeo) {
-      return
-    }
-    if (!topsphereGeo) {
-      return
-    }
+    // let sphereGeo = reg.get('s1')
+    // let topsphereGeo = reg.get('s2')
+    // if (!sphereGeo) {
+    //   return
+    // }
+    // if (!topsphereGeo) {
+    //   return
+    // }
     // for (let i = 0; i < sphereGeo.vertices.length; i++) {
     //   let p = sphereGeo.vertices[i];
     //   let d = topsphereGeo.vertices[i];
@@ -120,29 +120,38 @@ export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
 
     return myText
   }
-
-  let setup = () => {
+  let requstIdleCallback = window.requstIdleCallback || setTimeout
+  let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+  let setup = async () => {
+    await idle()
     let firstBall0 = makeFirstBall()
     reg.set('b1', firstBall0)
-    group.add(firstBall0)
+    o3d.add(firstBall0)
+
+    // await idle(100)
 
     let seocndBall0 = makeSecondBall()
     reg.set('b2', seocndBall0)
-    group.add(seocndBall0)
+    o3d.add(seocndBall0)
+    await idle()
 
     let thirdBall0 = makeGlowMesh()
     reg.set('b3', thirdBall0)
-    group.add(thirdBall0)
+    o3d.add(thirdBall0)
+    await idle()
 
     let spriteTextAuthor = makeAuthorText()
-    group.add(spriteTextAuthor)
+    o3d.add(spriteTextAuthor)
 
+    await idle()
     // group.position.y += 25
 
-    o3d.add(group)
+    // o3d.add(group)
+
+    await idle()
     clean(() => {
       run = false
-      o3d.remove(group)
+      o3d.children.forEach(e => e.parent.remove(e))
     })
   }
 

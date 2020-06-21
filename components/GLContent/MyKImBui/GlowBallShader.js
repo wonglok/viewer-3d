@@ -98,7 +98,6 @@ export const makeMatCapCustom = ({ matcap }) => {
 }
 
 
-
 export const makeMatGlowCustom = ({ camera }) => {
   const material = new ShaderMaterial({
     uniforms: {

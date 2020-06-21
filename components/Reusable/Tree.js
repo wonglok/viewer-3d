@@ -44,6 +44,7 @@ export const Tree = {
   },
   data () {
     return {
+      tempVector3: false,
       screen: false,
       child: {
         width: 0.000000000000001,
@@ -229,24 +230,24 @@ export const Tree = {
       let layout = this.getLayout()
 
       if (typeof layout.visible !== 'undefined') {
-        run(() => { this.o3d.visible = Parser.evaluate('' + (layout.visible), this) })
+        run(() => { this.o3d.visible = Number('' + (layout.visible)) })
       }
 
       if (typeof this.visible !== 'undefined') {
-        run(() => { this.o3d.visible = Parser.evaluate('' + (this.visible), this) })
+        run(() => { this.o3d.visible = Number('' + (this.visible)) })
       }
 
-      run(() => { this.o3d.rotation.x = Parser.evaluate('' + (layout.rx || '0'), this) })
-      run(() => { this.o3d.rotation.y = Parser.evaluate('' + (layout.ry || '0'), this) })
-      run(() => { this.o3d.rotation.z = Parser.evaluate('' + (layout.rz || '0'), this) })
+      run(() => { this.o3d.rotation.x = Number('' + (layout.rx || '0')) })
+      run(() => { this.o3d.rotation.y = Number('' + (layout.ry || '0')) })
+      run(() => { this.o3d.rotation.z = Number('' + (layout.rz || '0')) })
 
-      run(() => { this.o3d.scale.x = Parser.evaluate('' + (layout.sx || '1'), this) })
-      run(() => { this.o3d.scale.y = Parser.evaluate('' + (layout.sy || '1'), this) })
-      run(() => { this.o3d.scale.z = Parser.evaluate('' + (layout.sz || '1'), this) })
+      run(() => { this.o3d.scale.x = Number('' + (layout.sx || '1')) })
+      run(() => { this.o3d.scale.y = Number('' + (layout.sy || '1')) })
+      run(() => { this.o3d.scale.z = Number('' + (layout.sz || '1')) })
 
-      run(() => { this.o3d.position.x = Parser.evaluate('' + (layout.px || '0'), this) })
-      run(() => { this.o3d.position.y = Parser.evaluate('' + (layout.py || '0'), this) })
-      run(() => { this.o3d.position.z = Parser.evaluate('' + (layout.pz || '0'), this) })
+      run(() => { this.o3d.position.x = Number('' + (layout.px || '0')) })
+      run(() => { this.o3d.position.y = Number('' + (layout.py || '0')) })
+      run(() => { this.o3d.position.z = Number('' + (layout.pz || '0')) })
     }
   }
 }

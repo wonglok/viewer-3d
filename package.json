@@ -29,6 +29,7 @@
     "nuxt": "^2.0.0",
     "quad-indices": "^2.0.1",
     "raw-loader": "^4.0.1",
+    "requestidlecallback": "^0.3.0",
     "slug": "^3.2.0",
     "stats.js": "^0.17.0",
     "tailwindcss": "^1.4.6",

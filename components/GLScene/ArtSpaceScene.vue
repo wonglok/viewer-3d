@@ -1,15 +1,16 @@
 <template>
   <O3D :animated="true" layout="allsamller">
 
-    <O3D v-if="layouts">
-      <AmbinetLight :intensity="shaderCube ? 2 : 5"></AmbinetLight>
-      <DirectionalLight v-if="character === 'swat'" :intensity="shaderCube ? 1 : 3"></DirectionalLight>
-      <HemisphereLight v-if="character === 'swat'" :intensity="shaderCube ? 1 : 3"></HemisphereLight>
+    <O3D v-if="canLoadGraph">
+      <AmbinetLight :intensity="2"></AmbinetLight>
+      <DirectionalLight v-if="character === 'swat'" :intensity="1"></DirectionalLight>
+      <HemisphereLight v-if="character === 'swat'" :intensity="1"></HemisphereLight>
+
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
       </O3D>
 
-      <O3D :animated="true" layout="glowball">
+      <O3D :animated="true" layout="glowball" v-if="charReady">
         <GlowBall></GlowBall>
       </O3D>
 
@@ -25,7 +26,7 @@
       </O3D>
       -->
 
-      <O3D :animated="true" layout="charmover" :visible="charReady">
+      <O3D :animated="true" layout="charmover" :dvisible="charReady">
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
@@ -225,6 +226,7 @@ export default {
   mixins: [Tree],
   data () {
     return {
+      canLoadGraph: false,
       isSmallScreen: window.innerWidth < 500,
       Math,
       character: 'swat',
@@ -275,7 +277,7 @@ export default {
       scene: new Scene(),
 
       layouts: false,
-      useBloom: false,
+      useBloom: true,
 
       // blur: 0,
       // socket: false,
@@ -1580,7 +1582,7 @@ export default {
     }
     /* Loader End */
 
-    // this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    this.shaderCube = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
 
     this.scene.background = new Color('#1a1a1a')
 
@@ -1724,6 +1726,7 @@ export default {
           // pz: 100
         }
       }
+      this.canLoadGraph = true
     })
   }
 }

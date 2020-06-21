@@ -32,9 +32,9 @@ export default {
     ...require('../../webgl')
   },
   beforeDestroy () {
-    if (this.gltf) {
-      this.$emit('removeGLTF', this.gltf)
-    }
+    // if (this.gltf) {
+    //   this.$emit('removeGLTF', this.gltf)
+    // }
     this.o3d.children.forEach((kid) => {
       this.o3d.remove(kid)
     })
@@ -43,8 +43,8 @@ export default {
     configModel ({ model }) {
       this.$on('configModelMat', () => {
         model.scene.traverse((item) => {
-          item.frustumCulled = false
           if (item.isMesh && item.material) {
+            item.frustumCulled = false
             item.material.transparent = true
           }
           if (this.shaderCube && this.character === 'swat') {
@@ -79,7 +79,7 @@ export default {
       })
       this.$emit('configModelMat')
       model.gltfName = 'swat-guy'
-      this.gltf = model
+      // this.gltf = model
       this.$emit('setupGLTF', model)
       this.o3d.position.x = 0
       this.o3d.position.y = 0
@@ -90,7 +90,7 @@ export default {
       this.o3d.children.forEach((aa) => {
         this.o3d.remove(aa)
       })
-      this.o3d.add(model.scene)
+      console.log(model.scene)
 
       /*
       mixamorigHips
@@ -219,11 +219,12 @@ export default {
           item.add(guyHip)
           this.$emit('guyHip', guyHip)
         }
-      })
-    },
-    // beforeDestroy() {
 
-    // },
+        console.log(item.name)
+      })
+
+      this.o3d.add(model.scene)
+    },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
 
