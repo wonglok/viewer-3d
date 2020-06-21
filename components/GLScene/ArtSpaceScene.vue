@@ -20,6 +20,9 @@
         </O3D>
       </O3D>
 
+      <O3D :animated="true" layout="waterGroup">
+        <WaterBall></WaterBall>
+      </O3D>
       <!--
       <O3D :animated="true" layout="bg">
         <ChromaticsFloor></ChromaticsFloor>
@@ -1672,7 +1675,6 @@ export default {
       }
     }, false)
 
-
     let typesOfFruit = [
       {
         'type': 'pineapple',
@@ -1756,12 +1758,17 @@ export default {
       let time = performance.now() * 0.001
       this.layouts = {
         ...(this.fruitLayout || {}),
+
+        waterGroup: {
+          ry: Math.PI * 2.0 * time * 0.03,
+          pz: -200
+        },
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,
-          pz: -100
+          pz: -300
         },
         glowball: {
-          pz: -100
+          pz: -300
         },
         walk: {
           sx: 5.5 * this.initConfig.scale,

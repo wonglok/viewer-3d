@@ -8,6 +8,7 @@
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader } from 'three'
+import 'requestidlecallback'
 
 let loaderTex = new TextureLoader()
 export default {
@@ -84,7 +85,12 @@ export default {
         this.o3d.remove(aa)
       })
 
-      this.o3d.add(model.scene)
+      let requstIdleCallback = window.requstIdleCallback || setTimeout
+      let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+
+      idle().then(() => {
+        this.o3d.add(model.scene)
+      })
     },
     async loadStuff () {
       let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
