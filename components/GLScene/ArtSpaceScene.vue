@@ -29,6 +29,9 @@
       </O3D> -->
 
       <!--
+      <O3D :animated="true" layout="floorLayer">
+          <ChromaticsFloor></ChromaticsFloor>
+      </O3D>
       -->
 
       <!--

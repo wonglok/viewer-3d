@@ -1,6 +1,19 @@
 <template>
   <div>
     <slot></slot>
+    <!--
+    <div class="absolute bottom-0 right-0 pb-32 z-40" v-if="isDev">
+      <div  class="text-xs">roughness0</div>
+      <input class="block" type="range" v-model="settings.roughness0" min="0" max="3" step="0.0000001">
+      <div  class="text-xs">metalness0</div>
+      <input class="block" type="range" v-model="settings.metalness0" min="0" max="3" step="0.0000001">
+
+
+      <div  class="text-xs">roughness1</div>
+      <input class="block" type="range" v-model="settings.roughness1" min="0" max="3" step="0.0000001">
+      <div  class="text-xs">metalness1</div>
+      <input class="block" type="range" v-model="settings.metalness1" min="0" max="3" step="0.0000001">
+    </div> -->
   </div>
 </template>
 
@@ -8,6 +21,9 @@
 import { Tree, ShaderCube } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader, MeshPhysicalMaterial } from 'three'
+import copy2clip from 'copy-to-clipboard'
+
+// WebGLCubeRenderTarget, CubeCamera, RGBFormat, LinearMipmapLinearFilter,
 
 require('requestidlecallback')
 let requstIdleCallback = window.requstIdleCallback || setTimeout
@@ -29,6 +45,14 @@ export default {
   },
   data () {
     return {
+      isDev: process.env.NODE_ENV === 'development',
+      settings: {
+        roughness0: 0,
+        metalness0: 0,
+
+        roughness1: 0,
+        metalness1: 0
+      },
       gltf: false
     }
   },
@@ -44,47 +68,71 @@ export default {
     })
   },
   methods: {
+    copyText () {
+      let ss = this.settings
+      copy2clip(`
+        roughness0: ${ss.roughness0},
+        metalness0: ${ss.metalness0},
+
+        roughness1: ${ss.roughness1},
+        metalness1: ${ss.metalness1}
+      `)
+    },
     configModel ({ model }) {
+      let settings = this.settings
+
       this.$on('configModelMat', () => {
         model.scene.traverse((item) => {
           if (item.isMesh && item.material) {
-            // let last = item.material
-            // item.material = new MeshPhysicalMaterial({ metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true, envMap: this.shaderCube.out.envMap })
+            let last = item.material
+            item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true, envMap: this.shaderCube.out.envMap })
             item.frustumCulled = false
-            item.material.transparent = true
+            // item.material.envMap = this.cubeRenderTarget.texture
+            item.material.envMap = this.shaderCube.out.envMap
           }
 
-          if (this.shaderCube && this.character === 'swat') {
-            if (item.isMesh && item.material) {
-              item.material.envMap = this.shaderCube.out.envMap
-              // item.material.roughness = 0.5
-              // item.material.metalness = 0.5
-            }
+          // if (this.shaderCube && this.character === 'swat') {
 
-            if (item.isMesh && item.name === 'Mesh_1') {
-              // metal
-              // item.material = this.shaderCube.out.material
-              // this.shaderCube.out.material.skinning = true
+          //   if (item.isMesh && item.material) {
+          //     item.material.envMap = this.shaderCube.out.envMap
+          //     // item.material.roughness = 0.5
+          //     // item.material.metalness = 0.5
+          //   }
 
-              item.material.envMap = this.shaderCube.out.envMap
-              // item.frustumCulled = false
-              // item.material.flatShading = true
-              // item.material.roughness = 0.0
-              // item.material.metalness = 1.0
-            }
+          //   if (item.isMesh && item.name === 'Mesh_1') {
+          //     // metal
+          //     // item.material = this.shaderCube.out.material
+          //     // this.shaderCube.out.material.skinning = true
+          //     item.material.envMap = this.shaderCube.out.envMap
+          //     // item.frustumCulled = false
+          //     // item.material.flatShading = true
+          //     // item.material.roughness = 0.0
+          //     // item.material.metalness = 1.0
+          //   }
 
-            if (item.isMesh && item.name === 'Mesh_0') {
-              // Cloth
-              // item.material = this.shaderCube.out.material
-              // this.shaderCube.out.material.skinning = true
+          //   if (item.isMesh && item.name === 'Mesh_0') {
+          //     // Cloth
+          //     // item.material = this.shaderCube.out.material
+          //     // this.shaderCube.out.material.skinning = true
+          //     // item.material.opacity = 0
+          //     // this.$on('sync', () => {
+          //     //   // item.material.roughness = settings.roughness0
+          //     //   // item.material.metalness = settings.metalness0
+          //     // })
 
-              item.material.envMap = this.shaderCube.out.envMap
-              // item.frustumCulled = false
-            }
-          }
+          //     item.material.envMap = this.shaderCube.out.envMap
+          //     // item.frustumCulled = false
+          //   }
+          // }
         })
       })
       this.$emit('configModelMat')
+
+      this.$watch('settings', () => {
+        this.$emit('sync')
+      }, { deep: true })
+      this.$emit('sync')
+
       model.gltfName = 'swat-guy'
       // this.gltf = model
       this.$emit('setupGLTF', model)
@@ -325,10 +373,24 @@ export default {
           model: all[0]
         })
       }
+
       loadChar()
       this.$watch('character', () => {
         loadChar()
       })
+
+      // var cubeRenderTarget = this.cubeRenderTarget = new WebGLCubeRenderTarget( 128, { format: RGBFormat, generateMipmaps: true, minFilter: LinearMipmapLinearFilter } );
+      // // Create cube camera
+      // var cubeCamera = new CubeCamera(1, 100000, cubeRenderTarget);
+      // let renderer = this.lookup('renderer')
+      // let scene = this.lookup('scene')
+      // scene.add(cubeCamera);
+      // this.lookup('base').onLoop(() => {
+      //   this.o3d.visible = false
+      //   cubeCamera.position.copy(this.o3d.position)
+      //   cubeCamera.update(renderer, scene)
+      //   this.o3d.visible = true
+      // })
     }
   },
   mounted () {
