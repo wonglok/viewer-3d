@@ -277,8 +277,8 @@ export default {
       characterList: ['swat', 'girl', 'gasmask'],
       initConfig: {
         scale: 0.1,
-        controlTargetLookAt: new Vector3(0, 0, 0 + 20),
-        controlTargetPos: new Vector3(0, 0, 0),
+        controlTargetLookAt: new Vector3(0, 0, 650 + 20),
+        controlTargetPos: new Vector3(0, 0, 650),
         initAction: 'Ymca Dance'
       },
       actionListFilter: 'all',
@@ -814,24 +814,20 @@ export default {
         }
       })
 
-      let resetCharCam = () => {
-        if (this.charmover) {
-          this.camera.position.copy(this.charmover.position)
-          this.camera.position.y += 180 * this.initConfig.scale
-          this.camera.position.z += 300 * this.initConfig.scale
-        }
-      }
+      this.controlTarget.position.x = this.initConfig.controlTargetPos.x
+      this.controlTarget.position.y = this.initConfig.controlTargetPos.y
+      this.controlTarget.position.z = this.initConfig.controlTargetPos.z
+      this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
       // this.$on('reset-char-cam', resetCharCam)
       let resetCam = () => {
         vscroll.value = 0
         this.controls.reset()
 
-        // this.controlTarget.position.x = this.initConfig.controlTargetPos.x
-        // this.controlTarget.position.y = this.initConfig.controlTargetPos.y
-        // this.controlTarget.position.z = this.initConfig.controlTargetPos.z
-        // this.controlTarget.lookAt(this.initConfig.controlTargetLookAt)
-
-        resetCharCam()
+        if (this.charmover) {
+          this.camera.position.copy(this.charmover.position)
+          this.camera.position.y += 180 * this.initConfig.scale
+          this.camera.position.z += 300 * this.initConfig.scale
+        }
 
         if (this.viewCameraMode === 'behind') {
 
@@ -1823,25 +1819,25 @@ export default {
 
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,
-          pz: -450
+          pz: 600 + -450 + 0
         },
         glowball: {
-          pz: -450
+          pz: 600 + -450 + 0
         },
         chromeGroup: {
-          pz: -350
+          pz: 600 + -450 + 100
         },
         waterGroup: {
-          pz: -300
+          pz: 600 + -450 + 200
         },
         jellyfishGroup: {
-          pz: -250
+          pz: 600 + -450 + 300
         },
         holycross: {
           sx: 0.13,
           sy: 0.13,
           sz: 0.13,
-          pz: -200
+          pz: 600 + -450 + 400
         },
         walk: {
           sx: 5.5 * this.initConfig.scale,
