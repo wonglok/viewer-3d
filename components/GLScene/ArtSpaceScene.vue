@@ -32,6 +32,9 @@
       <O3D :animated="true" layout="jellyfishGroup">
         <JellyFish v-if="shaderCube2" :shaderCube="shaderCube2"></JellyFish>
       </O3D>
+      <O3D :animated="true" layout="holycross">
+        <HolyCross :visible="charReady" :shaderCube="shaderCube1"></HolyCross>
+      </O3D>
 
       <!-- <O3D :animated="true" layout="floorLayer">
         <ChromaticsFloor></ChromaticsFloor>
@@ -123,7 +126,9 @@
     </div>
     <div class="touch-action-manipulation select-none absolute z-10 top-0 right-0 p-1" v-if="charReady && showToolsBox">
       <div class="text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': showToolsBox, 'border-green-200': showToolsBox }" @click="showToolsBox = !showToolsBox">Show Tools</div>
+
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-yellow-500': useBloom === true, 'border-yellow-500': useBloom === true }" @click="useBloom = !useBloom">Bloom Light</div>
+
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-red-500': useGyro, 'border-red-500': useGyro }" @click="setupGyroCam">
         <span v-if="!useGyro">Try AR/XR Mode</span>
         <span v-if="useGyro">Using AR/XR Mode</span>
@@ -136,6 +141,7 @@
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'firstface', 'border-green-200': viewCameraMode === 'firstface' }" @click="viewCameraMode = 'firstface'">First Person Face</div>
 
       <div class="h-1"></div>
+
       <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'follower', 'border-green-200': viewCameraMode === 'follower' }" @click="viewCameraMode = 'follower'">Follower Cam</div>
 
       <div class="h-1"></div>
@@ -273,7 +279,7 @@ export default {
         scale: 0.1,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
         controlTargetPos: new Vector3(0, 0, 0),
-        initAction: 'Warming Up'
+        initAction: 'Ymca Dance'
       },
       actionListFilter: 'all',
       showToolsBox: true,
@@ -1357,13 +1363,14 @@ export default {
       }
       await parallelPreload()
 
-      let idle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
+      let mmaIdle = await this.getActionByDisplayName({ name: 'Mma Idle', mixer })
+      let standIdle = await this.getActionByDisplayName({ name: 'idle', mixer })
       // let tauntTimerHand = await this.getActionByDisplayName({ name: 'Taunt (1)', mixer })
 
       // let victory = await this.getActionByDisplayName({ name: 'a1-Victory', mixer })
 
-      let skillAction1 = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
-      let skillAction2 = await this.getActionByDisplayName({ name: 'Speedbag', mixer })
+      let skillAction1 = await this.getActionByDisplayName({ name: 'Ymca Dance', mixer })
+      let skillAction2 = await this.getActionByDisplayName({ name: 'Warming Up', mixer })
 
       let jump = await this.getActionByDisplayName({ inPlace: true, name: 'jump', mixer })
       let running = await this.getActionByDisplayName({ inPlace: true, name: 'running', mixer })
@@ -1380,7 +1387,19 @@ export default {
       let turnLeft = await this.getActionByDisplayName({ inPlace: true, name: 'control turn left a bit', mixer })
       let turnRight = await this.getActionByDisplayName({ inPlace: true, name: 'control turn right a bit', mixer })
 
+      let idle = standIdle
+      mixer.stopAllAction()
       idle.play()
+
+      this.$on('fight-mode-toggle', () => {
+        if (idle === mmaIdle) {
+          idle = standIdle
+        } else if (idle === standIdle) {
+          idle = mmaIdle
+        }
+        mixer.stopAllAction()
+        idle.play()
+      })
 
       this.$on('play-move', async ({ move, cb = () => {} }) => {
         try {
@@ -1480,6 +1499,10 @@ export default {
             break;
           case 69: // e
             await this.doStart({ idle, to: turnRight, mixer, stopAll: false })
+            break;
+
+          case 88: // x
+            await this.$emit('fight-mode-toggle')
             break;
         }
       }
@@ -1806,13 +1829,19 @@ export default {
           pz: -400
         },
         chromeGroup: {
-          pz: -300
+          pz: -350
         },
         waterGroup: {
-          pz: -200
+          pz: -300
         },
         jellyfishGroup: {
-          pz: -100
+          pz: -250
+        },
+        holycross: {
+          sx: 0.13,
+          sy: 0.13,
+          sz: 0.13,
+          pz: -200
         },
         walk: {
           sx: 5.5 * this.initConfig.scale,
