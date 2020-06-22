@@ -258,7 +258,7 @@ let idleSleep = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve
 // let Cache = {}
 
 export default {
-  name: 'ThankYouGospelGameScene',
+  name: 'ARTSpaceScene',
   components: {
     ...require('../webgl').default
   },
@@ -277,8 +277,8 @@ export default {
       characterList: ['swat', 'girl', 'gasmask'],
       initConfig: {
         scale: 0.1,
-        controlTargetLookAt: new Vector3(0, 0, 650 + 20),
-        controlTargetPos: new Vector3(0, 0, 650),
+        controlTargetLookAt: new Vector3(0, 0, 300 + 20),
+        controlTargetPos: new Vector3(0, 0, 300),
         initAction: 'Ymca Dance'
       },
       actionListFilter: 'all',
@@ -1234,7 +1234,7 @@ export default {
         idle.reset()
         to.reset()
 
-        let fade = 0.3
+        let fade = 0.15
 
         to.enabled = true
         idle.enabled = true
@@ -1292,7 +1292,7 @@ export default {
         idle.reset()
         to.reset()
 
-        let fade = 0.3
+        let fade = 0.15
 
         to.enabled = true
         idle.enabled = true
@@ -1309,7 +1309,7 @@ export default {
     },
     async doEnd ({ idle, to, mixer }) {
       return new Promise((resolve) => {
-        let fade = 0.3
+        let fade = 0.15
 
         let idx = this.activeLog.indexOf(to)
         if (idx !== -1) {
@@ -1819,25 +1819,25 @@ export default {
 
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,
-          pz: 600 + -450 + 0
+          pz: 300 + -450 + 0
         },
         glowball: {
-          pz: 600 + -450 + 0
+          pz: 300 + -450 + 0
         },
         chromeGroup: {
-          pz: 600 + -450 + 100
+          pz: 300 + -450 + 100
         },
         waterGroup: {
-          pz: 600 + -450 + 200
+          pz: 300 + -450 + 200
         },
         jellyfishGroup: {
-          pz: 600 + -450 + 300
+          pz: 300 + -450 + 300
         },
         holycross: {
           sx: 0.13,
           sy: 0.13,
           sz: 0.13,
-          pz: 600 + -450 + 400
+          pz: 300 + -450 + 400
         },
         walk: {
           sx: 5.5 * this.initConfig.scale,
