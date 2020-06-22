@@ -63,11 +63,27 @@ export default {
     // if (this.gltf) {
     //   this.$emit('removeGLTF', this.gltf)
     // }
-    this.o3d.children.forEach((kid) => {
-      this.o3d.remove(kid)
-    })
+    this.cleanup()
   },
   methods: {
+    async cleanup () {
+      this.o3d.traverse(async (item) => {
+        if (item && item.isMesh) {
+          await idle()
+          if (item.geometry && item.geometry) {
+            item.geometry.dispose()
+          }
+          await idle()
+          if (item.material && item.material) {
+            item.material.dispose()
+          }
+        }
+      })
+      this.o3d.children.forEach(async (item) => {
+        await idle()
+        this.o3d.remove(item)
+      })
+    },
     copyText () {
       let ss = this.settings
       copy2clip(`
@@ -81,71 +97,22 @@ export default {
     configModel ({ model }) {
       let settings = this.settings
 
-      this.$on('configModelMat', () => {
+      let configModelMat = () => {
         model.scene.traverse((item) => {
           if (item.isMesh && item.material) {
             let last = item.material
-            item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true, envMap: this.shaderCube.out.envMap })
+            item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true })
             item.frustumCulled = false
             // item.material.envMap = this.cubeRenderTarget.texture
-            item.material.envMap = this.shaderCube.out.envMap
+            if (this.character === 'swat') {
+              item.material.envMap = this.shaderCube.out.envMap
+            }
           }
-
-          // if (this.shaderCube && this.character === 'swat') {
-
-          //   if (item.isMesh && item.material) {
-          //     item.material.envMap = this.shaderCube.out.envMap
-          //     // item.material.roughness = 0.5
-          //     // item.material.metalness = 0.5
-          //   }
-
-          //   if (item.isMesh && item.name === 'Mesh_1') {
-          //     // metal
-          //     // item.material = this.shaderCube.out.material
-          //     // this.shaderCube.out.material.skinning = true
-          //     item.material.envMap = this.shaderCube.out.envMap
-          //     // item.frustumCulled = false
-          //     // item.material.flatShading = true
-          //     // item.material.roughness = 0.0
-          //     // item.material.metalness = 1.0
-          //   }
-
-          //   if (item.isMesh && item.name === 'Mesh_0') {
-          //     // Cloth
-          //     // item.material = this.shaderCube.out.material
-          //     // this.shaderCube.out.material.skinning = true
-          //     // item.material.opacity = 0
-          //     // this.$on('sync', () => {
-          //     //   // item.material.roughness = settings.roughness0
-          //     //   // item.material.metalness = settings.metalness0
-          //     // })
-
-          //     item.material.envMap = this.shaderCube.out.envMap
-          //     // item.frustumCulled = false
-          //   }
-          // }
         })
-      })
-      this.$emit('configModelMat')
+      }
+      configModelMat()
 
-      this.$watch('settings', () => {
-        this.$emit('sync')
-      }, { deep: true })
-      this.$emit('sync')
-
-      model.gltfName = 'swat-guy'
-      // this.gltf = model
       this.$emit('setupGLTF', model)
-      this.o3d.position.x = 0
-      this.o3d.position.y = 0
-      this.o3d.position.z = 0
-      this.o3d.rotation.x = 0
-      this.o3d.rotation.y = 0
-      this.o3d.rotation.z = 0
-      this.o3d.children.forEach((aa) => {
-        this.o3d.remove(aa)
-      })
-      console.log(model.scene)
 
       /*
       mixamorigHips
@@ -294,6 +261,7 @@ export default {
       })
 
       idle().then(() => {
+        this.cleanup()
         this.o3d.add(model.scene)
       })
 
@@ -320,11 +288,11 @@ export default {
       }
 
       let localforage = require('localforage')
+      var store = localforage.createInstance({
+        name: 'rigged-model-dancefloor'
+      });
       let provideArrayBuffer = async (url) => {
         let NS = 'array-buffer-@' + url
-        var store = localforage.createInstance({
-          name: 'rigged-model-dancefloor'
-        });
         try {
           var value = await store.getItem(NS);
           if (!value) {
@@ -375,7 +343,7 @@ export default {
       }
 
       loadChar()
-      this.$watch('character', () => {
+      this.$watch('character', async () => {
         loadChar()
       })
 

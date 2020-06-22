@@ -20,6 +20,10 @@
         </O3D>
       </O3D>
 
+      <O3D :animated="true" layout="chromeGroup">
+        <ChromeBall></ChromeBall>
+      </O3D>
+
       <O3D :animated="true" layout="waterGroup">
         <WaterBall></WaterBall>
       </O3D>
@@ -49,6 +53,7 @@
           </O3D>
         </O3D>
       </O3D>
+
     </O3D>
 
     <div class="touch-action-manipulation select-none absolute top-0 left-0 w-full h-full" ref="domlayer">
@@ -224,6 +229,10 @@ import copy2clip from 'copy-to-clipboard'
 
 const TWEEN = require('@tweenjs/tween.js').default
 
+require('requestidlecallback')
+let requstIdleCallback = window.requstIdleCallback || setTimeout
+let idleSleep = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
@@ -295,7 +304,7 @@ export default {
       scene: new Scene(),
 
       layouts: false,
-      useBloom: true,
+      useBloom: false,
 
       // blur: 0,
       // socket: false,
@@ -304,21 +313,27 @@ export default {
   },
   watch: {
     character () {
-      this.controlTarget.position.x = 0
-      this.controlTarget.position.y = 0
-      this.controlTarget.position.z = 0
+      if (this.character === 'girl') {
+        this.useBloom = false
+      } else if (this.character === 'swat') {
+        this.useBloom = true
+      }
 
-      this.controlTarget.rotation.x = 0
-      this.controlTarget.rotation.y = 0
-      this.controlTarget.rotation.z = 0
+      // this.controlTarget.position.x = 0
+      // this.controlTarget.position.y = 0
+      // this.controlTarget.position.z = 0
 
-      this.charmover.position.x = 0
-      this.charmover.position.y = 0
-      this.charmover.position.z = 0
+      // this.controlTarget.rotation.x = 0
+      // this.controlTarget.rotation.y = 0
+      // this.controlTarget.rotation.z = 0
 
-      this.charmover.rotation.x = 0
-      this.charmover.rotation.y = 0
-      this.charmover.rotation.z = 0
+      // this.charmover.position.x = 0
+      // this.charmover.position.y = 0
+      // this.charmover.position.z = 0
+
+      // this.charmover.rotation.x = 0
+      // this.charmover.rotation.y = 0
+      // this.charmover.rotation.z = 0
     },
     actionListFilter () {
       if (this.actionListFilter === 'dance') {
@@ -368,8 +383,11 @@ export default {
     },
     async setupChar ({ gltf }) {
       this.charReady = false
+      await idleSleep()
       await this.setupMovesDB()
+      await idleSleep()
       await this.setupAnimationSystem({ gltf })
+      await idleSleep()
       if (this.lastClickedMove) {
         this.$emit('play-move', { move: this.lastClickedMove })
       }
@@ -1764,9 +1782,11 @@ export default {
       this.layouts = {
         ...(this.fruitLayout || {}),
 
-        waterGroup: {
-          ry: Math.PI * 2.0 * time * 0.03,
+        chromeGroup: {
           pz: -200
+        },
+        waterGroup: {
+          pz: -100
         },
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,

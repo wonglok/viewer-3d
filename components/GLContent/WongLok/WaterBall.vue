@@ -12,7 +12,7 @@ import { ShaderMaterial, DoubleSide, SmoothShading, SphereGeometry, Mesh, Additi
 import SpriteText from 'three-spritetext'
 
 export default {
-  name: 'Swat',
+  name: 'WaterBall',
   mixins: [Tree],
   props: {
   },
@@ -152,6 +152,7 @@ export default {
 
       this.lookup('base').onLoop(() => {
         mat.uniforms.iTime.value = performance.now() * 0.0001
+        mesh.rotation.y += 0.001
       })
       this.o3d.add(mesh)
     }
