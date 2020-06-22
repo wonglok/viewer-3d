@@ -20,6 +20,7 @@ export { ShaderCubeChrome } from '~/components/Reusable/shaderCubeChrome'
 export { ShaderCubeSea } from '~/components/Reusable/shaderCubeSea'
 
 export { ChaseControls } from '~/components/Reusable/ChaseControls'
+export { CubeCam } from '~/components/Reusable/CubeCam'
 
 export const getID = () => {
   return '_' + Math.random().toString(36).substr(2, 9)

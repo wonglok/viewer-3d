@@ -100,11 +100,14 @@ export default {
       let configModelMat = () => {
         model.scene.traverse((item) => {
           if (item.isMesh && item.material) {
-            let last = item.material
-            item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true })
             item.frustumCulled = false
             // item.material.envMap = this.cubeRenderTarget.texture
             if (this.character === 'swat') {
+              let last = item.material
+              item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true })
+              item.material.envMap = this.shaderCube.out.envMap
+            }
+            if (this.character === 'gasmask') {
               item.material.envMap = this.shaderCube.out.envMap
             }
           }
@@ -328,6 +331,9 @@ export default {
             }
             if (this.character === 'swat') {
               url = require('file-loader!./character/swat-guy.glb')
+            }
+            if (this.character === 'gasmask') {
+              url = require('file-loader!./character/gasmask.glb')
             }
             let arrayBuffer = await provideArrayBuffer(url)
             await idle()

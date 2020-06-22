@@ -5,6 +5,8 @@
       <AmbinetLight :intensity="1.5"></AmbinetLight>
       <DirectionalLight v-if="character === 'swat'" :intensity="1.5"></DirectionalLight>
       <HemisphereLight v-if="character === 'swat'" :intensity="1.5"></HemisphereLight>
+      <DirectionalLight v-if="character === 'gasmask'" :intensity="3.5"></DirectionalLight>
+      <HemisphereLight v-if="character === 'gasmask'" :intensity="3.5"></HemisphereLight>
 
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
@@ -26,6 +28,9 @@
 
       <O3D :animated="true" layout="waterGroup">
         <WaterBall></WaterBall>
+      </O3D>
+      <O3D :animated="true" layout="jellyfishGroup">
+        <JellyFish v-if="shaderCube2" :shaderCube="shaderCube2"></JellyFish>
       </O3D>
 
       <!-- <O3D :animated="true" layout="floorLayer">
@@ -60,7 +65,9 @@
     </div>
 
     <div v-if="charReady && showToolsBox && moves" class="p-1 select-none lg:select-text absolute z-20 top-0 left-0 text-xs lg:text-sm text-white w-56 overflow-y-auto moves-box">
-      <!-- <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a> -->
+      <div v-if="isDev">
+        <a v-for="(charItem, i) in characterList" :key="charItem + i" @click="character = charItem" class="block px-2 mx-1 my-1 border-gray-100 border" :style="{ backgroundColor: charItem === character ? '#4299e1' : 'rgba(0,0,0,0.3)' }">{{ charItem }}</a>
+      </div>
       <div class="p-1">
         <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'all'" :style="{ backgroundColor: actionListFilter === 'all' ? 'green' : '' }">All</a>
         <a class="inline-block bg-transp-black px-2 mr-1 mb-1 border-gray-100 border" @click="actionListFilter = 'ready'" :style="{ backgroundColor: actionListFilter === 'ready' ? 'green' : '' }">Ready</a>
@@ -221,7 +228,7 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeChrome, ShaderCube, getID, ChaseControls } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeRefraction, ShaderCubeChrome, ShaderCube, getID, ChaseControls } from '../Reusable'
 import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -255,7 +262,7 @@ export default {
       isSmallScreen: window.innerWidth < 500,
       Math,
       character: 'swat',
-      characterList: ['swat', 'girl'],
+      characterList: ['swat', 'girl', 'gasmask'],
       initConfig: {
         scale: 0.1,
         controlTargetLookAt: new Vector3(0, 0, 0 + 20),
@@ -300,6 +307,7 @@ export default {
 
       shaderCube0: false,
       shaderCube1: false,
+      shaderCube2: false,
 
       scene: new Scene(),
 
@@ -1621,6 +1629,7 @@ export default {
 
     this.shaderCube0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
 
     this.scene.background = new Color('#1a1a1a')
 
@@ -1782,18 +1791,21 @@ export default {
       this.layouts = {
         ...(this.fruitLayout || {}),
 
-        chromeGroup: {
-          pz: -200
-        },
-        waterGroup: {
-          pz: -100
-        },
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,
-          pz: -300
+          pz: -400
         },
         glowball: {
+          pz: -400
+        },
+        chromeGroup: {
           pz: -300
+        },
+        waterGroup: {
+          pz: -200
+        },
+        jellyfishGroup: {
+          pz: -100
         },
         walk: {
           sx: 5.5 * this.initConfig.scale,
