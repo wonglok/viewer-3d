@@ -85,19 +85,21 @@ export default {
         holyCross.traverse((item) => {
           if (item.isMesh) {
             item.frustumCulled = false
+
             // console.log(item.name)
             // if (item.name.indexOf('Cube') !== -1) {
             //   item.material = Matcap.silver
-
             //   if (shaderCube) {
             //     console.log(shaderCube)
             //     item.material = shaderCube.out.material
             //   }
             // }
+
             if (shaderCube) {
               console.log(shaderCube)
               item.material = shaderCube.out.material
             }
+
             // if (item.name.indexOf('Sphere') !== -1) {
             //   item.material = Matcap.silver
             // }

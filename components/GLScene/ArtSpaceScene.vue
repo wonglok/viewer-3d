@@ -1823,10 +1823,10 @@ export default {
 
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,
-          pz: -400
+          pz: -450
         },
         glowball: {
-          pz: -400
+          pz: -450
         },
         chromeGroup: {
           pz: -350
