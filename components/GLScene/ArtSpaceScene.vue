@@ -274,7 +274,7 @@ export default {
       charmover: new Object3D(),
       controlTarget: new Object3D(),
       // face vs chase-left
-      viewCameraMode: 'firstperson',
+      viewCameraMode: 'follower',
       viewSettings: {},
 
       charReady: false,

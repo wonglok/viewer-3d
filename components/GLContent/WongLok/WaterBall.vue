@@ -130,6 +130,7 @@ export default {
           }
         `
       })
+
       let makeAuthorText = () => {
         var myText = new SpriteText('Water Ball by Wong Lok')
         // myText.material.blending = AdditiveBlending

@@ -43,7 +43,6 @@ export default {
       }
 
       let geo = new SphereGeometry(12, 32, 32)
-
       let mat = new ShaderMaterial({
         uniforms: {
           customColor: {
@@ -108,6 +107,7 @@ export default {
               1.0 - pattern(uv * 2.5 + 0.0 * cos(time * 0.1)),
               1.0 - pattern(uv * 2.5 + 0.15 * cos(time * 0.1))
             ), 1.0);
+            // gl_FragColor.a = gl_FragColor.r;
           }
         `
       })
@@ -125,7 +125,6 @@ export default {
         myText.position.y = 24
         return myText
       }
-
 
       let mesh = new Mesh(geo, mat)
 
@@ -145,9 +144,4 @@ export default {
 </script>
 
 <style scoped>
-
-a {
-  /* color: rgb(0, 217, 255); */
-}
-
 </style>
