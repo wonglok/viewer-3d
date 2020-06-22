@@ -85,30 +85,36 @@
       </div>
     </div>
 
-    <div @touchstart.prevent="() => {}" @touchmove.prevent="() => {}" class="touch-action-manipulation select-none  absolute z-10 bottom-0 left-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady">
-      <div class="block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
-        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/up.svg" alt="">
+    <div @touchstart.prevent="() => {}" @touchmove.prevent="() => {}" class="pl-6 touch-action-manipulation select-none  absolute z-10 bottom-0 left-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady">
+      <div class="flex justify-center">
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-forward', true)" @mousedown="$emit('go-forward', true)"  @touchend="$emit('go-forward', false)" @mouseup="$emit('go-forward', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/up.svg" alt="">
+        </div>
       </div>
-      <div class="block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
-        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/down.svg" alt="">
-      </div>
-    </div>
-
-    <div @touchstart.prevent="() => {}" @touchmove.prevent="() => {}" class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady && !useGyro">
-      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
-        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
-      </div>
-      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
-        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/right.svg" alt="">
+      <div>
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-backward', true)" @mousedown="$emit('go-backward', true)" @touchend="$emit('go-backward', false)" @mouseup="$emit('go-backward', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/down.svg" alt="">
+        </div>
       </div>
     </div>
 
-    <div @touchstart.prevent="() => {}" @touchmove.prevent="() => {}" class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady && useGyro">
-      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
-        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
+    <div @touchstart.prevent="() => {}" @touchmove.prevent="() => {}" class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady">
+      <div>
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/turn-left.svg" alt="">
+        </div>
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-right', true)" @mousedown="$emit('turn-right', true)" @touchend="$emit('turn-right', false)" @mouseup="$emit('turn-right', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/turn-right.svg" alt="">
+        </div>
       </div>
-      <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
-        <img class=" scale-75 transform select-none  pointer-events-none" src="./img/right.svg" alt="">
+      <div>
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-left', true)" @mousedown="$emit('go-left', true)"  @touchend="$emit('go-left', false)" @mouseup="$emit('go-left', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/left.svg" alt="">
+        </div>
+
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('go-right', true)" @mousedown="$emit('go-right', true)" @touchend="$emit('go-right', false)" @mouseup="$emit('go-right', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/right.svg" alt="">
+        </div>
       </div>
     </div>
 
