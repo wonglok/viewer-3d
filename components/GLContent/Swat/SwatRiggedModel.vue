@@ -101,13 +101,14 @@ export default {
         model.scene.traverse((item) => {
           if (item.isMesh && item.material) {
             item.frustumCulled = false
+            item.material.transparent = true
             // item.material.envMap = this.cubeRenderTarget.texture
-            if (this.character === 'swat') {
+            if (this.character === 'swat' && this.shaderCube) {
               let last = item.material
               item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true })
               item.material.envMap = this.shaderCube.out.envMap
             }
-            if (this.character === 'gasmask') {
+            if (this.character === 'gasmask' && this.shaderCube) {
               item.material.envMap = this.shaderCube.out.envMap
             }
           }

@@ -309,7 +309,7 @@ export default {
       shaderCube1: false,
       shaderCube2: false,
 
-      scene: new Scene(),
+      // scene: new Scene(),
 
       layouts: false,
       useBloom: false,
@@ -1631,7 +1631,8 @@ export default {
     this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
 
-    this.scene.background = new Color('#1a1a1a')
+    let scene = new Scene()
+    scene.background = new Color('#1a1a1a')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.camera.position.x = this.initConfig.controlTargetPos.x
@@ -1639,9 +1640,9 @@ export default {
     this.camera.position.z = this.initConfig.controlTargetPos.z
     this.camera.lookAt(this.initConfig.controlTargetLookAt)
 
-    this.scene.add(this.o3d)
+    scene.add(this.o3d)
 
-    this.$parent.$emit('scene', this.scene)
+    this.$parent.$emit('scene', scene)
     this.$parent.$emit('camera', this.camera)
 
     // let OrbitControls = require('three/examples/jsm/controls/OrbitControls').OrbitControls
@@ -1668,7 +1669,7 @@ export default {
     let renderer = this.lookup('renderer')
     let element = this.lookup('element')
     let rect = element.getBoundingClientRect()
-    var renderScene = new RenderPass(this.scene, this.camera)
+    var renderScene = new RenderPass(scene, this.camera)
     let dpi = 1
     var bloomPass = new UnrealBloomPass(new Vector2(rect.width * dpi, rect.height * dpi), 1.5, 0.4, 0.85)
     this.Bloom = bloomPass
@@ -1823,10 +1824,6 @@ export default {
           rx: Math.PI * 0.5
         },
         charmover: {
-          sx: this.initConfig.scale,
-          sy: this.initConfig.scale,
-          sz: this.initConfig.scale,
-
           px: this.charmover.position.x,
           py: this.charmover.position.y,
           pz: this.charmover.position.z,
@@ -1850,6 +1847,9 @@ export default {
         // },
 
         calibration: {
+          sx: this.initConfig.scale,
+          sy: this.initConfig.scale,
+          sz: this.initConfig.scale,
           ry: Math.PI
         },
         correctAxis: {
