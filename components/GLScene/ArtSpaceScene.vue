@@ -8,6 +8,11 @@
       <DirectionalLight v-if="character === 'gasmask'" :intensity="3.5"></DirectionalLight>
       <HemisphereLight v-if="character === 'gasmask'" :intensity="3.5"></HemisphereLight>
 
+
+      <O3D :animated="true" layout="bgGroup">
+        <ChromeBallBG></ChromeBallBG>
+      </O3D>
+
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
       </O3D>
@@ -150,7 +155,7 @@
 
       <div class="h-1"></div>
 
-      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'follower', 'border-green-200': viewCameraMode === 'follower' }" @click="viewCameraMode = 'follower'">Follower Cam</div>
+      <div class="touch-action-manipulation select-none text-white bg-transp-black text-xs lg:text-sm block px-2 mx-1 my-1 border-gray-100 border text-20 text-center" :class="{ 'text-green-200': viewCameraMode === 'freecam', 'border-green-200': viewCameraMode === 'freecam' }" @click="viewCameraMode = 'freecam'">Free Cam</div>
 
       <div class="h-1"></div>
 
@@ -248,7 +253,7 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeRefraction, ShaderCubeSea, ShaderCubeChrome, ShaderCube, getID, ChaseControls } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeRefraction, ShaderCube, getID, ChaseControls } from '../Reusable'
 import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -367,7 +372,7 @@ export default {
       if (this.actionListFilter === 'dance') {
         this.viewCameraMode = 'close-right'
       } else if (this.actionListFilter === 'combat') {
-        this.viewCameraMode = 'follower'
+        this.viewCameraMode = 'freecam'
       } else if (this.actionListFilter === 'ready') {
         this.viewCameraMode = 'close-left'
       } else if (this.actionListFilter === 'control') {
@@ -1194,7 +1199,7 @@ export default {
           lerperCamPos.lerp(targetCamPos, 0.2)
         }
 
-        if (this.viewCameraMode === 'follower') {
+        if (this.viewCameraMode === 'freecam') {
           this.controls.enabled = true
           this.controls.update()
         } else {
@@ -1688,9 +1693,10 @@ export default {
     // this.shaderCubeChrome0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.shaderCubeChromatics = new ShaderCubeChromatics({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
 
     let scene = new Scene()
-    scene.background = new Color('#1a1a1a')
+    scene.background = new Color('#bababa')
 
     this.camera = new PCamera({ base: this.lookup('base'), element: this.lookup('element') })
     this.camera.position.x = this.initConfig.controlTargetPos.x
@@ -1849,7 +1855,11 @@ export default {
       let time = performance.now() * 0.001
       this.layouts = {
         ...(this.fruitLayout || {}),
-
+        bgGroup: {
+          sx: 150.0,
+          sy: 150.0,
+          sz: 150.0
+        },
         fruitGroup: {
           ry: Math.PI * 2.0 * time * 0.03,
           pz: 300 + -450 + 0

@@ -9,7 +9,7 @@
 // import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 // import { ShaderMaterial, DoubleSide, SmoothShading, SphereGeometry, Mesh, AdditiveBlending, Color } from 'three'
 import SpriteText from 'three-spritetext'
-import { Tree, ShaderCube, CubeCam } from '../../Reusable'
+import { Tree, ShaderCubeChromatics, CubeCam } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Mesh, Object3D, Color, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader, MeshPhysicalMaterial } from 'three'
 import copy2clip from 'copy-to-clipboard'
@@ -114,16 +114,16 @@ export default {
     console.log(gltf)
 
     // let cc = new CubeCam({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, excludeFromScene: this.o3d, scene: this.lookup('scene') })
-
+    let shaderCube = new ShaderCubeChromatics({ res: 128, renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
     gltf.scene.traverse((item) => {
       if (item && item.isMesh && item.material) {
         let percentage = 50
         item.geometry.translate(0, 60 / 100 * percentage, 0)
         item.geometry.scale(100 / 100 * percentage, 100 / 100 * percentage, 100 / 100 * percentage)
         item.material.skinning = true
-        if (this.shaderCube) {
-          item.material = this.shaderCube.out.material
-          this.shaderCube.out.material.color = new Color('#ffffff')
+        if (shaderCube) {
+          item.material = shaderCube.out.material
+          shaderCube.out.material.color = new Color('#ffffff')
         }
         // item.material = new MeshBasicMaterial({ color: 0xff0000 })
       }

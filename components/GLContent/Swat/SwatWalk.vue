@@ -69,7 +69,7 @@ export default {
       })
     },
     async loadStuff () {
-      let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
+      let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 128 })
 
       let all = await Promise.all([
         new Promise((resolve) => {

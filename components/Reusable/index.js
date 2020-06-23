@@ -18,6 +18,7 @@ export { ShaderCube } from '~/components/Reusable/shaderCube'
 export { ShaderCubeRefraction } from '~/components/Reusable/shaderCubeRefraction'
 export { ShaderCubeChrome } from '~/components/Reusable/shaderCubeChrome'
 export { ShaderCubeSea } from '~/components/Reusable/shaderCubeSea'
+export { ShaderCubeChromatics } from '~/components/Reusable/shaderCubeChromatics'
 
 export { ChaseControls } from '~/components/Reusable/ChaseControls'
 export { CubeCam } from '~/components/Reusable/CubeCam'
