@@ -19,6 +19,7 @@
     "axios": "^0.19.2",
     "compromise": "^13.2.0",
     "copy-to-clipboard": "^3.3.1",
+    "dat.gui": "^0.7.7",
     "expr-eval": "^2.0.2",
     "howler": "^2.2.0",
     "keyword-extractor": "0.0.19",

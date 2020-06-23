@@ -1,6 +1,8 @@
-import { WebGLCubeRenderTarget, Camera, Scene, Mesh, PlaneBufferGeometry, ShaderMaterial, CubeRefractionMapping, BackSide, NoBlending, BoxBufferGeometry, CubeCamera } from 'three'
+import { WebGLCubeRenderTarget, Camera, Scene, Mesh, PlaneBufferGeometry, ShaderMaterial, CubeRefractionMapping, BackSide, NoBlending, BoxBufferGeometry, CubeCamera, Vector3, Color } from 'three'
 import { Vector2, MeshBasicMaterial, DoubleSide, RGBFormat, LinearFilter, CubeReflectionMapping, WebGLRenderTarget, EquirectangularReflectionMapping } from 'three/build/three.module'
 import { cloneUniforms } from 'three/src/renderers/shaders/UniformsUtils.js'
+// import * as dat from '';
+
 class CustomWebGLCubeRenderTarget extends WebGLCubeRenderTarget {
   constructor (width, height, options) {
     super(width, height, options)
@@ -92,8 +94,25 @@ export class ShaderCubeChrome {
       },
       resolution: {
         value: new Vector2(this.resX, this.resX)
+      },
+      diffuse: {
+        value: new Color('#ffffff')
       }
     }
+
+    // if (process.env.NODE_ENV === 'development') {
+    //   var Configuracion = {
+    //     color: `#${uniforms.diffuse.value.getHexString()}`
+    //   }
+    //   let dat = require('dat.gui')
+    //   var gui = new dat.GUI()
+    //   var controlador = gui.addColor(Configuracion, 'color');
+    //   controlador.onChange((colorValue)  => {
+    //     uniforms.diffuse.value.setStyle(colorValue);
+    //   })
+    //   gui.domElement.style.zIndex = '10000'
+    // }
+
     this.mat = new ShaderMaterial({
       side: DoubleSide,
       transparent: true,
@@ -107,6 +126,7 @@ export class ShaderCubeChrome {
         #include <common>
         uniform vec2 resolution;
         uniform float time;
+        uniform vec3 diffuse;
 
         const mat2 m = mat2( 0.80,  0.60, -0.60,  0.80 );
 
@@ -125,12 +145,12 @@ export class ShaderCubeChrome {
 
         float fbm6( vec2 p ) {
             float f = 0.0;
-            f += 0.500000*(0.5+0.5*noise( p )); p = m*p*2.02;
-            f += 0.250000*(0.5+0.5*noise( p )); p = m*p*2.03;
-            f += 0.125000*(0.5+0.5*noise( p )); p = m*p*2.01;
-            f += 0.062500*(0.5+0.5*noise( p )); p = m*p*2.04;
-            f += 0.031250*(0.5+0.5*noise( p )); p = m*p*2.01;
-            f += 0.015625*(0.5+0.5*noise( p ));
+            f += 0.500000*(0.5 + 0.5 * noise( p )); p = m*p*2.02;
+            f += 0.250000*(0.5 + 0.5 * noise( p )); p = m*p*2.03;
+            f += 0.125000*(0.5 + 0.5 * noise( p )); p = m*p*2.01;
+            f += 0.062500*(0.5 + 0.5 * noise( p )); p = m*p*2.04;
+            f += 0.031250*(0.5 + 0.5 * noise( p )); p = m*p*2.01;
+            f += 0.015625*(0.5 + 0.5 * noise( p ));
             return f/0.96875;
         }
 
@@ -142,10 +162,10 @@ export class ShaderCubeChrome {
         void main (void) {
           vec2 uv = gl_FragCoord.xy / resolution.xy;
           gl_FragColor = vec4(vec3(
-            1.0 - pattern(uv * 10.0123 + -0.5 * cos(time * 0.15)),
+            1.0 - pattern(uv * 10.0123 + -0.86 * cos(time * 0.15)),
             1.0 - pattern(uv * 10.0123 + 0.0 * cos(time * 0.15)),
-            1.0 - pattern(uv * 10.0123 + 0.5 * cos(time * 0.15))
-          ), 1.0);
+            1.0 - pattern(uv * 10.0123 + 0.86 * cos(time * 0.15))
+          ) * diffuse, 1.0);
         }
       `
     })

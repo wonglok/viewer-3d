@@ -39,7 +39,7 @@ export default {
     },
     shaderCube: {
       default: false
-    },
+    }
     // camera: {},
     // move: {}
   },
@@ -103,10 +103,17 @@ export default {
             item.frustumCulled = false
             item.material.transparent = true
             // item.material.envMap = this.cubeRenderTarget.texture
-            if (this.character === 'swat' && this.shaderCube) {
+            if (this.character === 'swat') {
+              console.log(item.name)
               let last = item.material
               item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true })
-              item.material.envMap = this.shaderCube.out.envMap
+
+              if (this.shaderCube && item.name === 'Mesh_1') {
+                item.material.envMap = this.shaderCube.out.envMap
+              }
+              if (this.shaderCube && item.name === 'Mesh_0') {
+                item.material.envMap = this.shaderCube.out.envMap
+              }
             }
             if (this.character === 'gasmask' && this.shaderCube) {
               item.material.envMap = this.shaderCube.out.envMap

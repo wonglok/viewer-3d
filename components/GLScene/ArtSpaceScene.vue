@@ -2,9 +2,9 @@
   <O3D :animated="true" layout="allsamller">
 
     <O3D v-if="canLoadGraph">
-      <AmbinetLight :intensity="1.5"></AmbinetLight>
-      <DirectionalLight v-if="character === 'swat'" :intensity="1.5"></DirectionalLight>
-      <HemisphereLight v-if="character === 'swat'" :intensity="1.5"></HemisphereLight>
+      <AmbinetLight :intensity="1.0"></AmbinetLight>
+      <DirectionalLight v-if="character === 'swat'" :intensity="1.0"></DirectionalLight>
+      <HemisphereLight v-if="character === 'swat'" :intensity="1.0"></HemisphereLight>
       <DirectionalLight v-if="character === 'gasmask'" :intensity="3.5"></DirectionalLight>
       <HemisphereLight v-if="character === 'gasmask'" :intensity="3.5"></HemisphereLight>
 
@@ -56,7 +56,7 @@
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" @guyNeck="guyNeck = $event" :shaderCube="shaderCube0"></SwatRiggedModel>
+              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" @guyNeck="guyNeck = $event" :shaderCube="shaderCubeChrome0"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
@@ -317,7 +317,7 @@ export default {
 
       moves: false,
 
-      shaderCube0: false,
+      shaderCubeChrome0: false,
       shaderCube1: false,
       shaderCube2: false,
 
@@ -1652,7 +1652,7 @@ export default {
     }
     /* Loader End */
 
-    this.shaderCube0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    this.shaderCubeChrome0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
 
