@@ -110,7 +110,7 @@
           <img class=" scale-75 transform select-none  pointer-events-none" src="./img/gamepad.svg" alt="">
         </div>
       </div>
-      <div>
+      <div v-if="!useGyro">
         <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
           <img class=" scale-75 transform select-none  pointer-events-none" src="./img/turn-left.svg" alt="">
         </div>
