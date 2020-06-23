@@ -80,7 +80,7 @@ class CustomWebGLCubeRenderTarget extends WebGLCubeRenderTarget {
 }
 
 export class ShaderCubeChrome {
-  constructor ({ renderer, loop, res = 128 }) {
+  constructor ({ renderer, loop, res = 128, color = new Color('#ffffff') }) {
     this.renderer = renderer
     this.resX = res || 128
     this.renderTargetCube = new CustomWebGLCubeRenderTarget(this.resX, { format: RGBFormat, magFilter: LinearFilter, minFilter: LinearFilter })
@@ -96,22 +96,9 @@ export class ShaderCubeChrome {
         value: new Vector2(this.resX, this.resX)
       },
       diffuse: {
-        value: new Color('#ffffff')
+        value: color
       }
     }
-
-    // if (process.env.NODE_ENV === 'development') {
-    //   var Configuracion = {
-    //     color: `#${uniforms.diffuse.value.getHexString()}`
-    //   }
-    //   let dat = require('dat.gui')
-    //   var gui = new dat.GUI()
-    //   var controlador = gui.addColor(Configuracion, 'color');
-    //   controlador.onChange((colorValue)  => {
-    //     uniforms.diffuse.value.setStyle(colorValue);
-    //   })
-    //   gui.domElement.style.zIndex = '10000'
-    // }
 
     this.mat = new ShaderMaterial({
       side: DoubleSide,
@@ -159,13 +146,72 @@ export class ShaderCubeChrome {
           return abs(vout);
         }
 
+        // // Found this on GLSL sandbox. I really liked it, changed a few things and made it tileable.
+        // // :)
+        // // by David Hoskins.
+
+
+        // // Water turbulence effect by joltz0r 2013-07-04, improved 2013-07-07
+
+
+        // // Redefine below to see the tiling...
+        // //#define SHOW_TILING
+
+        // #define TAU 6.28318530718
+        // #define MAX_ITER 12
+
+        // vec4 waterwaves( in vec2 fragCoord, in vec2 iResolution, in float iTime)
+        // {
+        //   float time = iTime * .5+23.0;
+        //     // uv should be the 0-1 uv of texture...
+        //   vec2 uv = fragCoord.xy / iResolution.xy;
+
+        // #ifdef SHOW_TILING
+        //   vec2 p = mod(uv*TAU*2.0, TAU)-250.0;
+        // #else
+        //     vec2 p = mod(uv*TAU, TAU)-250.0;
+        // #endif
+        //   vec2 i = vec2(p);
+        //   float c = 1.0;
+        //   float inten = .005;
+
+        //   for (int n = 0; n < MAX_ITER; n++)
+        //   {
+        //     float t = time * (1.0 - (3.5 / float(n+1)));
+        //     i = p + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
+        //     c += 1.0/length(vec2(p.x / (sin(i.x+t)/inten),p.y / (cos(i.y+t)/inten)));
+        //   }
+        //   c /= float(MAX_ITER);
+        //   c = 1.17-pow(c, 1.4);
+        //   vec3 colour = vec3(pow(abs(c), 12.0));
+        //     colour = clamp(colour + vec3(diffuse), 0.0, 1.0);
+
+
+        //   #ifdef SHOW_TILING
+        //   // Flash tile borders...
+        //   vec2 pixel = 2.0 / iResolution.xy;
+        //   uv *= 2.0;
+
+        //   float f = floor(mod(iTime*.5, 2.0)); 	// Flash value.
+        //   vec2 first = step(pixel, uv) * f;		   	// Rule out first screen pixels and flash.
+        //   uv  = step(fract(uv), pixel);				// Add one line of pixels per tile.
+        //   colour = mix(colour, vec3(1.0, 1.0, 0.0), (uv.x + uv.y) * first.x * first.y); // Yellow line
+
+        //   #endif
+        //   return vec4(colour, 1.0);
+        // }
+
         void main (void) {
           vec2 uv = gl_FragCoord.xy / resolution.xy;
+
+          // vec4 water = waterwaves(gl_FragCoord.xy, vec2(resolution.xy), time * 0.15);
+
           gl_FragColor = vec4(vec3(
-            1.0 - pattern(uv * 10.0123 + -0.86 * cos(time * 0.15)),
-            1.0 - pattern(uv * 10.0123 + 0.0 * cos(time * 0.15)),
-            1.0 - pattern(uv * 10.0123 + 0.86 * cos(time * 0.15))
+            1.0 - pattern(uv * 10.0123 + -0.67 * cos(time * 0.15)),
+            1.0 - pattern(uv * 10.0123 +  0.0 * cos(time * 0.15)),
+            1.0 - pattern(uv * 10.0123 +  0.67 * cos(time * 0.15))
           ) * diffuse, 1.0);
+          // gl_FragColor = water;
         }
       `
     })

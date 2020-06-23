@@ -128,6 +128,7 @@ export default {
         // item.material = new MeshBasicMaterial({ color: 0xff0000 })
       }
     })
+
     let makeAuthorText = () => {
       var myText = new SpriteText('JellyFish Shader by Wong Lok')
       // myText.material.blending = AdditiveBlending

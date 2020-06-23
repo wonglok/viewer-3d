@@ -18,9 +18,9 @@
 </template>
 
 <script>
-import { Tree, ShaderCube } from '../../Reusable'
+import { Tree, ShaderCubeChrome } from '../../Reusable'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader, MeshPhysicalMaterial } from 'three'
+import { Mesh, Color, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader, MeshPhysicalMaterial } from 'three'
 import copy2clip from 'copy-to-clipboard'
 
 // WebGLCubeRenderTarget, CubeCamera, RGBFormat, LinearMipmapLinearFilter,
@@ -45,7 +45,10 @@ export default {
   },
   data () {
     return {
+      cleanupStats () {},
       isDev: process.env.NODE_ENV === 'development',
+      shaderCube0: false,
+      shaderCube1: false,
       settings: {
         roughness0: 0,
         metalness0: 0,
@@ -63,6 +66,7 @@ export default {
     // if (this.gltf) {
     //   this.$emit('removeGLTF', this.gltf)
     // }
+    this.cleanupStats()
     this.cleanup()
   },
   methods: {
@@ -104,20 +108,49 @@ export default {
             item.material.transparent = true
             // item.material.envMap = this.cubeRenderTarget.texture
             if (this.character === 'swat') {
-              console.log(item.name)
               let last = item.material
               item.material = new MeshPhysicalMaterial({ aoMapIntensity: 1, transparent: true, metalnessMap: last.metalnessMap, roughnessMap: last.roughnessMap, normalMap: last.normalMap, color: 0xffffff, map: last.map, skinning: true })
 
-              if (this.shaderCube && item.name === 'Mesh_1') {
-                item.material.envMap = this.shaderCube.out.envMap
+
+              if (this.shaderCube1 && item.name === 'Mesh_0') {
+                item.material.envMap = this.shaderCube1.out.envMap
               }
-              if (this.shaderCube && item.name === 'Mesh_0') {
-                item.material.envMap = this.shaderCube.out.envMap
+              if (this.shaderCube0 && item.name === 'Mesh_1') {
+                item.material.envMap = this.shaderCube0.out.envMap
               }
             }
-            if (this.character === 'gasmask' && this.shaderCube) {
-              item.material.envMap = this.shaderCube.out.envMap
-            }
+
+            // if (this.character === 'gasmask' && this.shaderCube0) {
+            //   if (this.shaderCube0 && item.name === 'Mesh_1') {
+            //     item.material.envMap = this.shaderCube0.out.envMap
+            //   }
+            //   if (this.shaderCube0 && item.name === 'Mesh_2') {
+            //     item.material.envMap = this.shaderCube0.out.envMap
+            //   }
+            //   if (this.shaderCube1 && item.name === 'Mesh_0') {
+            //     item.material.envMap = this.shaderCube1.out.envMap
+            //   }
+            // }
+
+            /*
+            Ch02_Body
+            Ch02_Cloth
+            Ch02_Sneakers
+            Ch02_Socks
+            Ch02_Eyelashes
+            Ch02_Hair
+            */
+            // console.log(item.name)
+
+            // if (this.character === 'girl' && this.shaderCube0) {
+            //   // item.material.envMap = this.shaderCube0.out.envMap
+            //   // if (this.shaderCube0 && item.name === 'Ch02_Cloth') {
+            //   //   item.material.envMap = this.shaderCube0.out.envMap
+            //   // }
+            //   if (this.shaderCube0 && item.name === 'Ch02_Body') {
+            //     item.material.envMap = this.shaderCube0.out.envMap
+            //   }
+            // }
           }
         })
       }
@@ -279,7 +312,7 @@ export default {
       // this.o3d.add(model.scene)
     },
     async loadStuff () {
-      let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
+      // let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
 
       // let loaderFBX = new FBXLoader(this.lookup('loadingManager'))
 
@@ -311,11 +344,11 @@ export default {
             value = arrayBuffer
             await store.setItem(NS, arrayBuffer)
           }
-          console.log(value)
+          // console.log(value)
           return value
         } catch (err) {
-          console.log(err);
-          await store.removeItem(NS);
+          console.log(err)
+          await store.removeItem(NS)
         }
       }
 
@@ -373,11 +406,42 @@ export default {
       //   cubeCamera.update(renderer, scene)
       //   this.o3d.visible = true
       // })
+
+      let Colors = {
+        gearColor: new Color('#ffffff'),
+        clothColor: new Color('#cccccc')
+      }
+
+      // if (process.env.NODE_ENV === 'development') {
+      //   var dat = require('dat.gui')
+      //   var Config = {}
+      //   var gui = new dat.GUI()
+      //   let addColorKN = ({ key }) => {
+      //     Config[key] = `#${Colors[key].getHexString()}`
+      //     let ctrl = gui
+      //       .addColor(Config, key)
+
+      //     ctrl.onChange((vv)  => {
+      //         Colors[key].setStyle(vv);
+      //       })
+      //   }
+      //   Object.keys(Colors).forEach(kn => {
+      //     addColorKN({ key: kn })
+      //   })
+      //   gui.domElement.style.zIndex = '10000'
+      //   this.cleanupStats = () => {
+      //     gui.domElement.parentNode.removeChild(gui.domElement)
+      //   }
+      // }
+
+      this.shaderCube0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), color: Colors.gearColor, loop: this.lookup('base').onLoop, res: 64 })
+      this.shaderCube1 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), color: Colors.clothColor, loop: this.lookup('base').onLoop, res: 64 })
     }
   },
   mounted () {
     this.loadStuff()
-  }
+  },
+
 }
 </script>
 

@@ -125,7 +125,7 @@ export default {
             value = arrayBuffer
             await store.setItem(NS, arrayBuffer)
           }
-          console.log(value)
+          // console.log(value)
           return value
         } catch (err) {
           console.log(err);
@@ -137,7 +137,7 @@ export default {
         return new Promise((resolve) => {
           let loaderModel = new GLTFLoader(this.lookup('loadingManager'))
           loaderModel.parse(arrBuff, '/', (parsed) => {
-            console.log(parsed)
+            // console.log(parsed)
             resolve(parsed)
           })
         })

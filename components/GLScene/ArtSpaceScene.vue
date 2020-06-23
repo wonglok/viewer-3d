@@ -2,7 +2,7 @@
   <O3D :animated="true" layout="allsamller">
 
     <O3D v-if="canLoadGraph">
-      <AmbinetLight :intensity="1.0"></AmbinetLight>
+      <AmbinetLight :intensity="2.0"></AmbinetLight>
       <DirectionalLight v-if="character === 'swat'" :intensity="1.0"></DirectionalLight>
       <HemisphereLight v-if="character === 'swat'" :intensity="1.0"></HemisphereLight>
       <DirectionalLight v-if="character === 'gasmask'" :intensity="3.5"></DirectionalLight>
@@ -56,7 +56,7 @@
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
-              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" @guyNeck="guyNeck = $event" :shaderCube="shaderCubeChrome0"></SwatRiggedModel>
+              <SwatRiggedModel :character="character" @removeGLTF="removeGLTF({ gltf: $event })" @setupGLTF="setupGLTF({ gltf: $event })" @guy="guy = $event;" @guyHead="guyHead = $event;" @guyBack="guyBack = $event" @guyFace="guyFace = $event" @guySkeleton="guySkeleton = $event" @guyNeck="guyNeck = $event"></SwatRiggedModel>
             </O3D>
           </O3D>
         </O3D>
@@ -102,6 +102,14 @@
     </div>
 
     <div @touchstart.prevent="() => {}" @touchmove.prevent="() => {}" class="touch-action-manipulation select-none  absolute z-10 bottom-0 right-0 p-2 pb-8" :class="{  'pb-16': isDev }" v-if="charReady">
+      <div>
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('key-r', true)" @mousedown="$emit('key-r', true)"  @touchend="$emit('key-r', false)" @mouseup="$emit('key-r', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/dance.svg" alt="">
+        </div>
+        <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('key-x', true)" @mousedown="$emit('key-x', true)" @touchend="$emit('key-x', false)" @mouseup="$emit('key-x', false)">
+          <img class=" scale-75 transform select-none  pointer-events-none" src="./img/gamepad.svg" alt="">
+        </div>
+      </div>
       <div>
         <div class="inline-block rounded-full touch-action-manipulation text-center select-none p-3 mx-1 my-1 border-gray-100 border bg-white text-20 text-white" @touchstart="$emit('turn-left', true)" @mousedown="$emit('turn-left', true)"  @touchend="$emit('turn-left', false)" @mouseup="$emit('turn-left', false)">
           <img class=" scale-75 transform select-none  pointer-events-none" src="./img/turn-left.svg" alt="">
@@ -240,7 +248,7 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeRefraction, ShaderCubeChrome, ShaderCube, getID, ChaseControls } from '../Reusable'
+import { makeScroller, Tree, PCamera, ShaderCubeRefraction, ShaderCubeSea, ShaderCubeChrome, ShaderCube, getID, ChaseControls } from '../Reusable'
 import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -317,7 +325,7 @@ export default {
 
       moves: false,
 
-      shaderCubeChrome0: false,
+      // shaderCubeChrome0: false,
       shaderCube1: false,
       shaderCube2: false,
 
@@ -1280,7 +1288,7 @@ export default {
         }, to.duration * 1000)
       })
     },
-    async doStart ({ idle, to, mixer, canRestore = false, stopAll = true }) {
+    async doStart ({ idle, to, mixer, canRestore = false, stopAll = true, fade = 0.15 }) {
       return new Promise((resolve, reject) => {
         if (to.isRunning()) {
           resolve(false)
@@ -1292,7 +1300,7 @@ export default {
         idle.reset()
         to.reset()
 
-        let fade = 0.15
+        // fade = 0.15
 
         to.enabled = true
         idle.enabled = true
@@ -1388,12 +1396,14 @@ export default {
       idle.play()
 
       this.$on('fight-mode-toggle', () => {
+        let last = idle
         if (idle === mmaIdle) {
           idle = standIdle
         } else if (idle === standIdle) {
           idle = mmaIdle
         }
         mixer.stopAllAction()
+        idle.crossFadeFrom(last, 0.3, true)
         idle.play()
       })
 
@@ -1583,6 +1593,29 @@ export default {
         }
       })
 
+      this.$on('key-r', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 82 })
+        } else {
+          onKeyUp({ keyCode: 82 })
+        }
+      })
+      this.$on('key-t', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 84 })
+        } else {
+          onKeyUp({ keyCode: 84 })
+        }
+      })
+
+      this.$on('key-x', (v) => {
+        if (v) {
+          onKeyDown({ keyCode: 88 })
+        } else {
+          onKeyUp({ keyCode: 88 })
+        }
+      })
+
       document.addEventListener( 'keydown', onKeyDown, false );
       document.addEventListener( 'keyup', onKeyUp, false );
     },
@@ -1652,7 +1685,7 @@ export default {
     }
     /* Loader End */
 
-    this.shaderCubeChrome0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.shaderCubeChrome0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
 
@@ -1768,7 +1801,7 @@ export default {
       },
       {
         'type': 'banana',
-        'scale': 1
+        'scale': 0.007
       },
       {
         'type': 'apple',
