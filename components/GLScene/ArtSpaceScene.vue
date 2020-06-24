@@ -13,7 +13,7 @@
         <ChromeBallBG></ChromeBallBG>
       </O3D>
 
-      <O3D :animated="true" layout="walk">
+      <O3D :animated="true" layout="walk" :visible="charReady">
         <SwatWalk></SwatWalk>
       </O3D>
 
@@ -34,9 +34,11 @@
       <O3D :animated="true" layout="waterGroup">
         <WaterBall></WaterBall>
       </O3D>
+
       <O3D :animated="true" layout="jellyfishGroup">
         <JellyFish v-if="shaderCube2" :shaderCube="shaderCube2"></JellyFish>
       </O3D>
+
       <O3D :animated="true" layout="holycross">
         <HolyCross :visible="charReady" :shaderCube="shaderCube1"></HolyCross>
       </O3D>

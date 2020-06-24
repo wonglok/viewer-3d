@@ -42,7 +42,7 @@ export default {
         this.cleaners.push(cb)
       }
 
-      let geo = new SphereGeometry(12, 32, 32)
+      let geo = new SphereGeometry(15, 64, 32)
       let mat = new ShaderMaterial({
         side: DoubleSide,
         uniforms: {
@@ -163,7 +163,7 @@ export default {
               1.0 - pattern(uv * 5.5 + 0.25 * cos(time * 0.1))
             );
 
-            vec4 water = waterwaves(grad * grad, vec2(iNormal.zz * iNormal.xy * iNormal.yx), vec2(1.0), time * 1.0);
+            vec4 water = waterwaves(grad * grad, vec2(iNormal.zz), vec2(1.0), time * 1.0);
             gl_FragColor = vec4(water.rgb, 1.0);
           }
         `
@@ -185,11 +185,11 @@ export default {
 
       let mesh = new Mesh(geo, mat)
 
-      mesh.add(makeAuthorText())
+      this.o3d.add(makeAuthorText())
 
       this.lookup('base').onLoop(() => {
         mat.uniforms.time.value = performance.now() * 0.001
-        mesh.rotation.y += 0.001
+        mesh.rotation.z += 0.01
       })
       this.o3d.add(mesh)
     }

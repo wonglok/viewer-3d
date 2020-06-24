@@ -52,10 +52,10 @@ export default {
      ** You can extend webpack config here
      */
     extend(config, ctx) {
-      config.devServer = {
-        hot: true,
-        inline: false,
-      }
+      // config.devServer = {
+      //   hot: true,
+      //   inline: false,
+      // }
     },
   },
   buildModules: [
