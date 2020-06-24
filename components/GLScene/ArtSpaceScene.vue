@@ -845,7 +845,6 @@ export default {
         }
 
         if (this.viewCameraMode === 'behind') {
-
           this.viewSettings.adjustX = 0
           this.viewSettings.adjustY = 0
           this.viewSettings.adjustZ = 0

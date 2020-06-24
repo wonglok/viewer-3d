@@ -43,7 +43,7 @@ export default {
         this.cleaners.push(cb)
       }
 
-      let geo = new SphereGeometry(12, 128, 64)
+      let geo = new SphereGeometry(12, 64, 64)
       let mat = new ShaderMaterial({
         side: BackSide,
         uniforms: {

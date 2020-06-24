@@ -47,7 +47,7 @@ export default {
       let mat = new ShaderMaterial({
         uniforms: {
           customColor: {
-            value: new Color('rgb(0, 217, 255)')
+            value: new Color('rgb(0, 207, 255)')
           },
           iTime: {
             value: 0
@@ -124,7 +124,7 @@ export default {
           }
           void main (void) {
 
-            vec4 water = waterwaves((iNormal.xy + iNormal.zz), vec2(3.0), iTime * 10.0);
+            vec4 water = waterwaves((iNormal.xy), vec2(3.0), iTime * 10.0);
 
             gl_FragColor =  vec4(water.xyz * customColor, 1.0);
           }
@@ -150,10 +150,9 @@ export default {
       let mesh = new Mesh(geo, mat)
 
       mesh.add(makeAuthorText())
-
       this.lookup('base').onLoop(() => {
         mat.uniforms.iTime.value = performance.now() * 0.0001
-        mesh.rotation.y += 0.001
+        // mesh.rotation.y += 0.001
       })
       this.o3d.add(mesh)
     }
