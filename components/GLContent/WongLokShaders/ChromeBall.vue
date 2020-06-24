@@ -186,6 +186,7 @@ export default {
       let mesh = new Mesh(geo, mat)
 
       this.o3d.add(makeAuthorText())
+      // mesh.rotation.x = Math.PI * 0.25
 
       this.lookup('base').onLoop(() => {
         mat.uniforms.time.value = performance.now() * 0.001

@@ -150,7 +150,6 @@ export default {
       let mesh = new Mesh(geo, mat)
 
       mesh.add(makeAuthorText())
-
       this.lookup('base').onLoop(() => {
         mat.uniforms.iTime.value = performance.now() * 0.0001
         // mesh.rotation.y += 0.001
