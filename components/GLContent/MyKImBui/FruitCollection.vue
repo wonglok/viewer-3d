@@ -51,18 +51,20 @@ export default {
   },
   methods: {
     configModel ({ model }) {
+      let shaderCube = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
+
       this.$on('configModelMat', () => {
         model.scene.traverse((item) => {
           if (item.isMesh && item.material) {
             item.frustumCulled = false
             item.material.transparent = true
           }
-          if (this.shaderCube) {
+          if (shaderCube) {
             if (item.isMesh && item.material) {
               // item.material = this.shaderCube.out.material
               // this.shaderCube.out.material.skinning = true
               item.material = new MeshBasicMaterial({ color: item.material.color })
-              item.material.envMap = this.shaderCube.out.envMap
+              item.material.envMap = shaderCube.out.envMap
               // item.material.roughness = 0.5
               // item.material.metalness = 0.5
             }
@@ -93,7 +95,6 @@ export default {
       })
     },
     async loadStuff () {
-      let shaderCube = this.shaderCube || new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
 
       // let loaderFBX = new FBXLoader(this.lookup('loadingManager'))
 

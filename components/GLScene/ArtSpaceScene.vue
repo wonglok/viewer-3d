@@ -8,8 +8,7 @@
       <DirectionalLight v-if="character === 'gasmask'" :intensity="3.5"></DirectionalLight>
       <HemisphereLight v-if="character === 'gasmask'" :intensity="3.5"></HemisphereLight>
 
-
-      <O3D :animated="true" layout="bgGroup">
+      <O3D v-if="charReady && isDev && !isSmallScreen" :animated="true" layout="bgGroup">
         <ChromeBallBG></ChromeBallBG>
       </O3D>
 
@@ -17,30 +16,30 @@
         <SwatWalk></SwatWalk>
       </O3D>
 
-      <O3D :animated="true" layout="glowball">
+      <O3D v-if="charReady" :animated="true" layout="glowball">
         <GlowBall></GlowBall>
       </O3D>
 
-      <O3D :animated="true" layout="fruitGroup">
+      <!-- <O3D v-if="charReady" :animated="true" layout="fruitGroup">
         <O3D :animated="true" :layout="fruit.layout" v-for="(fruit) in myFruits" :key="fruit.layout">
-          <FruitCollection :shaderCube="shaderCube1" :fruit="fruit.type"></FruitCollection>
+          <FruitCollection :fruit="fruit.type"></FruitCollection>
         </O3D>
-      </O3D>
+      </O3D> -->
 
-      <O3D :animated="true" layout="chromeGroup">
+      <O3D v-if="charReady" :animated="true" layout="chromeGroup">
         <ChromeBall></ChromeBall>
       </O3D>
 
-      <O3D :animated="true" layout="waterGroup">
+      <O3D v-if="charReady" :animated="true" layout="waterGroup">
         <WaterBall></WaterBall>
       </O3D>
 
-      <!-- <O3D :animated="true" layout="jellyfishGroup">
+      <O3D :animated="true" layout="jellyfishGroup">
         <JellyFish :shaderCube="shaderCube2"></JellyFish>
-      </O3D> -->
+      </O3D>
 
-      <O3D :animated="true" layout="holycross">
-        <HolyCross :shaderCube="shaderCube1"></HolyCross>
+      <O3D v-if="charReady" :animated="true" layout="holycross">
+        <HolyCross></HolyCross>
       </O3D>
 
       <!-- <O3D :animated="true" layout="floorLayer">
@@ -294,7 +293,7 @@ export default {
         initAction: 'Ymca Dance'
       },
       actionListFilter: 'all',
-      showToolsBox: true,
+      showToolsBox: false,
       lastClickedMove: false,
       hasGyro: true,
       // isMobile: window.innerWidth < 500,
@@ -384,6 +383,9 @@ export default {
     }
   },
   methods: {
+    test () {
+      console.log(123)
+    },
     // detectGyro () {
     //   this.hasGyro = false
     //   window.addEventListener('devicemotion', (event) => {
@@ -1813,41 +1815,41 @@ export default {
       }
     ]
 
-    this.myFruits = []
-    this.fruitLayout = {}
-    let fnMax = 20
-    let v3FruitTemp = new Vector3()
-    for (var fi = 0; fi < fnMax; fi++) {
-      let fruitTypeInfo = typesOfFruit[Math.floor(fi % (typesOfFruit.length - 1) + 0.0 * Math.random() * typesOfFruit.length)]
-      if (!fruitTypeInfo) {
-        continue
-      }
-      let radius = 50
-      let v3 = v3FruitTemp.clone().setFromCylindricalCoords(radius, fi / fnMax * Math.PI * 2.0, 5)
+    // this.myFruits = []
+    // this.fruitLayout = {}
+    // let fnMax = 20
+    // let v3FruitTemp = new Vector3()
+    // for (var fi = 0; fi < fnMax; fi++) {
+    //   let fruitTypeInfo = typesOfFruit[Math.floor(fi % (typesOfFruit.length - 1) + 0.0 * Math.random() * typesOfFruit.length)]
+    //   if (!fruitTypeInfo) {
+    //     continue
+    //   }
+    //   let radius = 50
+    //   let v3 = v3FruitTemp.clone().setFromCylindricalCoords(radius, fi / fnMax * Math.PI * 2.0, 5)
 
-      let data = {
-        // px: (fi - (fnMax * 0.5)) * 16,
-        // py: 6.7,
-        ry: 0,
-        sx: fruitTypeInfo.scale,
-        sy: fruitTypeInfo.scale,
-        sz: fruitTypeInfo.scale,
-        px: v3.x,
-        py: v3.y,
-        pz: v3.z
-      }
-      this.lookup('base').onLoop(() => {
-        data.ry += 0.01
-      })
+    //   let data = {
+    //     // px: (fi - (fnMax * 0.5)) * 16,
+    //     // py: 6.7,
+    //     ry: 0,
+    //     sx: fruitTypeInfo.scale,
+    //     sy: fruitTypeInfo.scale,
+    //     sz: fruitTypeInfo.scale,
+    //     px: v3.x,
+    //     py: v3.y,
+    //     pz: v3.z
+    //   }
+    //   // this.lookup('base').onLoop(() => {
+    //   //   data.ry += 0.01
+    //   // })
 
-      let layout = `layout-fn-${fi}`
-      // this.myFruits.push({
-      //   type: fruitTypeInfo.type,
-      //   layout,
-      //   data
-      // })
-      this.fruitLayout[layout] = data
-    }
+    //   let layout = `layout-fn-${fi}`
+    //   this.myFruits.push({
+    //     type: fruitTypeInfo.type,
+    //     layout,
+    //     data
+    //   })
+    //   this.fruitLayout[layout] = data
+    // }
 
     this.lookup('base').onLoop(() => {
       let time = performance.now() * 0.001
