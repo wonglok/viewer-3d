@@ -8,9 +8,9 @@
       <DirectionalLight v-if="character === 'gasmask'" :intensity="3.5"></DirectionalLight>
       <HemisphereLight v-if="character === 'gasmask'" :intensity="3.5"></HemisphereLight>
 
-      <O3D v-if="charReady && isDev && !isSmallScreen" :animated="true" layout="bgGroup">
+      <!-- <O3D v-if="charReady && isDev && !isSmallScreen" :animated="true" layout="bgGroup">
         <ChromeBallBG></ChromeBallBG>
-      </O3D>
+      </O3D> -->
 
       <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
