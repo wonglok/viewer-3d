@@ -1,3 +1,5 @@
+require('requestidlecallback')
+
 export { Stats } from '~/components/Reusable/Stats.js'
 export { Renderer } from '~/components/Reusable/Renderer.js'
 export { TCamera } from '~/components/Reusable/TCamera.js'
@@ -22,6 +24,9 @@ export { ShaderCubeChromatics } from '~/components/Reusable/shaderCubeChromatics
 
 export { ChaseControls } from '~/components/Reusable/ChaseControls'
 export { CubeCam } from '~/components/Reusable/CubeCam'
+
+export const idleSleep = () => new Promise((resolve) => { window.requestIdleCallback(resolve) })
+export const rafSleep = () => new Promise((resolve) => { window.requestAnimationFrame(resolve) })
 
 export const getID = () => {
   return '_' + Math.random().toString(36).substr(2, 9)

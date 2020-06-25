@@ -26,8 +26,8 @@ import copy2clip from 'copy-to-clipboard'
 // WebGLCubeRenderTarget, CubeCamera, RGBFormat, LinearMipmapLinearFilter,
 
 require('requestidlecallback')
-let requstIdleCallback = window.requstIdleCallback || setTimeout
-let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+let requestIdleCallback = window.requestIdleCallback || setTimeout
+let idle = (t = 0) => new Promise((resolve) => { requestAnimationFrame(resolve) })
 
 let loaderTex = new TextureLoader()
 export default {

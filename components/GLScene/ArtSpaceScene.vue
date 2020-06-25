@@ -13,11 +13,11 @@
         <ChromeBallBG></ChromeBallBG>
       </O3D>
 
-      <O3D :animated="true" layout="walk" :visible="charReady">
+      <O3D :animated="true" layout="walk">
         <SwatWalk></SwatWalk>
       </O3D>
 
-      <O3D :animated="true" layout="glowball" v-if="charReady">
+      <O3D :animated="true" layout="glowball">
         <GlowBall></GlowBall>
       </O3D>
 
@@ -35,12 +35,12 @@
         <WaterBall></WaterBall>
       </O3D>
 
-      <O3D :animated="true" layout="jellyfishGroup">
-        <JellyFish v-if="shaderCube2" :shaderCube="shaderCube2"></JellyFish>
-      </O3D>
+      <!-- <O3D :animated="true" layout="jellyfishGroup">
+        <JellyFish :shaderCube="shaderCube2"></JellyFish>
+      </O3D> -->
 
       <O3D :animated="true" layout="holycross">
-        <HolyCross :visible="charReady" :shaderCube="shaderCube1"></HolyCross>
+        <HolyCross :shaderCube="shaderCube1"></HolyCross>
       </O3D>
 
       <!-- <O3D :animated="true" layout="floorLayer">
@@ -59,7 +59,7 @@
       </O3D>
       -->
 
-      <O3D :animated="true" layout="charmover" :dvisible="charReady">
+      <O3D :animated="true" layout="charmover">
         <O3D :animated="true" layout="calibration">
           <O3D :animated="true" layout="center">
             <O3D :animated="true" layout="correctAxis">
@@ -255,17 +255,14 @@
 </template>
 
 <script>
-import { makeScroller, Tree, PCamera, ShaderCubeRefraction, ShaderCube, getID, ChaseControls } from '../Reusable'
+import { makeScroller, Tree, PCamera, idleSleep, ShaderCubeRefraction, ShaderCube, getID } from '../Reusable'
 import { Cache, Scene, Color, Clock, DefaultLoadingManager, Vector3, Raycaster, Object3D, AnimationMixer, LoopOnce } from 'three'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import copy2clip from 'copy-to-clipboard'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 const TWEEN = require('@tweenjs/tween.js').default
-
-require('requestidlecallback')
-let requstIdleCallback = window.requstIdleCallback || setTimeout
-let idleSleep = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
 
 // import { Interaction } from 'three.interaction'
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -791,7 +788,7 @@ export default {
       let guyBackPos = new Vector3()
       let guyBodyPos = new Vector3()
 
-      this.controls = new ChaseControls(this.camera, this.$refs['domlayer'])
+      this.controls = new OrbitControls(this.camera, this.$refs['domlayer'])
       this.controls.enablePan = true
       this.controls.enableDamping = true
       this.controls.enableKeys = false
@@ -1692,8 +1689,8 @@ export default {
     /* Loader End */
 
     // this.shaderCubeChrome0 = new ShaderCubeChrome({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
-    this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
-    this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.shaderCube1 = new ShaderCube({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
+    // this.shaderCube2 = new ShaderCubeRefraction({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 64 })
     // this.shaderCubeChromatics = new ShaderCubeChromatics({ renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop, res: 32 })
 
     let scene = new Scene()
@@ -1844,25 +1841,25 @@ export default {
       })
 
       let layout = `layout-fn-${fi}`
-      this.myFruits.push({
-        type: fruitTypeInfo.type,
-        layout,
-        data
-      })
+      // this.myFruits.push({
+      //   type: fruitTypeInfo.type,
+      //   layout,
+      //   data
+      // })
       this.fruitLayout[layout] = data
     }
 
     this.lookup('base').onLoop(() => {
       let time = performance.now() * 0.001
       this.layouts = {
-        ...(this.fruitLayout || {}),
+        // ...(this.fruitLayout || {}),
         bgGroup: {
           sx: 150.0,
           sy: 150.0,
           sz: 150.0
         },
         fruitGroup: {
-          ry: Math.PI * 2.0 * time * 0.03,
+          // ry: Math.PI * 2.0 * time * 0.03,
           pz: 300 + -450 + 0
         },
         glowball: {
@@ -1964,7 +1961,7 @@ export default {
 .bg-transp-black{
   background-color: rgba(0,0,0,0.3);
 }
-.disable-dbl-tap-zoom {
+.touch-action-manipulation {
   touch-action: manipulation;
 }
 </style>

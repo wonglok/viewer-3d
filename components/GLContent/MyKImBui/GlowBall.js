@@ -120,8 +120,8 @@ export const makeScene = async ({ o3d, clean = () => {}, camera, loop }) => {
 
     return myText
   }
-  let requstIdleCallback = window.requstIdleCallback || setTimeout
-  let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+  let requestIdleCallback = window.requestIdleCallback || setTimeout
+  let idle = (t = 0) => new Promise((resolve) => { requestAnimationFrame(resolve) })
   let setup = async () => {
     await idle()
     let firstBall0 = makeFirstBall()

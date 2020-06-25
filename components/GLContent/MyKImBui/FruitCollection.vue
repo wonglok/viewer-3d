@@ -10,8 +10,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { Mesh, Object3D, MeshMatcapMaterial, TextureLoader, DoubleSide, PlaneBufferGeometry, MeshBasicMaterial, Vector3, Camera, FileLoader } from 'three'
 
 require('requestidlecallback')
-let requstIdleCallback = window.requstIdleCallback || setTimeout
-let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+let requestIdleCallback = window.requestIdleCallback || setTimeout
+let idle = (t = 0) => new Promise((resolve) => { requestAnimationFrame(resolve) })
 
 let loaderTex = new TextureLoader()
 export default {

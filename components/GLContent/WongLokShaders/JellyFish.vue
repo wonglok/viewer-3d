@@ -15,8 +15,8 @@ import { Mesh, Object3D, Color, MeshMatcapMaterial, TextureLoader, DoubleSide, P
 import copy2clip from 'copy-to-clipboard'
 
 require('requestidlecallback')
-let requstIdleCallback = window.requstIdleCallback || setTimeout
-let idle = (t = 0) => new Promise((resolve) => { requstIdleCallback(resolve) })
+let requestIdleCallback = window.requestIdleCallback || setTimeout
+let idle = (t = 0) => new Promise((resolve) => { requestAnimationFrame(resolve) })
 
 export default {
   name: 'JellyFish',

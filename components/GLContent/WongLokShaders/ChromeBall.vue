@@ -55,10 +55,10 @@ export default {
         },
         transparent: true,
         vertexShader: `
-          varying vec2 vUv;
+          // varying vec2 vUv;
           varying vec3 iNormal;
           void main (void) {
-            vUv = uv;
+            // vUv = uv;
             iNormal = normal;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
@@ -67,7 +67,7 @@ export default {
           #include <common>
           uniform vec2 resolution;
           uniform float time;
-          varying vec2 vUv;
+          // varying vec2 vUv;
           varying vec3 iNormal;
 
           const mat2 m = mat2( 0.80,  0.60, -0.60,  0.80 );

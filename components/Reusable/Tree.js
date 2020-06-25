@@ -227,26 +227,26 @@ export const Tree = {
       }
 
       let layout = this.getLayout()
-
+      let calc = Number || Parser.evaluate
       if (typeof layout.visible !== 'undefined') {
-        run(() => { this.o3d.visible = Parser.evaluate('' + (layout.visible), this) })
+        run(() => { this.o3d.visible = calc('' + (layout.visible), this) })
       }
 
       if (typeof this.visible !== 'undefined') {
-        run(() => { this.o3d.visible = Parser.evaluate('' + (this.visible), this) })
+        run(() => { this.o3d.visible = calc('' + (this.visible), this) })
       }
 
-      run(() => { this.o3d.rotation.x = Parser.evaluate('' + (layout.rx || '0'), this) })
-      run(() => { this.o3d.rotation.y = Parser.evaluate('' + (layout.ry || '0'), this) })
-      run(() => { this.o3d.rotation.z = Parser.evaluate('' + (layout.rz || '0'), this) })
+      run(() => { this.o3d.rotation.x = calc('' + (layout.rx || '0'), this) })
+      run(() => { this.o3d.rotation.y = calc('' + (layout.ry || '0'), this) })
+      run(() => { this.o3d.rotation.z = calc('' + (layout.rz || '0'), this) })
 
-      run(() => { this.o3d.scale.x = Parser.evaluate('' + (layout.sx || '1'), this) })
-      run(() => { this.o3d.scale.y = Parser.evaluate('' + (layout.sy || '1'), this) })
-      run(() => { this.o3d.scale.z = Parser.evaluate('' + (layout.sz || '1'), this) })
+      run(() => { this.o3d.scale.x = calc('' + (layout.sx || '1'), this) })
+      run(() => { this.o3d.scale.y = calc('' + (layout.sy || '1'), this) })
+      run(() => { this.o3d.scale.z = calc('' + (layout.sz || '1'), this) })
 
-      run(() => { this.o3d.position.x = Parser.evaluate('' + (layout.px || '0'), this) })
-      run(() => { this.o3d.position.y = Parser.evaluate('' + (layout.py || '0'), this) })
-      run(() => { this.o3d.position.z = Parser.evaluate('' + (layout.pz || '0'), this) })
+      run(() => { this.o3d.position.x = calc('' + (layout.px || '0'), this) })
+      run(() => { this.o3d.position.y = calc('' + (layout.py || '0'), this) })
+      run(() => { this.o3d.position.z = calc('' + (layout.pz || '0'), this) })
     }
   }
 }

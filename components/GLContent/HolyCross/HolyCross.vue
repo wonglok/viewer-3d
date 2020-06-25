@@ -54,7 +54,7 @@ export default {
         })
       }
 
-      let shaderCube = new ShaderCube({ res: 128, renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
+      let shaderCube = new ShaderCube({ res: 32, renderer: this.lookup('renderer'), loop: this.lookup('base').onLoop })
       // Matcap.brown = new MeshMatcapMaterial({ color: 0xbababa, side: DoubleSide, matcap: texLoader.load(require('./matcap/white.png')) })
       // Matcap.silver = new MeshMatcapMaterial({ color: 0xffffff, side: DoubleSide, matcap: texLoader.load(require('./matcap/silver.png')) })
       // Matcap.pedals = new MeshMatcapMaterial({ color: 0xffffff, side: DoubleSide, matcap: texLoader.load(require('./matcap/pink.jpg')) })
@@ -96,7 +96,7 @@ export default {
             // }
 
             if (shaderCube) {
-              console.log(shaderCube)
+              // console.log(shaderCube)
               item.material = shaderCube.out.material
             }
 
