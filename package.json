@@ -35,7 +35,7 @@
     "stats.js": "^0.17.0",
     "tailwindcss": "^1.4.6",
     "tailwindcss-gradients": "^3.0.0",
-    "three": "^0.116.1",
+    "three": "^0.137.0",
     "three-spritetext": "^1.5.1",
     "twitter-text": "^3.1.0"
   },
