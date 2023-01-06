@@ -27,7 +27,7 @@
     "load-bmfont": "^1.4.0",
     "localforage": "^1.7.4",
     "noisejs": "^2.1.0",
-    "nuxt": "^2.0.0",
+    "nuxt": "^2.15.8",
     "quad-indices": "^2.0.1",
     "raw-loader": "^4.0.1",
     "requestidlecallback": "^0.3.0",
